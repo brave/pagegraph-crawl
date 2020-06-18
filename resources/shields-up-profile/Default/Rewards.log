@@ -1,0 +1,36 @@
+[Jun 17, 2020, 11:23:40.8 PM:INFO:database_migration.cc(77)] DB: Migrated to version 1
+[Jun 17, 2020, 11:23:40.8 PM:INFO:database_migration.cc(77)] DB: Migrated to version 2
+[Jun 17, 2020, 11:23:40.8 PM:INFO:database_migration.cc(77)] DB: Migrated to version 3
+[Jun 17, 2020, 11:23:40.8 PM:INFO:database_migration.cc(77)] DB: Migrated to version 4
+[Jun 17, 2020, 11:23:40.8 PM:INFO:database_migration.cc(77)] DB: Migrated to version 5
+[Jun 17, 2020, 11:23:40.8 PM:INFO:database_migration.cc(77)] DB: Migrated to version 6
+[Jun 17, 2020, 11:23:40.8 PM:INFO:database_migration.cc(77)] DB: Migrated to version 7
+[Jun 17, 2020, 11:23:40.8 PM:INFO:database_migration.cc(77)] DB: Migrated to version 8
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 9
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 10
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 11
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 12
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 13
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 14
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 15
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 16
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 17
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 18
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 19
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 20
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 21
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 22
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 23
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 24
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 25
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 26
+[Jun 17, 2020, 11:23:40.9 PM:INFO:database_migration.cc(77)] DB: Migrated to version 27
+[Jun 17, 2020, 11:23:41.1 PM:INFO:state_migration_v1.cc(39)] No publisher state
+[Jun 17, 2020, 11:23:41.1 PM:INFO:state_migration.cc(72)] State: Migrated to version 1
+[Jun 17, 2020, 11:23:41.1 PM:INFO:state_migration_v2.cc(40)] No ledger state
+[Jun 17, 2020, 11:23:41.1 PM:INFO:state_migration.cc(72)] State: Migrated to version 2
+[Jun 17, 2020, 11:23:41.1 PM:INFO:contribution.cc(257)] Timer will start in 83
+[Jun 17, 2020, 11:23:41.1 PM:INFO:contribution.cc(257)] Timer will start in 15
+[Jun 17, 2020, 11:23:41.1 PM:INFO:promotion.cc(111)] Migrating corrupted promotions
+[Jun 17, 2020, 11:23:41.1 PM:INFO:database_contribution_info_publishers.cc(321)] Contribution ids is empty
+[Jun 17, 2020, 11:23:41.1 PM:INFO:promotion.cc(598)] Promotion is empty

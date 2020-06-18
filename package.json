@@ -2,18 +2,40 @@
   "name": "pagegraph-crawl",
   "version": "1.0.0",
   "description": "",
-  "main": "crawl.js",
+  "main": "built/crawl.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "./node_modules/standardx/bin/cmd.js src/**/*.ts src/*.ts",
+    "lint:fix": "./node_modules/standardx/bin/cmd.js --fix src/**/*.ts src/*.ts",
+    "build": "./node_modules/typescript/bin/tsc",
+    "crawl": "node ./built/run.js"
   },
   "author": "",
   "license": "MPL-2.0",
   "dependencies": {
     "@supercharge/promise-pool": "^1.2.0",
-    "am": "^1.0.2",
-    "await-sleep": "0.0.1",
+    "argparse": "^1.0.10",
     "fs-extra": "^9.0.0",
+    "node-fs-extra": "^0.8.2",
     "puppeteer-core": "^3.3.0",
+    "tmp": "^0.2.1",
+    "typescript": "^3.9.5",
     "xvfb": "^0.3.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^3.3.0",
+    "@typescript-eslint/parser": "^3.3.0",
+    "standardx": "^5.0.0"
+  },
+  "eslintConfig": {
+    "rules": {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "error"
+    }
+  },
+  "standardx": {
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint/eslint-plugin"
+    ]
   }
 }
