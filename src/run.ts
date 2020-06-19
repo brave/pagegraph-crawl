@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-'use strict'
 
-const argparseLib = require('argparse')
+import argparseLib from 'argparse'
 
-const braveValidateLib = require('./brave/validate')
+import { writeGraphsForCrawl } from './brave/crawl'
+import { validate } from './brave/validate'
 
 const parser = new argparseLib.ArgumentParser({
   version: 0.1,
@@ -44,5 +44,10 @@ parser.addArgument(['-t', '--secs'], {
 })
 
 const rawArgs = parser.parseArgs()
-const crawlArgs: CrawlArgs = braveValidateLib.validate(rawArgs)
-console.log(crawlArgs)
+const [isValid, errorOrArgs] = validate(rawArgs)
+if (!isValid) {
+  throw errorOrArgs
+}
+
+const crawlArgs = errorOrArgs as CrawlArgs
+writeGraphsForCrawl(crawlArgs)

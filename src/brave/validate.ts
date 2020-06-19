@@ -1,22 +1,5 @@
-'use strict'
-
-const fsLib = require('fs')
-const urlLib = require('url')
-
-type Url = string
-type FilePath = string
-type ErrorMsg = string
-
-interface CrawlArgs {
-  executablePath: FilePath,
-  outputPath: FilePath,
-  urls: Url[],
-  withShieldsUp: boolean,
-  verbose: boolean,
-  seconds: number,
-  existingProfilePath?: FilePath,
-  persistProfilePath?: FilePath
-}
+import * as fsLib from 'fs'
+import * as urlLib from 'url'
 
 const isUrl = (possibleUrl: string): boolean => {
   try {
@@ -35,7 +18,7 @@ const isDir = (path: string): boolean => {
   return fsLib.existsSync(path) && fsLib.lstatSync(path).isDirectory()
 }
 
-const validate = (rawArgs: any): [boolean, CrawlArgs | ErrorMsg] => {
+export const validate = (rawArgs: any): ValidationResult => {
   if (!isFile(rawArgs.binary)) {
     return [false, `invalid path to Brave binary: ${rawArgs.binary}`]
   }
@@ -84,8 +67,4 @@ const validate = (rawArgs: any): [boolean, CrawlArgs | ErrorMsg] => {
   }
 
   return [true, Object.freeze(validatedArgs)]
-}
-
-module.exports = {
-  validate
 }

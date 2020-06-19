@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-'use strict';
-const argparseLib = require('argparse');
-const braveValidateLib = require('./brave/validate');
+import argparseLib from 'argparse';
+import { writeGraphsForCrawl } from './brave/crawl';
+import { validate } from './brave/validate';
 const parser = new argparseLib.ArgumentParser({
     version: 0.1,
     addHelp: true,
@@ -29,7 +29,7 @@ parser.addArgument(['-p', '--persist-profile'], {
         'be used with "--existing-profile"'
 });
 parser.addArgument(['-s', '--shields'], {
-    help: 'Whether to measure with shields up or down. Cannot be used with ' +
+    help: 'Whether to measure with shields up or down. Ignored when using ' +
         '"--existing-profile"',
     choices: ['up', 'down'],
     default: 'down'
@@ -40,5 +40,9 @@ parser.addArgument(['-t', '--secs'], {
     defaultValue: 30
 });
 const rawArgs = parser.parseArgs();
-const crawlArgs = braveValidateLib.validate(rawArgs);
-console.log(crawlArgs);
+const [isValid, errorOrArgs] = validate(rawArgs);
+if (!isValid) {
+    throw errorOrArgs;
+}
+const crawlArgs = errorOrArgs;
+writeGraphsForCrawl(crawlArgs);

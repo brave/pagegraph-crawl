@@ -1,37 +1,66 @@
 'use strict'
 
-const puppeteerLib = require('puppeteer-core')
-const xvfbLib = require('xvfb')
+import * as fsLib from 'fs-extra'
+import * as puppeteerLib from 'puppeteer-core'
+import * as xvfbLib from 'xvfb'
 
-const bravePuppeteerLib = require('./puppeteer')
+import { getLogger } from './debug'
+import * as bravePuppeteerLib from './puppeteer'
 
-const forUrl = async (args: CrawlArgs): Promise<boolean> => {
+const isNotHTMLPageGraphError = (error: Error): boolean => {
+  return error.message.indexOf('No Page Graph for this Document') >= 0
+}
+
+export const graphForUrl = async (args: CrawlArgs, url: Url): Promise<string> => {
   const puppeteerArgs = bravePuppeteerLib.configForArgs(args)
-  const urlToCrawl = args.urls[0]
+  const logger = getLogger(args)
 
+  logger('Creating Xvfb environment')
   xvfbLib.startSync()
+
+  let pageGraphText: string
+
   try {
+    logger('Launching puppeteer with args: ', puppeteerArgs)
     const browser = await puppeteerLib.launch(puppeteerArgs)
     const page = await browser.newPage()
-    await page.goto(urlToCrawl)
-    page.waitFor(args.seconds * 1000)
 
-    const client = await page.target().createCDPSession()
+    logger(`Navigating to ${url}`)
+    await page.goto(url)
+
+    const waitTimeMs = args.seconds * 1000
+    logger(`Waiting for ${waitTimeMs}ms`)
+    page.waitFor(waitTimeMs)
+
     try {
+      logger('Requesting PageGraph data')
+      const client = await page.target().createCDPSession()
       const pageGraphRs = await client.send('Page.generatePageGraph')
-      const pageGraphText = pageGraphRs.data
+      pageGraphText = pageGraphRs.data
+      logger(`Received response of length: ${pageGraphText.length}`)
     } catch (error) {
-      if (error.message.indexOf('No Page Graph for this Document') >= 0) {
-        throw new Error(`Wrong protocol for ${urlToCrawl}`)
+      if (isNotHTMLPageGraphError(error)) {
+        const currentUrl = page.url()
+        logger(`Was not able to fetch PageGraph data for ${currentUrl}`)
+        throw new Error(`Wrong protocol for ${url}`)
       }
+
+      throw error
+    } finally {
+      logger('Closing the browser')
+      await browser.close()
     }
   } finally {
+    logger('Tearing down the Xvbf environment')
     xvfbLib.stopSync()
   }
 
-  return true
+  return pageGraphText
 }
 
-module.exports = {
-  forUrl
+export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<number> => {
+  const url: Url = args.urls[0]
+  const pageGraphText = graphForUrl(args, url)
+  await fsLib.writeFile(args.outputPath, pageGraphText)
+  return 1
 }

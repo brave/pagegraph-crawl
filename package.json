@@ -9,6 +9,7 @@
     "build": "./node_modules/typescript/bin/tsc",
     "crawl": "node ./built/run.js"
   },
+  "type": "module",
   "author": "",
   "license": "MPL-2.0",
   "dependencies": {

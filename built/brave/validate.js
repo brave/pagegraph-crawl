@@ -1,9 +1,8 @@
-'use strict';
-const fsLib = require('fs');
-const urlLib = require('url');
+import * as fsLib from 'fs';
+import * as urlLib from 'url';
 const isUrl = (possibleUrl) => {
     try {
-        (new urlLib.URL(possibleUrl));
+        (new urlLib.URL(possibleUrl)); // eslint-disable-line
         return true;
     }
     catch (_) {
@@ -16,7 +15,7 @@ const isFile = (path) => {
 const isDir = (path) => {
     return fsLib.existsSync(path) && fsLib.lstatSync(path).isDirectory();
 };
-const validate = (rawArgs) => {
+export const validate = (rawArgs) => {
     if (!isFile(rawArgs.binary)) {
         return [false, `invalid path to Brave binary: ${rawArgs.binary}`];
     }
@@ -27,7 +26,7 @@ const validate = (rawArgs) => {
     const outputPath = rawArgs.output;
     const passedUrlArgs = rawArgs.url;
     if (!passedUrlArgs.every(isUrl)) {
-        return [false, `found invalid URL: ${passedUrlArgs.join(", ")}`];
+        return [false, `found invalid URL: ${passedUrlArgs.join(', ')}`];
     }
     const urls = passedUrlArgs;
     const secs = rawArgs.secs;
@@ -36,7 +35,7 @@ const validate = (rawArgs) => {
         outputPath,
         urls,
         seconds: secs,
-        withShieldsUp: rawArgs.shields,
+        withShieldsUp: (rawArgs.shields === 'up'),
         verbose: rawArgs.verbose,
         existingProfilePath: undefined,
         persistProfilePath: undefined
@@ -47,18 +46,15 @@ const validate = (rawArgs) => {
     }
     if (rawArgs.existingProfile) {
         if (!isDir(rawArgs.existingProfile)) {
-            return [false, `Provided existing profile path is not a directory`];
+            return [false, 'Provided existing profile path is not a directory'];
         }
         validatedArgs.existingProfilePath = rawArgs.existingProfile;
     }
     if (rawArgs.persistProfilePath) {
         if (isDir(rawArgs.persistProfilePath) || isFile(rawArgs.persistProfilePath)) {
-            return [false, `File already exists at path given for persisting a profile.`];
+            return [false, 'File already exists at path given for persisting a profile.'];
         }
         validatedArgs.persistProfilePath = rawArgs.persistProfilePath;
     }
     return [true, Object.freeze(validatedArgs)];
-};
-module.exports = {
-    validate
 };

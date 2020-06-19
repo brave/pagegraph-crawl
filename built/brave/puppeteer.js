@@ -1,7 +1,6 @@
-'use strict';
-const pathLib = require('path');
-const fsExtraLib = require('fs-extra');
-const tmpLib = require('tmp');
+import * as pathLib from 'path';
+import * as fsExtraLib from 'fs-extra';
+import * as tmpLib from 'tmp';
 const profilePathForArgs = (args) => {
     // The easiest case is if we've been told to use an existing profile.
     // In this case, just return the given path.
@@ -22,7 +21,7 @@ const profilePathForArgs = (args) => {
     fsExtraLib.copySync(templateProfile, destProfilePath);
     return destProfilePath;
 };
-const configForArgs = (args) => {
+export const configForArgs = (args) => {
     const pathForProfile = profilePathForArgs(args);
     const puppeteerArgs = {
         args: [
@@ -31,7 +30,7 @@ const configForArgs = (args) => {
         ],
         executablePath: args.executablePath,
         ignoreDefaultArgs: [
-            '--disable-sync',
+            '--disable-sync'
         ],
         dumpio: args.verbose,
         headless: false
@@ -40,7 +39,4 @@ const configForArgs = (args) => {
         puppeteerArgs.args.push('--enable-logging');
         puppeteerArgs.args.push('--v=0');
     }
-};
-module.exports = {
-    configForArgs
 };

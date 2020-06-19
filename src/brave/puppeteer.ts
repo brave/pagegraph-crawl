@@ -1,9 +1,7 @@
-'use strict'
+import * as pathLib from 'path'
 
-const pathLib = require('path')
-
-const fsExtraLib = require('fs-extra')
-const tmpLib = require('tmp')
+import * as fsExtraLib from 'fs-extra'
+import * as tmpLib from 'tmp'
 
 const profilePathForArgs = (args: CrawlArgs): FilePath => {
   // The easiest case is if we've been told to use an existing profile.
@@ -29,7 +27,7 @@ const profilePathForArgs = (args: CrawlArgs): FilePath => {
   return destProfilePath
 }
 
-const configForArgs = (args: CrawlArgs): any => {
+export const configForArgs = (args: CrawlArgs): any => {
   const pathForProfile = profilePathForArgs(args)
 
   const puppeteerArgs = {
@@ -49,8 +47,4 @@ const configForArgs = (args: CrawlArgs): any => {
     puppeteerArgs.args.push('--enable-logging')
     puppeteerArgs.args.push('--v=0')
   }
-}
-
-module.exports = {
-  configForArgs
 }
