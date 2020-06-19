@@ -1,15 +1,13 @@
-# pagegraph-crawl
+pagegraph-crawl
+===
 
 Command line tool for crawling with PageGraph.  It does not include a
 PageGraph enabled build though; you'll need to bring your own or
 wait a few days until we start providing our own.
 
-If you're editing / developing please make sure things `npm run lint` cleanly,
-and `num run build` before pushing, to make sure `./built` stays in sync
-with `./src`.
-
 Usage
-##
+---
+
 ```
 usage: run.js [-h] [-v] -b BINARY -o OUTPUT -u URL [URL ...]
               [-e EXISTING_PROFILE] [-p PERSIST_PROFILE] [-s {up,down}]
@@ -41,3 +39,9 @@ Optional arguments:
   --debug {none,debug,verbose}
                         Print debugging information. Default: none.
 ```
+
+Developing
+---
+If you're editing / developing please make sure things `npm run lint` cleanly,
+and `num run build` before pushing, to make sure `./built` stays in sync
+with `./src`.
