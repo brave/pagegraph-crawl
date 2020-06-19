@@ -1,19 +1,20 @@
+declare module 'argparse'
 declare module 'fs-extra'
 declare module 'puppeteer-core'
-declare module 'xvfb'
 declare module 'tmp'
-declare module 'argparse'
+declare module 'xvfb'
 
 type Url = string
 type FilePath = string
 type ErrorMsg = string
+type DebugLevel = 'none' | 'debug' | 'verbose'
 
 interface CrawlArgs {
   executablePath: FilePath,
   outputPath: FilePath,
   urls: Url[],
   withShieldsUp: boolean,
-  verbose: boolean,
+  debugLevel: DebugLevel,
   seconds: number,
   existingProfilePath?: FilePath,
   persistProfilePath?: FilePath
@@ -23,4 +24,17 @@ type ValidationResult = [boolean, CrawlArgs | ErrorMsg]
 
 interface LoggerFunc {
   (message?: string, ...optional: any[]): void;
+}
+
+interface Logger {
+  debug: LoggerFunc,
+  verbose: LoggerFunc
+}
+
+interface TearDownEnvFunc {
+  (): void
+}
+
+interface EnvHandle {
+  close: TearDownEnvFunc
 }

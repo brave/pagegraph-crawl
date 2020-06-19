@@ -1,5 +1,8 @@
 import * as fsLib from 'fs'
+import * as pathLib from 'path'
 import * as urlLib from 'url'
+
+import { getLoggerForLevel } from './debug.js'
 
 const isUrl = (possibleUrl: string): boolean => {
   try {
@@ -15,23 +18,52 @@ const isFile = (path: string): boolean => {
 }
 
 const isDir = (path: string): boolean => {
-  return fsLib.existsSync(path) && fsLib.lstatSync(path).isDirectory()
+  if (!fsLib.existsSync(path)) {
+    return false
+  }
+
+  const pathStats = fsLib.lstatSync(path)
+  if (pathStats.isDirectory()) {
+    return true
+  }
+
+  if (pathStats.isSymbolicLink()) {
+    return isDir(pathLib.join(path, pathLib.sep))
+  }
+
+  return false
+}
+
+const looksWriteable = (path: string): boolean => {
+  const pathDir = pathLib.dirname(path)
+  if (!isDir(pathDir)) {
+    return false
+  }
+
+  if (isDir(path)) {
+    return false
+  }
+
+  return true
 }
 
 export const validate = (rawArgs: any): ValidationResult => {
+  const logger = getLoggerForLevel(rawArgs.debug)
+  logger.debug('Received arguments: ', rawArgs)
+
   if (!isFile(rawArgs.binary)) {
-    return [false, `invalid path to Brave binary: ${rawArgs.binary}`]
+    return [false, `Invalid path to Brave binary: ${rawArgs.binary}`]
   }
   const executablePath: FilePath = rawArgs.binary
 
-  if (!isDir(rawArgs.output)) {
-    return [false, `invalid path to write results to: ${rawArgs.output}`]
+  if (!looksWriteable(rawArgs.output)) {
+    return [false, `Invalid path to write results to: ${rawArgs.output}`]
   }
   const outputPath: FilePath = rawArgs.output
 
   const passedUrlArgs: string[] = rawArgs.url
   if (!passedUrlArgs.every(isUrl)) {
-    return [false, `found invalid URL: ${passedUrlArgs.join(', ')}`]
+    return [false, `Found invalid URL: ${passedUrlArgs.join(', ')}`]
   }
   const urls: Url[] = passedUrlArgs
   const secs: number = rawArgs.secs
@@ -42,29 +74,32 @@ export const validate = (rawArgs: any): ValidationResult => {
     urls,
     seconds: secs,
     withShieldsUp: (rawArgs.shields === 'up'),
-    verbose: rawArgs.verbose,
+    debugLevel: rawArgs.debug,
     existingProfilePath: undefined,
     persistProfilePath: undefined
   }
 
-  if (rawArgs.existingProfilePath && rawArgs.persistProfilePath) {
+  if (rawArgs.existing_profile && rawArgs.persist_profile) {
     return [false, 'Cannot specify both that you want to use an existing ' +
                    'profile, and that you want to persist a new profile.']
   }
 
-  if (rawArgs.existingProfile) {
-    if (!isDir(rawArgs.existingProfile)) {
-      return [false, 'Provided existing profile path is not a directory']
+  if (rawArgs.existing_profile) {
+    if (!isDir(rawArgs.existing_profile)) {
+      return [false, 'Provided existing profile path is not a directory: ' +
+                     `${rawArgs.existing_profile}.`]
     }
-    validatedArgs.existingProfilePath = rawArgs.existingProfile
+    validatedArgs.existingProfilePath = rawArgs.existing_profile
   }
 
-  if (rawArgs.persistProfilePath) {
-    if (isDir(rawArgs.persistProfilePath) || isFile(rawArgs.persistProfilePath)) {
-      return [false, 'File already exists at path given for persisting a profile.']
+  if (rawArgs.persist_profile) {
+    if (isDir(rawArgs.persist_profile) || isFile(rawArgs.persist_profile)) {
+      return [false, 'File already exists at path for persisting a ' +
+                     `profile: ${rawArgs.persist_profile}.`]
     }
-    validatedArgs.persistProfilePath = rawArgs.persistProfilePath
+    validatedArgs.persistProfilePath = rawArgs.persist_profile
   }
 
+  logger.debug('Running with settings: ', validatedArgs)
   return [true, Object.freeze(validatedArgs)]
 }

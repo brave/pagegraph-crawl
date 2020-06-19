@@ -8,58 +8,81 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import * as fsLib from 'fs-extra';
-import * as puppeteerLib from 'puppeteer-core';
-import * as xvfbLib from 'xvfb';
-import { getLogger } from './debug';
-import * as bravePuppeteerLib from './puppeteer';
+import * as osLib from 'os';
+import fsExtraLib from 'fs-extra';
+import puppeteerLib from 'puppeteer-core';
+import Xvbf from 'xvfb';
+import { getLogger } from './debug.js';
+import { puppeteerConfigForArgs } from './puppeteer.js';
+const xvfbPlatforms = new Set(['linux', 'openbsd']);
+const setupEnv = (args) => {
+    const logger = getLogger(args);
+    const platformName = osLib.platform();
+    let closeFunc;
+    if (xvfbPlatforms.has(platformName)) {
+        logger.debug(`Running on ${platformName}, starting Xvfb`);
+        const xvfbHandle = new Xvbf();
+        xvfbHandle.startSync();
+        closeFunc = () => {
+            logger.debug('Tearing down Xvfb');
+            xvfbHandle.stopSync();
+        };
+    }
+    else {
+        logger.debug(`Running on ${platformName}, Xvfb not supported`);
+        closeFunc = () => { };
+    }
+    return {
+        close: closeFunc
+    };
+};
 const isNotHTMLPageGraphError = (error) => {
     return error.message.indexOf('No Page Graph for this Document') >= 0;
 };
 export const graphForUrl = (args, url) => __awaiter(void 0, void 0, void 0, function* () {
-    const puppeteerArgs = bravePuppeteerLib.configForArgs(args);
     const logger = getLogger(args);
-    logger('Creating Xvfb environment');
-    xvfbLib.startSync();
+    const puppeteerArgs = puppeteerConfigForArgs(args);
+    const envHandle = setupEnv(args);
     let pageGraphText;
     try {
-        logger('Launching puppeteer with args: ', puppeteerArgs);
+        logger.debug('Launching puppeteer with args: ', puppeteerArgs);
         const browser = yield puppeteerLib.launch(puppeteerArgs);
         const page = yield browser.newPage();
-        logger(`Navigating to ${url}`);
+        logger.debug(`Navigating to ${url}`);
         yield page.goto(url);
         const waitTimeMs = args.seconds * 1000;
-        logger(`Waiting for ${waitTimeMs}ms`);
-        page.waitFor(waitTimeMs);
+        logger.debug(`Waiting for ${waitTimeMs}ms`);
+        yield page.waitFor(waitTimeMs);
         try {
-            logger('Requesting PageGraph data');
+            logger.debug('Requesting PageGraph data');
             const client = yield page.target().createCDPSession();
             const pageGraphRs = yield client.send('Page.generatePageGraph');
             pageGraphText = pageGraphRs.data;
-            logger(`Received response of length: ${pageGraphText.length}`);
+            logger.debug(`Received response of length: ${pageGraphText.length}`);
         }
         catch (error) {
             if (isNotHTMLPageGraphError(error)) {
                 const currentUrl = page.url();
-                logger(`Was not able to fetch PageGraph data for ${currentUrl}`);
+                logger.debug(`Was not able to fetch PageGraph data for ${currentUrl}`);
                 throw new Error(`Wrong protocol for ${url}`);
             }
             throw error;
         }
         finally {
-            logger('Closing the browser');
+            logger.debug('Closing the browser');
             yield browser.close();
         }
     }
     finally {
-        logger('Tearing down the Xvbf environment');
-        xvfbLib.stopSync();
+        envHandle.close();
     }
     return pageGraphText;
 });
 export const writeGraphsForCrawl = (args) => __awaiter(void 0, void 0, void 0, function* () {
+    const logger = getLogger(args);
     const url = args.urls[0];
-    const pageGraphText = graphForUrl(args, url);
-    yield fsLib.writeFile(args.outputPath, pageGraphText);
+    const pageGraphText = yield graphForUrl(args, url);
+    logger.debug(`Writing result to ${args.outputPath}`);
+    yield fsExtraLib.writeFile(args.outputPath, pageGraphText);
     return 1;
 });

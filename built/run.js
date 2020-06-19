@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 import argparseLib from 'argparse';
-import { writeGraphsForCrawl } from './brave/crawl';
-import { validate } from './brave/validate';
+import { writeGraphsForCrawl } from './brave/crawl.js';
+import { validate } from './brave/validate.js';
+const defaultCrawlSecs = 30;
+const defaultShieldsSetting = 'down';
+const defaultDebugSetting = 'none';
 const parser = new argparseLib.ArgumentParser({
     version: 0.1,
     addHelp: true,
@@ -16,7 +19,8 @@ parser.addArgument(['-o', '--output'], {
     required: true
 });
 parser.addArgument(['-u', '--url'], {
-    help: 'The URLs(s) to record, in desired order.',
+    help: 'The URLs(s) to record, in desired order (currently only crawls the ' +
+        'first URL)',
     required: true,
     nargs: '+'
 });
@@ -30,14 +34,18 @@ parser.addArgument(['-p', '--persist-profile'], {
 });
 parser.addArgument(['-s', '--shields'], {
     help: 'Whether to measure with shields up or down. Ignored when using ' +
-        '"--existing-profile"',
+        `"--existing-profile".  Default: ${defaultShieldsSetting}`,
     choices: ['up', 'down'],
-    default: 'down'
+    defaultValue: defaultShieldsSetting
 });
 parser.addArgument(['-t', '--secs'], {
-    help: 'The dwell time, per page, in seconds.',
+    help: `The dwell time in seconds. Defaults: ${defaultCrawlSecs} sec.`,
     type: 'int',
-    defaultValue: 30
+    defaultValue: defaultCrawlSecs
+});
+parser.addArgument(['--debug'], {
+    help: `Print debugging information. Default: ${defaultDebugSetting}.`,
+    choices: ['none', 'debug', 'verbose']
 });
 const rawArgs = parser.parseArgs();
 const [isValid, errorOrArgs] = validate(rawArgs);
