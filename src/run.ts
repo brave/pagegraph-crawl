@@ -49,7 +49,8 @@ parser.addArgument(['-t', '--secs'], {
 })
 parser.addArgument(['--debug'], {
   help: `Print debugging information. Default: ${defaultDebugSetting}.`,
-  choices: ['none', 'debug', 'verbose']
+  choices: ['none', 'debug', 'verbose'],
+  defaultValue: defaultDebugSetting
 })
 
 const rawArgs = parser.parseArgs()
