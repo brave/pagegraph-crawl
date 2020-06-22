@@ -41,7 +41,7 @@ const isNotHTMLPageGraphError = (error) => {
 };
 export const graphForUrl = (args, url) => __awaiter(void 0, void 0, void 0, function* () {
     const logger = getLogger(args);
-    const puppeteerArgs = puppeteerConfigForArgs(args);
+    const { puppeteerArgs, pathForProfile, shouldClean } = puppeteerConfigForArgs(args);
     const envHandle = setupEnv(args);
     let pageGraphText;
     try {
@@ -75,6 +75,9 @@ export const graphForUrl = (args, url) => __awaiter(void 0, void 0, void 0, func
     }
     finally {
         envHandle.close();
+        if (shouldClean) {
+            fsExtraLib.remove(pathForProfile);
+        }
     }
     return pageGraphText;
 });
