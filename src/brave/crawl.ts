@@ -41,7 +41,7 @@ const isNotHTMLPageGraphError = (error: Error): boolean => {
 
 export const graphForUrl = async (args: CrawlArgs, url: Url): Promise<string> => {
   const logger = getLogger(args)
-  const puppeteerArgs = puppeteerConfigForArgs(args)
+  const { puppeteerArgs, pathForProfile, shouldClean } = puppeteerConfigForArgs(args)
 
   const envHandle = setupEnv(args)
   let pageGraphText: string
@@ -78,6 +78,10 @@ export const graphForUrl = async (args: CrawlArgs, url: Url): Promise<string> =>
     }
   } finally {
     envHandle.close()
+
+    if (shouldClean) {
+      fsExtraLib.remove(pathForProfile)
+    }
   }
 
   return pageGraphText
