@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import * as osLib from 'os';
 import fsExtraLib from 'fs-extra';
+import pathLib from 'path';
 import puppeteerLib from 'puppeteer-core';
 import Xvbf from 'xvfb';
 import { getLogger } from './debug.js';
@@ -19,7 +20,11 @@ const setupEnv = (args) => {
     const logger = getLogger(args);
     const platformName = osLib.platform();
     let closeFunc;
-    if (xvfbPlatforms.has(platformName)) {
+    if (args.interactive) {
+        logger.debug('Interactive mode, skipping Xvfb');
+        closeFunc = () => { };
+    }
+    else if (xvfbPlatforms.has(platformName)) {
         logger.debug(`Running on ${platformName}, starting Xvfb`);
         const xvfbHandle = new Xvbf();
         xvfbHandle.startSync();
@@ -39,39 +44,93 @@ const setupEnv = (args) => {
 const isNotHTMLPageGraphError = (error) => {
     return error.message.indexOf('No Page Graph for this Document') >= 0;
 };
-export const graphForUrl = (args, url) => __awaiter(void 0, void 0, void 0, function* () {
+const isSessionClosedError = (error) => {
+    return error.message.indexOf('Session closed. Most likely the page has been closed.') >= 0;
+};
+export const writeGraphsForCrawl = (args) => __awaiter(void 0, void 0, void 0, function* () {
     const logger = getLogger(args);
+    const url = args.urls[0];
     const { puppeteerArgs, pathForProfile, shouldClean } = puppeteerConfigForArgs(args);
     const envHandle = setupEnv(args);
-    let pageGraphText;
     try {
         logger.debug('Launching puppeteer with args: ', puppeteerArgs);
         const browser = yield puppeteerLib.launch(puppeteerArgs);
-        const page = yield browser.newPage();
-        logger.debug(`Navigating to ${url}`);
-        yield page.goto(url);
-        const waitTimeMs = args.seconds * 1000;
-        logger.debug(`Waiting for ${waitTimeMs}ms`);
-        yield page.waitFor(waitTimeMs);
         try {
-            logger.debug('Requesting PageGraph data');
-            const client = yield page.target().createCDPSession();
-            const pageGraphRs = yield client.send('Page.generatePageGraph');
-            pageGraphText = pageGraphRs.data;
-            logger.debug(`Received response of length: ${pageGraphText.length}`);
-        }
-        catch (error) {
-            if (isNotHTMLPageGraphError(error)) {
-                const currentUrl = page.url();
-                logger.debug(`Was not able to fetch PageGraph data for ${currentUrl}`);
-                throw new Error(`Wrong protocol for ${url}`);
+            // turn target-crashed events (e.g., a page or remote iframe crashed) into crawl-fatal errors
+            const bcdp = yield browser.target().createCDPSession();
+            bcdp.on('Target.targetCrashed', (event) => {
+                logger.debug(`ERROR Target.targetCrashed { targetId: ${event.targetId}, status: "${event.status}", errorCode: ${event.errorCode} }`);
+                throw new Error(event.status);
+            });
+            // track frame IDs to provide sequence numbers (root frame IDs last longer than individual documents)
+            const frameCounts = Object.create(null);
+            const nextFrameSeq = (frameId) => {
+                const seqNum = frameCounts[frameId] = (frameId in frameCounts ? frameCounts[frameId] : -1) + 1;
+                return seqNum;
+            };
+            // track the creation/destruction of page targets and listen for PG data events on each new page
+            const pageMap = new Map();
+            browser.on('targetcreated', (target) => __awaiter(void 0, void 0, void 0, function* () {
+                if (target.type() === 'page') {
+                    const page = yield target.page();
+                    pageMap.set(target, page);
+                    // On PG data event, write to frame-id-tagged GraphML file in output directory
+                    const client = yield target.createCDPSession();
+                    client.on('Page.finalPageGraph', (event) => {
+                        logger.debug(`finalpageGraph { frameId: ${event.frameId}, size: ${event.data.length}}`);
+                        const seqNum = nextFrameSeq(event.frameId);
+                        const outputFilename = pathLib.join(args.outputPath, `page_graph_${event.frameId}.${seqNum}.graphml`);
+                        fsExtraLib.writeFile(outputFilename, event.data).catch((err) => {
+                            console.error('ERROR saving Page.finalPageGraph output:', err);
+                        });
+                    });
+                }
+            }));
+            browser.on('targetdestroyed', (target) => __awaiter(void 0, void 0, void 0, function* () {
+                if (target.type() === 'page') {
+                    pageMap.delete(target);
+                }
+            }));
+            // create new page, update UA if needed, navigate to target URL, and wait for idle time
+            const page = yield browser.newPage();
+            if (args.userAgent) {
+                yield page.setUserAgent(args.userAgent);
             }
-            throw error;
+            logger.debug(`Navigating to ${url}`);
+            yield page.goto(url);
+            const waitTimeMs = args.seconds * 1000;
+            logger.debug(`Waiting for ${waitTimeMs}ms`);
+            yield page.waitFor(waitTimeMs);
+            // tear down by navigating all open pages to about:blank (to force PG data flushes)
+            try {
+                yield Promise.all(Array.from(pageMap.values()).map((page /* puppeteer Page */) => page.goto('about:blank')));
+            }
+            catch (error) {
+                if (isSessionClosedError(error)) {
+                    logger.debug('WARNING: session dropped (page unexpectedly closed?)');
+                    // EAT IT and carry on
+                }
+                else if (isNotHTMLPageGraphError(error)) {
+                    logger.debug('WARNING: was not able to fetch PageGraph data from target');
+                    // EAT IT and carry on
+                }
+                else {
+                    logger.debug('ERROR flushing PageGraph data:', error);
+                    throw error;
+                }
+            }
+            yield page.close();
+        }
+        catch (err) {
+            console.error('ERROR runtime fiasco from browser/page:', err);
         }
         finally {
             logger.debug('Closing the browser');
             yield browser.close();
         }
+    }
+    catch (err) {
+        console.error('ERROR runtime fiasco from infrastructure:', err);
     }
     finally {
         envHandle.close();
@@ -79,13 +138,4 @@ export const graphForUrl = (args, url) => __awaiter(void 0, void 0, void 0, func
             fsExtraLib.remove(pathForProfile);
         }
     }
-    return pageGraphText;
-});
-export const writeGraphsForCrawl = (args) => __awaiter(void 0, void 0, void 0, function* () {
-    const logger = getLogger(args);
-    const url = args.urls[0];
-    const pageGraphText = yield graphForUrl(args, url);
-    logger.debug(`Writing result to ${args.outputPath}`);
-    yield fsExtraLib.writeFile(args.outputPath, pageGraphText);
-    return 1;
 });

@@ -19,7 +19,7 @@ parser.addArgument(['-b', '--binary'], {
   help: 'Path to the PageGraph enabled build of Brave.'
 })
 parser.addArgument(['-o', '--output'], {
-  help: 'Path to write graphs to.',
+  help: 'Path (directory) to write graphs to.',
   required: true
 })
 parser.addArgument(['-u', '--url'], {
@@ -51,6 +51,23 @@ parser.addArgument(['--debug'], {
   help: `Print debugging information. Default: ${defaultDebugSetting}.`,
   choices: ['none', 'debug', 'verbose'],
   defaultValue: defaultDebugSetting
+})
+parser.addArgument(['-i', '--interactive'], {
+  help: 'Suppress use of Xvfb to allow interaction with spawned browser instance',
+  action: 'storeTrue',
+  defaultValue: false
+})
+parser.addArgument(['-a', '--user-agent'], {
+  help: 'Override the browser\'s UserAgent string to USER_AGENT',
+  metavar: 'USER_AGENT'
+})
+parser.addArgument(['--proxy-server'], {
+  help: 'Use an HTTP/SOCKS proxy at URL for all navigations',
+  metavar: 'URL'
+})
+parser.addArgument(['-x', '--extra-args'], {
+  help: 'Pass JSON_ARRAY as extra CLI argument to the browser instance launched',
+  metavar: 'JSON_ARRAY'
 })
 
 const rawArgs = parser.parseArgs()

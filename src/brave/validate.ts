@@ -34,19 +34,6 @@ const isDir = (path: string): boolean => {
   return false
 }
 
-const looksWriteable = (path: string): boolean => {
-  const pathDir = pathLib.dirname(path)
-  if (!isDir(pathDir)) {
-    return false
-  }
-
-  if (isDir(path)) {
-    return false
-  }
-
-  return true
-}
-
 export const validate = (rawArgs: any): ValidationResult => {
   const logger = getLoggerForLevel(rawArgs.debug)
   logger.debug('Received arguments: ', rawArgs)
@@ -56,7 +43,7 @@ export const validate = (rawArgs: any): ValidationResult => {
   }
   const executablePath: FilePath = rawArgs.binary
 
-  if (!looksWriteable(rawArgs.output)) {
+  if (!isDir(rawArgs.output)) {
     return [false, `Invalid path to write results to: ${rawArgs.output}`]
   }
   const outputPath: FilePath = rawArgs.output
@@ -67,8 +54,10 @@ export const validate = (rawArgs: any): ValidationResult => {
   }
   const urls: Url[] = passedUrlArgs
   const secs: number = rawArgs.secs
+  const interactive: boolean = rawArgs.interactive
+  const userAgent: string | undefined = rawArgs.user_agent
 
-  const validatedArgs = {
+  const validatedArgs: CrawlArgs = {
     executablePath,
     outputPath,
     urls,
@@ -76,7 +65,25 @@ export const validate = (rawArgs: any): ValidationResult => {
     withShieldsUp: (rawArgs.shields === 'up'),
     debugLevel: rawArgs.debug,
     existingProfilePath: undefined,
-    persistProfilePath: undefined
+    persistProfilePath: undefined,
+    interactive,
+    userAgent
+  }
+
+  if (rawArgs.proxy_server) {
+    try {
+      validatedArgs.proxyServer = new URL(rawArgs.proxy_server)
+    } catch (err) {
+      return [false, `invalid proxy-server: ${err.toString()}`]
+    }
+  }
+
+  if (rawArgs.extra_args) {
+    try {
+      validatedArgs.extraArgs = JSON.parse(rawArgs.extra_args)
+    } catch (err) {
+      return [false, `invalid JSON array of extra-args: ${err.toString()}`]
+    }
   }
 
   if (rawArgs.existing_profile && rawArgs.persist_profile) {

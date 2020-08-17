@@ -27,16 +27,6 @@ const isDir = (path) => {
     }
     return false;
 };
-const looksWriteable = (path) => {
-    const pathDir = pathLib.dirname(path);
-    if (!isDir(pathDir)) {
-        return false;
-    }
-    if (isDir(path)) {
-        return false;
-    }
-    return true;
-};
 export const validate = (rawArgs) => {
     const logger = getLoggerForLevel(rawArgs.debug);
     logger.debug('Received arguments: ', rawArgs);
@@ -44,7 +34,7 @@ export const validate = (rawArgs) => {
         return [false, `Invalid path to Brave binary: ${rawArgs.binary}`];
     }
     const executablePath = rawArgs.binary;
-    if (!looksWriteable(rawArgs.output)) {
+    if (!isDir(rawArgs.output)) {
         return [false, `Invalid path to write results to: ${rawArgs.output}`];
     }
     const outputPath = rawArgs.output;
@@ -54,6 +44,8 @@ export const validate = (rawArgs) => {
     }
     const urls = passedUrlArgs;
     const secs = rawArgs.secs;
+    const interactive = rawArgs.interactive;
+    const userAgent = rawArgs.user_agent;
     const validatedArgs = {
         executablePath,
         outputPath,
@@ -62,8 +54,26 @@ export const validate = (rawArgs) => {
         withShieldsUp: (rawArgs.shields === 'up'),
         debugLevel: rawArgs.debug,
         existingProfilePath: undefined,
-        persistProfilePath: undefined
+        persistProfilePath: undefined,
+        interactive,
+        userAgent
     };
+    if (rawArgs.proxy_server) {
+        try {
+            validatedArgs.proxyServer = new URL(rawArgs.proxy_server);
+        }
+        catch (err) {
+            return [false, `invalid proxy-server: ${err.toString()}`];
+        }
+    }
+    if (rawArgs.extra_args) {
+        try {
+            validatedArgs.extraArgs = JSON.parse(rawArgs.extra_args);
+        }
+        catch (err) {
+            return [false, `invalid JSON array of extra-args: ${err.toString()}`];
+        }
+    }
     if (rawArgs.existing_profile && rawArgs.persist_profile) {
         return [false, 'Cannot specify both that you want to use an existing ' +
                 'profile, and that you want to persist a new profile.'];

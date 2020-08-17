@@ -1,5 +1,6 @@
 declare module 'argparse'
 declare module 'fs-extra'
+declare module 'path'
 declare module 'puppeteer-core'
 declare module 'tmp'
 declare module 'xvfb'
@@ -17,7 +18,11 @@ interface CrawlArgs {
   debugLevel: DebugLevel,
   seconds: number,
   existingProfilePath?: FilePath,
-  persistProfilePath?: FilePath
+  persistProfilePath?: FilePath,
+  interactive: boolean,
+  userAgent?: string,
+  proxyServer?: URL,
+  extraArgs?: string[]
 }
 
 type ValidationResult = [boolean, CrawlArgs | ErrorMsg]
@@ -37,4 +42,15 @@ interface TearDownEnvFunc {
 
 interface EnvHandle {
   close: TearDownEnvFunc
+}
+
+interface TargetCrashedEvent {
+  targetId: string,
+  status: string,
+  errorCode: number
+}
+
+interface FinalPageGraphEvent {
+  frameId: string,
+  data: string
 }
