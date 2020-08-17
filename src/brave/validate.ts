@@ -34,19 +34,6 @@ const isDir = (path: string): boolean => {
   return false
 }
 
-const looksWriteable = (path: string): boolean => {
-  const pathDir = pathLib.dirname(path)
-  if (!isDir(pathDir)) {
-    return false
-  }
-
-  if (isDir(path)) {
-    return false
-  }
-
-  return true
-}
-
 export const validate = (rawArgs: any): ValidationResult => {
   const logger = getLoggerForLevel(rawArgs.debug)
   logger.debug('Received arguments: ', rawArgs)
@@ -56,7 +43,7 @@ export const validate = (rawArgs: any): ValidationResult => {
   }
   const executablePath: FilePath = rawArgs.binary
 
-  if (!looksWriteable(rawArgs.output)) {
+  if (!isDir(rawArgs.output)) {
     return [false, `Invalid path to write results to: ${rawArgs.output}`]
   }
   const outputPath: FilePath = rawArgs.output

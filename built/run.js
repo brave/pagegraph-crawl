@@ -15,7 +15,7 @@ parser.addArgument(['-b', '--binary'], {
     help: 'Path to the PageGraph enabled build of Brave.'
 });
 parser.addArgument(['-o', '--output'], {
-    help: 'Path to write graphs to.',
+    help: 'Path (directory) to write graphs to.',
     required: true
 });
 parser.addArgument(['-u', '--url'], {

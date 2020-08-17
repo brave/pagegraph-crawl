@@ -27,16 +27,6 @@ const isDir = (path) => {
     }
     return false;
 };
-const looksWriteable = (path) => {
-    const pathDir = pathLib.dirname(path);
-    if (!isDir(pathDir)) {
-        return false;
-    }
-    if (isDir(path)) {
-        return false;
-    }
-    return true;
-};
 export const validate = (rawArgs) => {
     const logger = getLoggerForLevel(rawArgs.debug);
     logger.debug('Received arguments: ', rawArgs);
@@ -44,7 +34,7 @@ export const validate = (rawArgs) => {
         return [false, `Invalid path to Brave binary: ${rawArgs.binary}`];
     }
     const executablePath = rawArgs.binary;
-    if (!looksWriteable(rawArgs.output)) {
+    if (!isDir(rawArgs.output)) {
         return [false, `Invalid path to write results to: ${rawArgs.output}`];
     }
     const outputPath = rawArgs.output;
