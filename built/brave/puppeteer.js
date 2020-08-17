@@ -45,5 +45,14 @@ export const puppeteerConfigForArgs = (args) => {
         puppeteerArgs.args.push('--enable-logging');
         puppeteerArgs.args.push('--v=0');
     }
+    if (args.proxyServer) {
+        puppeteerArgs.args.push(`--proxy-server=${args.proxyServer.toString()}`);
+        if (args.proxyServer.protocol === 'socks5') {
+            puppeteerArgs.args.push(`--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE ${args.proxyServer.hostname}`);
+        }
+    }
+    if (args.extraArgs) {
+        puppeteerArgs.args.push(...args.extraArgs);
+    }
     return { puppeteerArgs, pathForProfile, shouldClean };
 };

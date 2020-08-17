@@ -17,7 +17,10 @@ const setupEnv = (args: CrawlArgs): EnvHandle => {
 
   let closeFunc
 
-  if (xvfbPlatforms.has(platformName)) {
+  if (args.interactive) {
+    logger.debug('Interactive mode, skipping Xvfb')
+    closeFunc = () => { }
+  } else if (xvfbPlatforms.has(platformName)) {
     logger.debug(`Running on ${platformName}, starting Xvfb`)
     const xvfbHandle = new Xvbf()
     xvfbHandle.startSync()
@@ -50,6 +53,10 @@ export const graphForUrl = async (args: CrawlArgs, url: Url): Promise<string> =>
     logger.debug('Launching puppeteer with args: ', puppeteerArgs)
     const browser = await puppeteerLib.launch(puppeteerArgs)
     const page = await browser.newPage()
+
+    if (args.userAgent) {
+      await page.setUserAgent(args.userAgent)
+    }
 
     logger.debug(`Navigating to ${url}`)
     await page.goto(url)

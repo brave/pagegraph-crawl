@@ -67,8 +67,10 @@ export const validate = (rawArgs: any): ValidationResult => {
   }
   const urls: Url[] = passedUrlArgs
   const secs: number = rawArgs.secs
+  const interactive: boolean = rawArgs.interactive
+  const userAgent: string | undefined = rawArgs.user_agent
 
-  const validatedArgs = {
+  const validatedArgs: CrawlArgs = {
     executablePath,
     outputPath,
     urls,
@@ -76,7 +78,25 @@ export const validate = (rawArgs: any): ValidationResult => {
     withShieldsUp: (rawArgs.shields === 'up'),
     debugLevel: rawArgs.debug,
     existingProfilePath: undefined,
-    persistProfilePath: undefined
+    persistProfilePath: undefined,
+    interactive,
+    userAgent
+  }
+
+  if (rawArgs.proxy_server) {
+    try {
+      validatedArgs.proxyServer = new URL(rawArgs.proxy_server)
+    } catch (err) {
+      return [false, `invalid proxy-server: ${err.toString()}`]
+    }
+  }
+
+  if (rawArgs.extra_args) {
+    try {
+      validatedArgs.extraArgs = JSON.parse(rawArgs.extra_args)
+    } catch (err) {
+      return [false, `invalid JSON array of extra-args: ${err.toString()}`]
+    }
   }
 
   if (rawArgs.existing_profile && rawArgs.persist_profile) {

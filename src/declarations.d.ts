@@ -17,7 +17,11 @@ interface CrawlArgs {
   debugLevel: DebugLevel,
   seconds: number,
   existingProfilePath?: FilePath,
-  persistProfilePath?: FilePath
+  persistProfilePath?: FilePath,
+  interactive: boolean,
+  userAgent?: string,
+  proxyServer?: URL,
+  extraArgs?: string[]
 }
 
 type ValidationResult = [boolean, CrawlArgs | ErrorMsg]

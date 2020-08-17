@@ -19,7 +19,11 @@ const setupEnv = (args) => {
     const logger = getLogger(args);
     const platformName = osLib.platform();
     let closeFunc;
-    if (xvfbPlatforms.has(platformName)) {
+    if (args.interactive) {
+        logger.debug('Interactive mode, skipping Xvfb');
+        closeFunc = () => { };
+    }
+    else if (xvfbPlatforms.has(platformName)) {
         logger.debug(`Running on ${platformName}, starting Xvfb`);
         const xvfbHandle = new Xvbf();
         xvfbHandle.startSync();
@@ -48,6 +52,9 @@ export const graphForUrl = (args, url) => __awaiter(void 0, void 0, void 0, func
         logger.debug('Launching puppeteer with args: ', puppeteerArgs);
         const browser = yield puppeteerLib.launch(puppeteerArgs);
         const page = yield browser.newPage();
+        if (args.userAgent) {
+            yield page.setUserAgent(args.userAgent);
+        }
         logger.debug(`Navigating to ${url}`);
         yield page.goto(url);
         const waitTimeMs = args.seconds * 1000;
