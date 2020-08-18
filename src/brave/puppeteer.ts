@@ -52,7 +52,7 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
   }
 
   if (args.debugLevel === 'verbose') {
-    puppeteerArgs.args.push('--enable-logging')
+    puppeteerArgs.args.push('--enable-logging=stderr')
     puppeteerArgs.args.push('--v=0')
   }
 

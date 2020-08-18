@@ -42,7 +42,7 @@ export const puppeteerConfigForArgs = (args) => {
         headless: false
     };
     if (args.debugLevel === 'verbose') {
-        puppeteerArgs.args.push('--enable-logging');
+        puppeteerArgs.args.push('--enable-logging=stderr');
         puppeteerArgs.args.push('--v=0');
     }
     if (args.proxyServer) {
