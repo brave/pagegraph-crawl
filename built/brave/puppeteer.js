@@ -38,7 +38,7 @@ export const puppeteerConfigForArgs = (args) => {
         ignoreDefaultArgs: [
             '--disable-sync'
         ],
-        dumpio: args.debugLevel === 'verbose',
+        dumpio: args.debugLevel !== 'none',
         headless: false
     };
     if (args.debugLevel === 'verbose') {

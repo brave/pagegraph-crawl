@@ -74,6 +74,9 @@ export const writeGraphsForCrawl = (args) => __awaiter(void 0, void 0, void 0, f
                 if (target.type() === 'page') {
                     const page = yield target.page();
                     pageMap.set(target, page);
+                    page.on('error', (err) => {
+                        throw err;
+                    });
                     // On PG data event, write to frame-id-tagged GraphML file in output directory
                     const client = yield target.createCDPSession();
                     client.on('Page.finalPageGraph', (event) => {

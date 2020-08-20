@@ -79,6 +79,9 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
         if (target.type() === 'page') {
           const page = await target.page()
           pageMap.set(target, page)
+          page.on('error', (err: Error) => {
+            throw err
+          })
 
           // On PG data event, write to frame-id-tagged GraphML file in output directory
           const client = await target.createCDPSession()

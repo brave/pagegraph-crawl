@@ -47,7 +47,7 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
     ignoreDefaultArgs: [
       '--disable-sync'
     ],
-    dumpio: args.debugLevel === 'verbose',
+    dumpio: args.debugLevel !== 'none',
     headless: false
   }
 
