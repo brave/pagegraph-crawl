@@ -23,7 +23,10 @@ const setupEnv = (args: CrawlArgs): EnvHandle => {
     closeFunc = () => { }
   } else if (xvfbPlatforms.has(platformName)) {
     logger.debug(`Running on ${platformName}, starting Xvfb`)
-    const xvfbHandle = new Xvbf()
+    const xvfbHandle = new Xvbf({
+      // ensure 24-bit color depth or rendering might choke
+      xvfb_args: ["-screen", "0", "1024x768x24"]
+    })
     xvfbHandle.startSync()
     closeFunc = () => {
       logger.debug('Tearing down Xvfb')
