@@ -25,7 +25,7 @@ const setupEnv = (args: CrawlArgs): EnvHandle => {
     logger.debug(`Running on ${platformName}, starting Xvfb`)
     const xvfbHandle = new Xvbf({
       // ensure 24-bit color depth or rendering might choke
-      xvfb_args: ["-screen", "0", "1024x768x24"]
+      xvfb_args: ['-screen', '0', '1024x768x24']
     })
     xvfbHandle.startSync()
     closeFunc = () => {
@@ -89,11 +89,11 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
           // On PG data event, write to frame-id-tagged GraphML file in output directory
           const client = await target.createCDPSession()
           client.on('Page.finalPageGraph', (event: FinalPageGraphEvent) => {
-            logger.debug(`finalpageGraph { frameId: ${event.frameId}, size: ${event.data.length}}`)
+            logger.verbose(`finalpageGraph { frameId: ${event.frameId}, size: ${event.data.length}}`)
             const seqNum = nextFrameSeq(event.frameId)
             const outputFilename = pathLib.join(args.outputPath, `page_graph_${event.frameId}.${seqNum}.graphml`)
             fsExtraLib.writeFile(outputFilename, event.data).catch((err: Error) => {
-              console.error('ERROR saving Page.finalPageGraph output:', err)
+              logger.debug('ERROR saving Page.finalPageGraph output:', err)
             })
           })
         }
@@ -112,7 +112,7 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
       }
 
       logger.debug(`Navigating to ${url}`)
-      await page.goto(url)
+      await page.goto(url, { waitUntil: 'domcontentloaded' })
 
       const waitTimeMs = args.seconds * 1000
       logger.debug(`Waiting for ${waitTimeMs}ms`)
@@ -135,13 +135,13 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
       }
       await page.close()
     } catch (err) {
-      console.error('ERROR runtime fiasco from browser/page:', err)
+      logger.debug('ERROR runtime fiasco from browser/page:', err)
     } finally {
       logger.debug('Closing the browser')
       await browser.close()
     }
   } catch (err) {
-    console.error('ERROR runtime fiasco from infrastructure:', err)
+    logger.debug('ERROR runtime fiasco from infrastructure:', err)
   } finally {
     envHandle.close()
 
