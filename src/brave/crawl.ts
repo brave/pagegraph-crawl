@@ -4,11 +4,10 @@ import * as osLib from 'os'
 
 import fsExtraLib from 'fs-extra'
 import pathLib from 'path'
-import puppeteerLib from 'puppeteer-core'
 import Xvbf from 'xvfb'
 
 import { getLogger } from './debug.js'
-import { puppeteerConfigForArgs } from './puppeteer.js'
+import { puppeteerConfigForArgs, launchWithRetry } from './puppeteer.js'
 
 const xvfbPlatforms = new Set(['linux', 'openbsd'])
 
@@ -60,7 +59,7 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
 
   try {
     logger.debug('Launching puppeteer with args: ', puppeteerArgs)
-    const browser = await puppeteerLib.launch(puppeteerArgs)
+    const browser = await launchWithRetry(puppeteerArgs, logger)
     try {
       // turn target-crashed events (e.g., a page or remote iframe crashed) into crawl-fatal errors
       const bcdp = await browser.target().createCDPSession()

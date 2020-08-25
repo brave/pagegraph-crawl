@@ -2,6 +2,7 @@ import * as pathLib from 'path'
 
 import fsExtraLib from 'fs-extra'
 import tmpLib from 'tmp'
+import puppeteerLib from 'puppeteer-core'
 
 import { getLogger } from './debug.js'
 
@@ -68,4 +69,33 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
   }
 
   return { puppeteerArgs, pathForProfile, shouldClean }
+}
+
+const asyncSleep = (millis: number): Promise<void> => {
+  return new Promise(resolve => setTimeout(resolve, millis))
+}
+
+export const launchWithRetry = async (puppeteerArgs: any, logger: Logger, options?: LaunchRetryOptions): Promise<any> /* puppeteer Browser */ => {
+  // default to 3 retries with a base-2 exponential-backoff delay between each retry (1s, 2s, 4s, ...)
+  const {
+    retries = 3,
+    computeTimeout = (tryIndex: number) => Math.pow(2, tryIndex - 1) * 1000
+  } = options || {}
+
+  try {
+    return await puppeteerLib.launch(puppeteerArgs)
+  } catch (err) {
+    logger.debug(`Failed to launch browser (${err}): ${retries} left...`)
+  }
+
+  for (let i = 1; i <= retries; ++i) {
+    await asyncSleep(computeTimeout(i))
+    try {
+      return await puppeteerLib.launch(puppeteerArgs)
+    } catch (err) {
+      logger.debug(`Failed to launch browser (${err}): ${retries - i} left...`)
+    }
+  }
+
+  throw new Error(`Unable to launch browser after ${retries} retries!`)
 }

@@ -44,6 +44,11 @@ interface EnvHandle {
   close: TearDownEnvFunc
 }
 
+interface LaunchRetryOptions {
+  retries?: number,
+  computeTimeout?: (tryCount: number) => number,
+}
+
 interface TargetCrashedEvent {
   targetId: string,
   status: string,

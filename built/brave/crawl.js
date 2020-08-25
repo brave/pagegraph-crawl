@@ -11,10 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import * as osLib from 'os';
 import fsExtraLib from 'fs-extra';
 import pathLib from 'path';
-import puppeteerLib from 'puppeteer-core';
 import Xvbf from 'xvfb';
 import { getLogger } from './debug.js';
-import { puppeteerConfigForArgs } from './puppeteer.js';
+import { puppeteerConfigForArgs, launchWithRetry } from './puppeteer.js';
 const xvfbPlatforms = new Set(['linux', 'openbsd']);
 const setupEnv = (args) => {
     const logger = getLogger(args);
@@ -57,7 +56,7 @@ export const writeGraphsForCrawl = (args) => __awaiter(void 0, void 0, void 0, f
     const envHandle = setupEnv(args);
     try {
         logger.debug('Launching puppeteer with args: ', puppeteerArgs);
-        const browser = yield puppeteerLib.launch(puppeteerArgs);
+        const browser = yield launchWithRetry(puppeteerArgs, logger);
         try {
             // turn target-crashed events (e.g., a page or remote iframe crashed) into crawl-fatal errors
             const bcdp = yield browser.target().createCDPSession();
