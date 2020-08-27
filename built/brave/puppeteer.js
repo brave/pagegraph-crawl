@@ -1,6 +1,16 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import * as pathLib from 'path';
 import fsExtraLib from 'fs-extra';
 import tmpLib from 'tmp';
+import puppeteerLib from 'puppeteer-core';
 import { getLogger } from './debug.js';
 const profilePathForArgs = (args) => {
     const logger = getLogger(args);
@@ -38,11 +48,11 @@ export const puppeteerConfigForArgs = (args) => {
         ignoreDefaultArgs: [
             '--disable-sync'
         ],
-        dumpio: args.debugLevel === 'verbose',
+        dumpio: args.debugLevel !== 'none',
         headless: false
     };
     if (args.debugLevel === 'verbose') {
-        puppeteerArgs.args.push('--enable-logging');
+        puppeteerArgs.args.push('--enable-logging=stderr');
         puppeteerArgs.args.push('--v=0');
     }
     if (args.proxyServer) {
@@ -56,3 +66,26 @@ export const puppeteerConfigForArgs = (args) => {
     }
     return { puppeteerArgs, pathForProfile, shouldClean };
 };
+const asyncSleep = (millis) => {
+    return new Promise(resolve => setTimeout(resolve, millis));
+};
+export const launchWithRetry = (puppeteerArgs, logger, options) => __awaiter(void 0, void 0, void 0, function* () {
+    // default to 3 retries with a base-2 exponential-backoff delay between each retry (1s, 2s, 4s, ...)
+    const { retries = 3, computeTimeout = (tryIndex) => Math.pow(2, tryIndex - 1) * 1000 } = options || {};
+    try {
+        return yield puppeteerLib.launch(puppeteerArgs);
+    }
+    catch (err) {
+        logger.debug(`Failed to launch browser (${err}): ${retries} left...`);
+    }
+    for (let i = 1; i <= retries; ++i) {
+        yield asyncSleep(computeTimeout(i));
+        try {
+            return yield puppeteerLib.launch(puppeteerArgs);
+        }
+        catch (err) {
+            logger.debug(`Failed to launch browser (${err}): ${retries - i} left...`);
+        }
+    }
+    throw new Error(`Unable to launch browser after ${retries} retries!`);
+});

@@ -4,11 +4,10 @@ import * as osLib from 'os'
 
 import fsExtraLib from 'fs-extra'
 import pathLib from 'path'
-import puppeteerLib from 'puppeteer-core'
 import Xvbf from 'xvfb'
 
 import { getLogger } from './debug.js'
-import { puppeteerConfigForArgs } from './puppeteer.js'
+import { puppeteerConfigForArgs, launchWithRetry } from './puppeteer.js'
 
 const xvfbPlatforms = new Set(['linux', 'openbsd'])
 
@@ -23,7 +22,10 @@ const setupEnv = (args: CrawlArgs): EnvHandle => {
     closeFunc = () => { }
   } else if (xvfbPlatforms.has(platformName)) {
     logger.debug(`Running on ${platformName}, starting Xvfb`)
-    const xvfbHandle = new Xvbf()
+    const xvfbHandle = new Xvbf({
+      // ensure 24-bit color depth or rendering might choke
+      xvfb_args: ['-screen', '0', '1024x768x24']
+    })
     xvfbHandle.startSync()
     closeFunc = () => {
       logger.debug('Tearing down Xvfb')
@@ -57,7 +59,7 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
 
   try {
     logger.debug('Launching puppeteer with args: ', puppeteerArgs)
-    const browser = await puppeteerLib.launch(puppeteerArgs)
+    const browser = await launchWithRetry(puppeteerArgs, logger)
     try {
       // turn target-crashed events (e.g., a page or remote iframe crashed) into crawl-fatal errors
       const bcdp = await browser.target().createCDPSession()
@@ -79,15 +81,18 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
         if (target.type() === 'page') {
           const page = await target.page()
           pageMap.set(target, page)
+          page.on('error', (err: Error) => {
+            throw err
+          })
 
           // On PG data event, write to frame-id-tagged GraphML file in output directory
           const client = await target.createCDPSession()
           client.on('Page.finalPageGraph', (event: FinalPageGraphEvent) => {
-            logger.debug(`finalpageGraph { frameId: ${event.frameId}, size: ${event.data.length}}`)
+            logger.verbose(`finalpageGraph { frameId: ${event.frameId}, size: ${event.data.length}}`)
             const seqNum = nextFrameSeq(event.frameId)
             const outputFilename = pathLib.join(args.outputPath, `page_graph_${event.frameId}.${seqNum}.graphml`)
             fsExtraLib.writeFile(outputFilename, event.data).catch((err: Error) => {
-              console.error('ERROR saving Page.finalPageGraph output:', err)
+              logger.debug('ERROR saving Page.finalPageGraph output:', err)
             })
           })
         }
@@ -106,7 +111,7 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
       }
 
       logger.debug(`Navigating to ${url}`)
-      await page.goto(url)
+      await page.goto(url, { waitUntil: 'domcontentloaded' })
 
       const waitTimeMs = args.seconds * 1000
       logger.debug(`Waiting for ${waitTimeMs}ms`)
@@ -129,13 +134,13 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
       }
       await page.close()
     } catch (err) {
-      console.error('ERROR runtime fiasco from browser/page:', err)
+      logger.debug('ERROR runtime fiasco from browser/page:', err)
     } finally {
       logger.debug('Closing the browser')
       await browser.close()
     }
   } catch (err) {
-    console.error('ERROR runtime fiasco from infrastructure:', err)
+    logger.debug('ERROR runtime fiasco from infrastructure:', err)
   } finally {
     envHandle.close()
 
