@@ -15,6 +15,7 @@ interface CrawlArgs {
   outputPath: FilePath,
   urls: Url[],
   withShieldsUp: boolean,
+  headless: boolean,
   debugLevel: DebugLevel,
   seconds: number,
   existingProfilePath?: FilePath,

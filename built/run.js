@@ -5,6 +5,7 @@ import { validate } from './brave/validate.js';
 const defaultCrawlSecs = 30;
 const defaultShieldsSetting = 'down';
 const defaultDebugSetting = 'none';
+const defaultHeadlessMode = false;
 const parser = new argparseLib.ArgumentParser({
     version: 0.1,
     addHelp: true,
@@ -37,6 +38,11 @@ parser.addArgument(['-s', '--shields'], {
         `"--existing-profile".  Default: ${defaultShieldsSetting}`,
     choices: ['up', 'down'],
     defaultValue: defaultShieldsSetting
+});
+parser.addArgument(['--headless'], {
+    help: `Run pagegraph-crawl in headless mode.  Default: ${defaultHeadlessMode}.`,
+    action: 'storeTrue',
+    defaultValue: defaultHeadlessMode
 });
 parser.addArgument(['-t', '--secs'], {
     help: `The dwell time in seconds. Defaults: ${defaultCrawlSecs} sec.`,

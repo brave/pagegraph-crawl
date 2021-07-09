@@ -49,7 +49,7 @@ export const puppeteerConfigForArgs = (args) => {
             '--disable-sync'
         ],
         dumpio: args.debugLevel !== 'none',
-        headless: false
+        headless: args.headless
     };
     if (args.debugLevel === 'verbose') {
         puppeteerArgs.args.push('--enable-logging=stderr');

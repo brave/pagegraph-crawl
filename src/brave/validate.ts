@@ -63,6 +63,7 @@ export const validate = (rawArgs: any): ValidationResult => {
     urls,
     seconds: secs,
     withShieldsUp: (rawArgs.shields === 'up'),
+    headless: rawArgs.headless,
     debugLevel: rawArgs.debug,
     existingProfilePath: undefined,
     persistProfilePath: undefined,
