@@ -43,7 +43,7 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
     args: [
       '--disable-brave-update',
       '--user-data-dir=' + pathForProfile,
-      '--js-flags="--no-compilation-cache"'
+      '--js-flags=--no-compilation-cache'
     ],
     executablePath: args.executablePath,
     ignoreDefaultArgs: [
