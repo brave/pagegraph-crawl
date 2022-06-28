@@ -38,12 +38,14 @@ const profilePathForArgs = (args) => {
 };
 export const puppeteerConfigForArgs = (args) => {
     const { path: pathForProfile, shouldClean } = profilePathForArgs(args);
+    process.env['PAGEGRAPH_OUT_DIR'] = args.outputPath;
     const puppeteerArgs = {
         defaultViewport: null,
         args: [
             '--disable-brave-update',
             '--user-data-dir=' + pathForProfile,
-            '--js-flags=--no-compilation-cache'
+            '--js-flags=--no-compilation-cache',
+            '--no-sandbox'
         ],
         executablePath: args.executablePath,
         ignoreDefaultArgs: [
