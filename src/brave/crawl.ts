@@ -53,15 +53,13 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
     logger.debug('Launching puppeteer with args: ', puppeteerArgs)
     const browser = await launchWithRetry(puppeteerArgs, logger)
     try {
-      // turn target-crashed events (e.g., a page or remote iframe crashed) into crawl-fatal errors
-      const bcdp = await browser.target().createCDPSession()
-      bcdp.on('Target.targetCrashed', (event: TargetCrashedEvent) => {
+      // create new page, update UA if needed, navigate to target URL, and wait for idle time
+      const page = await browser.newPage()
+      const client = await page.target().createCDPSession()
+      client.on('Target.targetCrashed', (event: TargetCrashedEvent) => {
         logger.debug(`ERROR Target.targetCrashed { targetId: ${event.targetId}, status: "${event.status}", errorCode: ${event.errorCode} }`)
         throw new Error(event.status)
       })
-
-      // create new page, update UA if needed, navigate to target URL, and wait for idle time
-      const page = await browser.newPage()
 
       if (args.userAgent) {
         await page.setUserAgent(args.userAgent)
@@ -74,7 +72,6 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
       logger.debug(`Waiting for ${waitTimeMs}ms`)
       await page.waitFor(waitTimeMs)
 
-      const client = await page.target().createCDPSession()
       logger.debug(`calling generatePageGraph`)
       const response = await client.send('Page.generatePageGraph')
       logger.debug(`generatePageGraph { size: ${response.data.length} }`)
