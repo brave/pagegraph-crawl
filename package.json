@@ -4,10 +4,10 @@
   "description": "",
   "main": "built/crawl.js",
   "scripts": {
-    "lint": "./node_modules/standardx/bin/cmd.js src/**/*.ts src/*.ts",
-    "lint:fix": "./node_modules/standardx/bin/cmd.js --fix src/**/*.ts src/*.ts",
-    "build": "./node_modules/typescript/bin/tsc && chmod +x ./built/run.js",
-    "crawl": "./built/run.js"
+    "lint": "node ./node_modules/standardx/bin/cmd.js src/**/*.ts src/*.ts",
+    "lint:fix": "node ./node_modules/standardx/bin/cmd.js --fix src/**/*.ts src/*.ts",
+    "build": "node ./node_modules/typescript/bin/tsc",
+    "crawl": "node ./built/run.js"
   },
   "type": "module",
   "author": "",

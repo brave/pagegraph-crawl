@@ -41,14 +41,6 @@ const setupEnv = (args: CrawlArgs): EnvHandle => {
   }
 }
 
-const isNotHTMLPageGraphError = (error: Error): boolean => {
-  return error.message.indexOf('No Page Graph for this Document') >= 0
-}
-
-const isSessionClosedError = (error: Error): boolean => {
-  return error.message.indexOf('Session closed. Most likely the page has been closed.') >= 0
-}
-
 export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
   const logger = getLogger(args)
   const url: Url = args.urls[0]
@@ -61,50 +53,13 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
     logger.debug('Launching puppeteer with args: ', puppeteerArgs)
     const browser = await launchWithRetry(puppeteerArgs, logger)
     try {
-      // turn target-crashed events (e.g., a page or remote iframe crashed) into crawl-fatal errors
-      const bcdp = await browser.target().createCDPSession()
-      bcdp.on('Target.targetCrashed', (event: TargetCrashedEvent) => {
+      // create new page, update UA if needed, navigate to target URL, and wait for idle time
+      const page = await browser.newPage()
+      const client = await page.target().createCDPSession()
+      client.on('Target.targetCrashed', (event: TargetCrashedEvent) => {
         logger.debug(`ERROR Target.targetCrashed { targetId: ${event.targetId}, status: "${event.status}", errorCode: ${event.errorCode} }`)
         throw new Error(event.status)
       })
-
-      // track frame IDs to provide sequence numbers (root frame IDs last longer than individual documents)
-      const frameCounts = Object.create(null)
-      const nextFrameSeq = (frameId: string) => {
-        const seqNum = frameCounts[frameId] = (frameId in frameCounts ? frameCounts[frameId] : -1) + 1
-        return seqNum
-      }
-
-      // track the creation/destruction of page targets and listen for PG data events on each new page
-      const pageMap = new Map()
-      browser.on('targetcreated', async (target: any) => {
-        if (target.type() === 'page') {
-          const page = await target.page()
-          pageMap.set(target, page)
-          page.on('error', (err: Error) => {
-            throw err
-          })
-
-          // On PG data event, write to frame-id-tagged GraphML file in output directory
-          const client = await target.createCDPSession()
-          client.on('Page.finalPageGraph', (event: FinalPageGraphEvent) => {
-            logger.verbose(`finalpageGraph { frameId: ${event.frameId}, size: ${event.data.length}}`)
-            const seqNum = nextFrameSeq(event.frameId)
-            const outputFilename = pathLib.join(args.outputPath, `page_graph_${event.frameId}.${seqNum}.graphml`)
-            fsExtraLib.writeFile(outputFilename, event.data).catch((err: Error) => {
-              logger.debug('ERROR saving Page.finalPageGraph output:', err)
-            })
-          })
-        }
-      })
-      browser.on('targetdestroyed', async (target: any) => {
-        if (target.type() === 'page') {
-          pageMap.delete(target)
-        }
-      })
-
-      // create new page, update UA if needed, navigate to target URL, and wait for idle time
-      const page = await browser.newPage()
 
       if (args.userAgent) {
         await page.setUserAgent(args.userAgent)
@@ -117,21 +72,20 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
       logger.debug(`Waiting for ${waitTimeMs}ms`)
       await page.waitFor(waitTimeMs)
 
-      // tear down by navigating all open pages to about:blank (to force PG data flushes)
-      try {
-        await Promise.all(Array.from(pageMap.values()).map((page: any /* puppeteer Page */) => page.goto('about:blank')))
-      } catch (error) {
-        if (isSessionClosedError(error)) {
-          logger.debug('WARNING: session dropped (page unexpectedly closed?)')
-        // EAT IT and carry on
-        } else if (isNotHTMLPageGraphError(error)) {
-          logger.debug('WARNING: was not able to fetch PageGraph data from target')
-        // EAT IT and carry on
-        } else {
-          logger.debug('ERROR flushing PageGraph data:', error)
-          throw error
-        }
-      }
+      logger.debug(`calling generatePageGraph`)
+      const response = await client.send('Page.generatePageGraph')
+      logger.debug(`generatePageGraph { size: ${response.data.length} }`)
+      const outputFilename = pathLib.join(
+        args.outputPath,
+        `page_graph_${url.replace(/[^\w]/g, "_")}_${Math.floor(
+          Date.now() / 1000
+        )}.graphml`
+      );
+      fsExtraLib.writeFile(outputFilename, response.data).catch((err: Error) => {
+        logger.debug('ERROR saving Page.generatePageGraph output:', err)
+      })
+
+      logger.debug(`Closing page`)
       await page.close()
     } catch (err) {
       logger.debug('ERROR runtime fiasco from browser/page:', err)

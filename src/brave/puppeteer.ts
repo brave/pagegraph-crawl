@@ -46,8 +46,8 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
     args: [
       '--disable-brave-update',
       '--user-data-dir=' + pathForProfile,
-      '--js-flags=--no-compilation-cache',
-      '--no-sandbox'
+      '--disable-site-isolation-trials',
+      '--enable-features=PageGraph',
     ],
     executablePath: args.executablePath,
     ignoreDefaultArgs: [
@@ -57,9 +57,12 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
     headless: false
   }
 
-  if (args.debugLevel === 'verbose') {
+  if (args.debugLevel === 'debug') {
     puppeteerArgs.args.push('--enable-logging=stderr')
-    puppeteerArgs.args.push('--v=0')
+    puppeteerArgs.args.push('--vmodule=page_graph*=1')
+  } else if (args.debugLevel === 'verbose') {
+    puppeteerArgs.args.push('--enable-logging=stderr')
+    puppeteerArgs.args.push('--vmodule=page_graph*=2')
   }
 
   if (args.proxyServer) {
