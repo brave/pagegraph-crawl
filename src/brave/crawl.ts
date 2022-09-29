@@ -72,20 +72,20 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
       logger.debug(`Waiting for ${waitTimeMs}ms`)
       await page.waitFor(waitTimeMs)
 
-      logger.debug(`calling generatePageGraph`)
+      logger.debug('calling generatePageGraph')
       const response = await client.send('Page.generatePageGraph')
       logger.debug(`generatePageGraph { size: ${response.data.length} }`)
       const outputFilename = pathLib.join(
         args.outputPath,
-        `page_graph_${url.replace(/[^\w]/g, "_")}_${Math.floor(
+        `page_graph_${url.replace(/[^\w]/g, '_')}_${Math.floor(
           Date.now() / 1000
         )}.graphml`
-      );
+      )
       fsExtraLib.writeFile(outputFilename, response.data).catch((err: Error) => {
         logger.debug('ERROR saving Page.generatePageGraph output:', err)
       })
 
-      logger.debug(`Closing page`)
+      logger.debug('Closing page')
       await page.close()
     } catch (err) {
       logger.debug('ERROR runtime fiasco from browser/page:', err)

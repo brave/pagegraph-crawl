@@ -39,7 +39,7 @@ const profilePathForArgs = (args: CrawlArgs): { path: FilePath, shouldClean: boo
 export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
   const { path: pathForProfile, shouldClean } = profilePathForArgs(args)
 
-  process.env['PAGEGRAPH_OUT_DIR'] = args.outputPath
+  process.env.PAGEGRAPH_OUT_DIR = args.outputPath
 
   const puppeteerArgs = {
     defaultViewport: null,
@@ -47,7 +47,7 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
       '--disable-brave-update',
       '--user-data-dir=' + pathForProfile,
       '--disable-site-isolation-trials',
-      '--enable-features=PageGraph',
+      '--enable-features=PageGraph'
     ],
     executablePath: args.executablePath,
     ignoreDefaultArgs: [
