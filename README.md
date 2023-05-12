@@ -2,8 +2,8 @@ pagegraph-crawl
 ===
 
 Command line tool for crawling with PageGraph.  It does not include a
-PageGraph enabled build though; you'll need to bring your own or
-wait a few days until we start providing our own.
+PageGraph enabled build though; you can point it at the latest Nightly
+version of Brave.
 
 Usage
 ---
@@ -20,7 +20,7 @@ Optional arguments:
   -h, --help            Show this help message and exit.
   -v, --version         Show program's version number and exit.
   -b BINARY, --binary BINARY
-                        Path to the PageGraph enabled build of Brave.
+                        Path to the PageGraph-enabled build of Brave.
   -o OUTPUT, --output OUTPUT
                         Path to write graphs to.
   -u URL [URL ...], --url URL [URL ...]
@@ -39,9 +39,3 @@ Optional arguments:
   --debug {none,debug,verbose}
                         Print debugging information. Default: none.
 ```
-
-Developing
----
-If you're editing / developing please make sure things `npm run lint` cleanly,
-and `num run build` before pushing, to make sure `./built` stays in sync
-with `./src`.
