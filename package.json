@@ -1,12 +1,13 @@
 {
   "name": "pagegraph-crawl",
   "version": "1.0.0",
-  "description": "",
+  "description": "CLI for crawling with PageGraph.",
   "main": "built/crawl.js",
   "scripts": {
-    "lint": "node ./node_modules/standardx/bin/cmd.js src/**/*.ts src/*.ts",
-    "lint:fix": "node ./node_modules/standardx/bin/cmd.js --fix src/**/*.ts src/*.ts",
-    "build": "node ./node_modules/typescript/bin/tsc",
+    "lint": "standardx src/**/*.ts src/*.ts",
+    "lint:fix": "standardx --fix src/**/*.ts src/*.ts",
+    "build": "tsc",
+    "postinstall": "npm run build",
     "crawl": "node ./built/run.js"
   },
   "type": "module",
