@@ -20,7 +20,7 @@
     "node-fs-extra": "^0.8.2",
     "puppeteer-core": "^3.3.0",
     "tmp": "^0.2.1",
-    "typescript": "^3.9.5",
+    "typescript": "^5.0.4",
     "xvfb": "^0.3.0"
   },
   "devDependencies": {
