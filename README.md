@@ -9,9 +9,15 @@ Usage
 ---
 
 ```
-usage: run.js [-h] [-v] -b BINARY -o OUTPUT -u URL [URL ...]
-              [-e EXISTING_PROFILE] [-p PERSIST_PROFILE] [-s {up,down}]
-              [-t SECS] [--debug {none,debug,verbose}]
+$ npm run crawl -- -h
+
+> pagegraph-crawl@1.0.0 crawl
+> node ./built/run.js
+
+usage: run.js [-h] [-v] -b BINARY [-r RECURSIVE_DEPTH] -o OUTPUT -u URL
+              [URL ...] [-e EXISTING_PROFILE] [-p PERSIST_PROFILE]
+              [-s {up,down}] [-t SECS] [--debug {none,debug,verbose}] [-i]
+              [-a USER_AGENT] [--proxy-server URL] [-x JSON_ARRAY]
 
 
 CLI tool for crawling and recording websites with PageGraph
@@ -20,9 +26,13 @@ Optional arguments:
   -h, --help            Show this help message and exit.
   -v, --version         Show program's version number and exit.
   -b BINARY, --binary BINARY
-                        Path to the PageGraph-enabled build of Brave.
+                        Path to the PageGraph enabled build of Brave.
+  -r RECURSIVE_DEPTH, --recursive-depth RECURSIVE_DEPTH
+                        If provided, choose a link at random on page and do
+                        another crawl to this depth. Default: 1 (no
+                        recursion).
   -o OUTPUT, --output OUTPUT
-                        Path to write graphs to.
+                        Path (directory) to write graphs to.
   -u URL [URL ...], --url URL [URL ...]
                         The URLs(s) to record, in desired order (currently
                         only crawls the first URL)
@@ -38,4 +48,12 @@ Optional arguments:
   -t SECS, --secs SECS  The dwell time in seconds. Defaults: 30 sec.
   --debug {none,debug,verbose}
                         Print debugging information. Default: none.
+  -i, --interactive     Suppress use of Xvfb to allow interaction with
+                        spawned browser instance
+  -a USER_AGENT, --user-agent USER_AGENT
+                        Override the browser's UserAgent string to USER_AGENT
+  --proxy-server URL    Use an HTTP/SOCKS proxy at URL for all navigations
+  -x JSON_ARRAY, --extra-args JSON_ARRAY
+                        Pass JSON_ARRAY as extra CLI argument to the browser
+                        instance launched
 ```

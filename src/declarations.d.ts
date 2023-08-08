@@ -5,7 +5,7 @@ declare module 'puppeteer-core'
 declare module 'tmp'
 declare module 'xvfb'
 
-type Url = string
+type Url = string | null
 type FilePath = string
 type ErrorMsg = string
 type DebugLevel = 'none' | 'debug' | 'verbose'
@@ -14,6 +14,7 @@ interface CrawlArgs {
   executablePath: FilePath,
   outputPath: FilePath,
   urls: Url[],
+  recursiveDepth: number,
   withShieldsUp: boolean,
   debugLevel: DebugLevel,
   seconds: number,

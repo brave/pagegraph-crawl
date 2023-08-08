@@ -41,9 +41,11 @@ const setupEnv = (args: CrawlArgs): EnvHandle => {
   }
 }
 
-export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
+export const doCrawl = async (args: CrawlArgs): Promise<void> => {
   const logger = getLogger(args)
   const url: Url = args.urls[0]
+  const depth = args.recursiveDepth || 1
+  let randomChildUrl: Url = null
 
   const { puppeteerArgs, pathForProfile, shouldClean } = puppeteerConfigForArgs(args)
 
@@ -77,14 +79,16 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
       logger.debug(`generatePageGraph { size: ${response.data.length} }`)
       const outputFilename = pathLib.join(
         args.outputPath,
-        `page_graph_${url.replace(/[^\w]/g, '_')}_${Math.floor(
+        `page_graph_${url?.replace(/[^\w]/g, '_')}_${Math.floor(
           Date.now() / 1000
         )}.graphml`
       )
       fsExtraLib.writeFile(outputFilename, response.data).catch((err: Error) => {
         logger.debug('ERROR saving Page.generatePageGraph output:', err)
       })
-
+      if (depth > 1) {
+        randomChildUrl = await getRandomLinkFromPage(page, logger)
+      }
       logger.debug('Closing page')
       await page.close()
     } catch (err) {
@@ -102,4 +106,43 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
       fsExtraLib.remove(pathForProfile)
     }
   }
+  if (randomChildUrl) {
+    const newArgs = { ...args }
+    newArgs.urls = [randomChildUrl]
+    newArgs.recursiveDepth = depth - 1
+    await doCrawl(newArgs)
+  }
+}
+
+const getRandomLinkFromPage = async (page: any, logger: Logger) : Promise<Url> /* puppeteer Page */ => {
+  let rawLinks
+  try {
+    rawLinks = await page.$$('a[href]')
+  } catch (e) {
+    logger.debug(`Unable to look for child links, page closed: ${e.toString()}`)
+    return null
+  }
+  const links = []
+  for (const link of rawLinks) {
+    const hrefHandle = await link.getProperty('href')
+    const hrefValue = await hrefHandle.jsonValue()
+    try {
+      const hrefUrl = new URL(hrefValue.trim())
+      hrefUrl.hash = ''
+      hrefUrl.search = ''
+      if (hrefUrl.protocol !== 'http:' && hrefUrl.protocol !== 'https:') {
+        continue
+      }
+      const childUrlString = hrefUrl.toString()
+      if (!childUrlString || childUrlString.length === 0) {
+        continue
+      }
+      links.push(childUrlString)
+    } catch (_) {
+      continue
+    }
+  }
+  // https://stackoverflow.com/a/4550514
+  const randomLink = links[Math.floor(Math.random() * links.length)]
+  return randomLink
 }
