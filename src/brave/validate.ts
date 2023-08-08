@@ -54,6 +54,7 @@ export const validate = (rawArgs: any): ValidationResult => {
   }
   const urls: Url[] = passedUrlArgs
   const secs: number = rawArgs.secs
+  const recursiveDepth: number = rawArgs.recursive_depth
   const interactive: boolean = rawArgs.interactive
   const userAgent: string | undefined = rawArgs.user_agent
 
@@ -61,6 +62,7 @@ export const validate = (rawArgs: any): ValidationResult => {
     executablePath,
     outputPath,
     urls,
+    recursiveDepth,
     seconds: secs,
     withShieldsUp: (rawArgs.shields === 'up'),
     debugLevel: rawArgs.debug,

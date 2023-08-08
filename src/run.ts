@@ -18,6 +18,10 @@ parser.addArgument(['-b', '--binary'], {
   required: true,
   help: 'Path to the PageGraph enabled build of Brave.'
 })
+parser.addArgument(['-r', '--recursive-depth'], {
+  defaultValue: 1,
+  help: 'If provided and > 1, choose a link at random on page and do another crawl to this depth.'
+})
 parser.addArgument(['-o', '--output'], {
   help: 'Path (directory) to write graphs to.',
   required: true
