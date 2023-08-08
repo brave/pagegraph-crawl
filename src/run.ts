@@ -2,7 +2,7 @@
 
 import argparseLib from 'argparse'
 
-import { writeGraphsForCrawl } from './brave/crawl.js'
+import { doCrawl } from './brave/crawl.js'
 import { validate } from './brave/validate.js'
 
 const defaultCrawlSecs = 30
@@ -20,7 +20,7 @@ parser.addArgument(['-b', '--binary'], {
 })
 parser.addArgument(['-r', '--recursive-depth'], {
   defaultValue: 1,
-  help: 'If provided and > 1, choose a link at random on page and do another crawl to this depth.'
+  help: 'If provided, choose a link at random on page and do another crawl to this depth. Default: 1 (no recursion).'
 })
 parser.addArgument(['-o', '--output'], {
   help: 'Path (directory) to write graphs to.',
@@ -81,4 +81,4 @@ if (!isValid) {
 }
 
 const crawlArgs = errorOrArgs as CrawlArgs
-writeGraphsForCrawl(crawlArgs)
+doCrawl(crawlArgs)

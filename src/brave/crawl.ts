@@ -41,7 +41,7 @@ const setupEnv = (args: CrawlArgs): EnvHandle => {
   }
 }
 
-export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
+export const doCrawl = async (args: CrawlArgs): Promise<void> => {
   const logger = getLogger(args)
   const url: Url = args.urls[0]
   const depth = args.recursiveDepth || 1
@@ -110,7 +110,7 @@ export const writeGraphsForCrawl = async (args: CrawlArgs): Promise<void> => {
     const newArgs = { ...args }
     newArgs.urls = [randomChildUrl]
     newArgs.recursiveDepth = depth - 1
-    await writeGraphsForCrawl(newArgs)
+    await doCrawl(newArgs)
   }
 }
 
