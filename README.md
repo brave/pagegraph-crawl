@@ -5,6 +5,19 @@ Command line tool for crawling with PageGraph.  It does not include a
 PageGraph enabled build though; you can point it at the latest Nightly
 version of Brave.
 
+Install
+---
+```bash
+npm run install
+```
+
+Test
+---
+```bash
+npm run test
+```
+The tests are defined in `test/test.js`. Test parameters are defined in `test/config.js` and can be overriden via environment variables. You need to specify a pagegraph binary path.
+
 Usage
 ---
 
