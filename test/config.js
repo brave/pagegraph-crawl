@@ -1,5 +1,6 @@
 export const config = {
   debug: false,
-  baseUrl: 'https://brave.github.io/pagegraph-crawl/test/pages',
+  port: 3000,
+  baseUrl: 'http://localhost',
   pagegraph: '/Applications/Brave\\ Browser\\ Nightly.app/Contents/MacOS/Brave\\ Browser\\ Nightly'
 }

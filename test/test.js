@@ -1,10 +1,12 @@
 
-import { execSync } from 'child_process'
 import { mkdirSync, rmSync, existsSync, readFileSync, readdirSync } from 'fs'
 import { expect } from 'chai'
 import { resolve, join } from 'path'
 import { config } from './config.js'
-
+import app from './test_server.js'
+import util from 'util' // Import the server instance
+import { exec } from 'child_process'
+const execPromise = util.promisify(exec)
 // Check filename with .startsWith()
 const getExpectedFilename = (url) => {
   return `page_graph_${url?.replace(/[^\w]/g, '_')}`
@@ -13,13 +15,15 @@ const getExpectedFilename = (url) => {
 const graphMlExtension = '.graphml'
 
 const DEBUG = process.env.DEBUG || config.debug
+const port = process.env.PORT || config.port
 const pagegraphBinaryPath = process.env.PAGEGRAPH || config.pagegraph
 DEBUG && console.log(`pagegraphBinaryPath: ${pagegraphBinaryPath}`)
 // Check if pagegraph binary is set
 if (!pagegraphBinaryPath) {
   throw new Error('PAGEGRAPH BINARY PATH environment variable not set')
 }
-const baseUrl = process.env.BASE_URL || config.baseUrl
+const baseUrl = `${process.env.BASE_URL || config.baseUrl}:${port}`
+
 const simpleUrl = `${baseUrl}/simple.html`
 const expectedFilenameSimple = getExpectedFilename(simpleUrl)
 
@@ -31,24 +35,40 @@ DEBUG && console.log(`outputDir: ${outputDir}`)
 DEBUG && console.log(`simpleUrl: ${simpleUrl}`)
 DEBUG && console.log(`expectedFilenameSimple: ${expectedFilenameSimple}`)
 
-beforeEach('Create output directory', () => {
-  mkdirSync(outputDir, { recursive: true })
-})
-
-afterEach('Clean up output directory', () => {
-  if (!DEBUG) {
-    rmSync(outputDir, { recursive: true, force: true })
-  }
-})
-
 describe('PageGraph Crawl CLI', () => {
-  it('works for simple case', () => {
-    execSync(
-      `npm run crawl -- -b ${pagegraphBinaryPath} -u ${simpleUrl} -t 5 -o ${outputDir}  ${debugArg}`,
-      {
-        stdio: 'inherit'
-      }
+  // Setup and teardown for the test suite.
+  let server
+  beforeEach('Create output directory', () => {
+    mkdirSync(outputDir, { recursive: true })
+  })
+
+  afterEach('Clean up output directory', () => {
+    if (!DEBUG) {
+      rmSync(outputDir, { recursive: true, force: true })
+    }
+  })
+  before((done) => {
+    server = app.listen(port, () => {
+      done()
+    })
+  })
+  after((done) => {
+    server.close(done)
+    DEBUG && console.log('Test server has closed')
+  })
+
+  const doCrawl = (url) => {
+    const crawlPromise = execPromise(
+      `npm run crawl -- -b ${pagegraphBinaryPath} -u ${url} -t 5 -o ${outputDir} ${debugArg}`
     )
+    DEBUG && crawlPromise.child.stdout.on('data', function (data) {
+      console.log(data)
+    })
+    return crawlPromise
+  }
+
+  it('works for simple case', async () => {
+    await doCrawl(simpleUrl)
     // Check output/
     expect(existsSync(outputDir)).to.be.true
     // Check output/page_graph_simple_html.graphml
@@ -62,19 +82,14 @@ describe('PageGraph Crawl CLI', () => {
     expect(graphml).to.contain('hJc9ZK1sGr')
   })
 
-  it('works for redirect case (same-site)', () => {
+  it('works for redirect case (same-site)', async () => {
     // Crawl with one redirect, same-site.
     const initialUrl = `${baseUrl}/redirect-js-same-site.html`
     const expectedFilenameInitial = getExpectedFilename(initialUrl)
     DEBUG && console.log(`initialUrl: ${initialUrl}`)
     DEBUG && console.log(`expectedFilenameInitial: ${expectedFilenameInitial}`)
 
-    execSync(
-      `npm run crawl -- -b ${pagegraphBinaryPath} -u ${initialUrl} -t 5 -o ${outputDir}  ${debugArg}`,
-      {
-        stdio: 'inherit'
-      }
-    )
+    await doCrawl(initialUrl)
     // Check output/
     expect(existsSync(outputDir)).to.be.true
     const files = readdirSync(outputDir)
@@ -93,7 +108,7 @@ describe('PageGraph Crawl CLI', () => {
     })
   })
 
-  it('works for multiple redirect case', () => {
+  it('works for multiple redirect case', async () => {
     // Crawl with multiple redirects, same-site.
     const initialUrl = `${baseUrl}/multiple-redirects-js-same-site.html`
     const secondUrl = `${baseUrl}/redirect-js-same-site.html`
@@ -104,12 +119,7 @@ describe('PageGraph Crawl CLI', () => {
     DEBUG && console.log(`secondUrl: ${secondUrl}`)
     DEBUG && console.log(`expectedFilenameSecond: ${expectedFilenameSecond}`)
 
-    execSync(
-      `npm run crawl -- -b ${pagegraphBinaryPath} -u ${initialUrl} -t 5 -o ${outputDir}  ${debugArg}`,
-      {
-        stdio: 'inherit'
-      }
-    )
+    await doCrawl(initialUrl)
     // Check output/
     expect(existsSync(outputDir)).to.be.true
     const files = readdirSync(outputDir)
@@ -134,21 +144,18 @@ describe('PageGraph Crawl CLI', () => {
     })
   })
 
-  it('works for redirect case (cross-site)', () => {
+  it('works for redirect case (cross-site)', async () => {
     // Crawl with one redirect, cross-site.
     const initialUrl = `${baseUrl}/redirect-js-cross-site.html`
-    const finalUrl = 'https://brave.com'
+    // This has to be hard-coded because it's being set in redirect-js-cross-site.html
+    const finalUrl = 'http://127.0.0.1:3000/simple.html'
     const expectedFilenameInitial = getExpectedFilename(initialUrl)
     const expectedFilenameFinal = getExpectedFilename(finalUrl)
     DEBUG && console.log(`initialUrl: ${initialUrl}`)
     DEBUG && console.log(`expectedFilenameInitial: ${expectedFilenameInitial}`)
 
-    execSync(
-      `npm run crawl -- -b ${pagegraphBinaryPath} -u ${initialUrl} -t 5 -o ${outputDir}  ${debugArg}`,
-      {
-        stdio: 'inherit'
-      }
-    )
+    await doCrawl(initialUrl)
+
     // Check output/
     expect(existsSync(outputDir)).to.be.true
     const files = readdirSync(outputDir)
@@ -159,8 +166,9 @@ describe('PageGraph Crawl CLI', () => {
       const graphml = readFileSync(join(outputDir, file), 'UTF-8')
       if (file.startsWith(expectedFilenameInitial)) {
         expect(graphml).to.contain('Zym8MZp')
+        expect(graphml).to.not.contain('hJc9ZK1sGr')
       } else {
-        expect(graphml).to.contain('brave.com')
+        expect(graphml).to.contain('hJc9ZK1sGr')
         expect(graphml).to.not.contain('Zym8MZp')
       }
     })

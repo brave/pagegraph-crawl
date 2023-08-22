@@ -112,6 +112,7 @@ export const doCrawl = async (args: CrawlArgs): Promise<void> => {
 
       logger.debug(`Navigating to ${url}`)
       await page.goto(url, { waitUntil: 'load' })
+      logger.debug(`Loaded ${url}`)
       const response = await generatePageGraph(args.seconds, page, client, logger)
       writeToFile(args, url, response, logger)
       if (depth > 1) {
