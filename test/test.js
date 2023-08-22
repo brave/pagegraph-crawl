@@ -85,8 +85,10 @@ describe('PageGraph Crawl CLI', () => {
       const graphml = readFileSync(join(outputDir, file), 'UTF-8')
       if (file.startsWith(expectedFilenameSimple)) {
         expect(graphml).to.contain('hJc9ZK1sGr')
+        expect(graphml).to.not.contain('W0XNNnar')
       } else {
         expect(graphml).to.contain('W0XNNnar')
+        expect(graphml).to.not.contain('hJc9ZK1sGr')
       }
     })
   })
@@ -118,10 +120,16 @@ describe('PageGraph Crawl CLI', () => {
       const graphml = readFileSync(join(outputDir, file), 'UTF-8')
       if (file.startsWith(expectedFilenameSimple)) {
         expect(graphml).to.contain('hJc9ZK1sGr')
+        expect(graphml).to.not.contain('W0XNNnar')
+        expect(graphml).to.not.contain('NsybZB0LO4')
       } else if (file.startsWith(expectedFilenameInitial)) {
         expect(graphml).to.contain('NsybZB0LO4')
+        expect(graphml).to.not.contain('W0XNNnar')
+        expect(graphml).to.not.contain('hJc9ZK1sGr')
       } else if (file.startsWith(expectedFilenameSecond)) {
         expect(graphml).to.contain('W0XNNnar')
+        expect(graphml).to.not.contain('NsybZB0LO4')
+        expect(graphml).to.not.contain('hJc9ZK1sGr')
       }
     })
   })
@@ -151,6 +159,9 @@ describe('PageGraph Crawl CLI', () => {
       const graphml = readFileSync(join(outputDir, file), 'UTF-8')
       if (file.startsWith(expectedFilenameInitial)) {
         expect(graphml).to.contain('Zym8MZp')
+      } else {
+        expect(graphml).to.contain('brave.com')
+        expect(graphml).to.not.contain('Zym8MZp')
       }
     })
   })
