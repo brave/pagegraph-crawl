@@ -8,7 +8,8 @@
     "lint:fix": "standardx --fix src/**/*.ts src/*.ts",
     "build": "tsc",
     "postinstall": "npm run build",
-    "crawl": "node ./built/run.js"
+    "crawl": "node ./built/run.js",
+    "test": "npm run build && mocha test/test.js --timeout 60000"
   },
   "type": "module",
   "author": "",
@@ -26,6 +27,9 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.3.0",
     "@typescript-eslint/parser": "^3.3.0",
+    "chai": "^4.3.6",
+    "express": "^4.18.2",
+    "mocha": "^10.0.0",
     "standardx": "^7.0.0"
   },
   "eslintConfig": {

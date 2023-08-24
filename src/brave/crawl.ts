@@ -41,11 +41,36 @@ const setupEnv = (args: CrawlArgs): EnvHandle => {
   }
 }
 
+async function generatePageGraph (seconds: number, page: any, client: any, logger: Logger) {
+  const waitTimeMs = seconds * 1000
+  logger.debug(`Waiting for ${waitTimeMs}ms`)
+  await page.waitFor(waitTimeMs)
+  logger.debug('calling generatePageGraph')
+  const response = await client.send('Page.generatePageGraph')
+  logger.debug(`generatePageGraph { size: ${response.data.length} }`)
+  return response
+}
+
+function createFilename (url: Url) : FilePath {
+  return `page_graph_${url?.replace(/[^\w]/g, '_')}_${Math.floor(Date.now() / 1000)}.graphml`
+}
+
+function writeToFile (args: CrawlArgs, url: Url, response: any, logger: Logger) {
+  const outputFilename = pathLib.join(
+    args.outputPath,
+    createFilename(url)
+  )
+  fsExtraLib.writeFile(outputFilename, response.data).catch((err: Error) => {
+    logger.debug('ERROR saving Page.generatePageGraph output:', err)
+  })
+}
+
 export const doCrawl = async (args: CrawlArgs): Promise<void> => {
   const logger = getLogger(args)
   const url: Url = args.urls[0]
   const depth = args.recursiveDepth || 1
   let randomChildUrl: Url = null
+  let redirectedUrl: Url = null
 
   const { puppeteerArgs, pathForProfile, shouldClean } = puppeteerConfigForArgs(args)
 
@@ -67,25 +92,29 @@ export const doCrawl = async (args: CrawlArgs): Promise<void> => {
         await page.setUserAgent(args.userAgent)
       }
 
-      logger.debug(`Navigating to ${url}`)
-      await page.goto(url, { waitUntil: 'domcontentloaded' })
-
-      const waitTimeMs = args.seconds * 1000
-      logger.debug(`Waiting for ${waitTimeMs}ms`)
-      await page.waitFor(waitTimeMs)
-
-      logger.debug('calling generatePageGraph')
-      const response = await client.send('Page.generatePageGraph')
-      logger.debug(`generatePageGraph { size: ${response.data.length} }`)
-      const outputFilename = pathLib.join(
-        args.outputPath,
-        `page_graph_${url?.replace(/[^\w]/g, '_')}_${Math.floor(
-          Date.now() / 1000
-        )}.graphml`
-      )
-      fsExtraLib.writeFile(outputFilename, response.data).catch((err: Error) => {
-        logger.debug('ERROR saving Page.generatePageGraph output:', err)
+      await page.setRequestInterception(true)
+      // First load is not a navigation redirect, so we need to skip it.
+      let firstLoad = true
+      page.on('request', async (request: any) => {
+        const parentFrame = request.frame().parentFrame()
+        // Only capture parent frame navigation requests.
+        logger.debug(`Request intercepted: ${request.url()}, first load: ${firstLoad}`)
+        if (request.isNavigationRequest() && parentFrame === null && !firstLoad) {
+          logger.debug('Page is redirecting...')
+          redirectedUrl = request.url()
+          // Stop page load
+          logger.debug(`Stopping page load of ${url}`)
+          await page._client.send('Page.stopLoading')
+        }
+        firstLoad = false
+        request.continue()
       })
+
+      logger.debug(`Navigating to ${url}`)
+      await page.goto(url, { waitUntil: 'load' })
+      logger.debug(`Loaded ${url}`)
+      const response = await generatePageGraph(args.seconds, page, client, logger)
+      writeToFile(args, url, response, logger)
       if (depth > 1) {
         randomChildUrl = await getRandomLinkFromPage(page, logger)
       }
@@ -101,10 +130,15 @@ export const doCrawl = async (args: CrawlArgs): Promise<void> => {
     logger.debug('ERROR runtime fiasco from infrastructure:', err)
   } finally {
     envHandle.close()
-
     if (shouldClean) {
       fsExtraLib.remove(pathForProfile)
     }
+  }
+  if (redirectedUrl) {
+    const newArgs = { ...args }
+    newArgs.urls = [redirectedUrl]
+    logger.debug(`Doing new crawl with redirected URL: ${redirectedUrl}`)
+    await doCrawl(newArgs)
   }
   if (randomChildUrl) {
     const newArgs = { ...args }
