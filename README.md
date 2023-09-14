@@ -7,8 +7,14 @@ version of Brave.
 
 Install
 ---
+For building/installing the tool, you need to have `tsc` (TypeScript Compiler) package installed.
+
 ```bash
-npm run install
+// Install dependencies
+npm install
+
+// Build 
+npm run build
 ```
 
 Test
