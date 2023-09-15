@@ -13,7 +13,7 @@ For building/installing the tool, you need to have `tsc` (TypeScript Compiler) p
 // Install dependencies
 npm install
 
-// Build 
+// Build
 npm run build
 ```
 
@@ -33,7 +33,7 @@ $ npm run crawl -- -h
 > pagegraph-crawl@1.0.0 crawl
 > node ./built/run.js
 
-usage: run.js [-h] [-v] -b BINARY [-r RECURSIVE_DEPTH] -o OUTPUT -u URL
+usage: run.js [-h] [-v] [-b BINARY] [-r RECURSIVE_DEPTH] -o OUTPUT -u URL
               [URL ...] [-e EXISTING_PROFILE] [-p PERSIST_PROFILE]
               [-s {up,down}] [-t SECS] [--debug {none,debug,verbose}] [-i]
               [-a USER_AGENT] [--proxy-server URL] [-x JSON_ARRAY]
@@ -45,7 +45,9 @@ Optional arguments:
   -h, --help            Show this help message and exit.
   -v, --version         Show program's version number and exit.
   -b BINARY, --binary BINARY
-                        Path to the PageGraph enabled build of Brave.
+                        Path to the PageGraph enabled build of Brave. If not
+                        provided, try to guess where the binary is, or if its
+                        in $PATH
   -r RECURSIVE_DEPTH, --recursive-depth RECURSIVE_DEPTH
                         If provided, choose a link at random on page and do
                         another crawl to this depth. Default: 1 (no

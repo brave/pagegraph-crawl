@@ -1,8 +1,12 @@
 import * as fsLib from 'fs'
+import * as osLib from 'os'
 import * as pathLib from 'path'
 import * as urlLib from 'url'
 
+import * as hasBinLib from 'hasbin'
+
 import { getLoggerForLevel } from './debug.js'
+
 
 const isUrl = (possibleUrl: string): boolean => {
   try {
@@ -34,14 +38,49 @@ const isDir = (path: string): boolean => {
   return false
 }
 
+const guessBinary = (): string | boolean => {
+  // If we're on MacOS, first see if there is a version of Brave
+  // we can use in the typical locations.  Prefer Brave nightly, and then Brave
+  // stable.
+  if (osLib.type() === 'Darwin') {
+    const possibleBraveBinaryPaths = [
+      '/Applications/Brave Browser Nightly.app/Contents/MacOS/Brave Browser Nightly',
+      '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
+    ]
+    for (const aPossibleBinaryPath of possibleBraveBinaryPaths) {
+      if (isFile(aPossibleBinaryPath)) {
+        return aPossibleBinaryPath
+      }
+    }
+  }
+
+  // Otherwise, see if we can find a Brave binary in the path
+  const possibleBraveBinaryNames = ['brave-browser-nightly', 'brave-browser']
+  const firstBraveBinary = hasBinLib.first.sync(possibleBraveBinaryNames)
+  if (firstBraveBinary === false) {
+    return false
+  }
+  return firstBraveBinary
+}
+
 export const validate = (rawArgs: any): ValidationResult => {
   const logger = getLoggerForLevel(rawArgs.debug)
   logger.debug('Received arguments: ', rawArgs)
 
-  if (!isFile(rawArgs.binary)) {
-    return [false, `Invalid path to Brave binary: ${rawArgs.binary}`]
+  let executablePath: FilePath | undefined
+
+  if (rawArgs.binary === null) {
+    const possibleBinary = guessBinary()
+    if (possibleBinary === false) {
+      return [false, 'No binary specified, and could not guess one']
+    }
+    executablePath = possibleBinary as FilePath
+  } else {
+    if (!isFile(rawArgs.binary)) {
+      return [false, `Invalid path to Brave binary: ${rawArgs.binary}`]
+    }
+    executablePath = rawArgs.binary
   }
-  const executablePath: FilePath = rawArgs.binary
 
   if (!isDir(rawArgs.output)) {
     return [false, `Invalid path to write results to: ${rawArgs.output}`]
@@ -59,7 +98,7 @@ export const validate = (rawArgs: any): ValidationResult => {
   const userAgent: string | undefined = rawArgs.user_agent
 
   const validatedArgs: CrawlArgs = {
-    executablePath,
+    executablePath: String(executablePath),
     outputPath,
     urls,
     recursiveDepth,

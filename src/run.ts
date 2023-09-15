@@ -15,8 +15,8 @@ const parser = new argparseLib.ArgumentParser({
   description: 'CLI tool for crawling and recording websites with PageGraph'
 })
 parser.addArgument(['-b', '--binary'], {
-  required: true,
-  help: 'Path to the PageGraph enabled build of Brave.'
+  help: 'Path to the PageGraph enabled build of Brave. If not provided, ' +
+        'try to guess where the binary is, or if its in $PATH'
 })
 parser.addArgument(['-r', '--recursive-depth'], {
   defaultValue: 1,
