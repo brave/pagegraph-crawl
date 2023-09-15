@@ -55,7 +55,8 @@ const guessBinary = (): string | boolean => {
   }
 
   // Otherwise, see if we can find a Brave binary in the path
-  const possibleBraveBinaryNames = ['brave-browser-nightly', 'brave-browser']
+  const possibleBraveBinaryNames = ['brave-browser-nightly',
+      'brave-browser-beta', 'brave-browser-stable', 'brave-browser']
   const firstBraveBinary = hasBinLib.first.sync(possibleBraveBinaryNames)
   if (firstBraveBinary === false) {
     return false

@@ -77,7 +77,8 @@ parser.addArgument(['-x', '--extra-args'], {
 const rawArgs = parser.parseArgs()
 const [isValid, errorOrArgs] = validate(rawArgs)
 if (!isValid) {
-  throw errorOrArgs
+  console.error("Invalid arguments!\n\n" + errorOrArgs)
+  process.exit(1)
 }
 
 const crawlArgs = errorOrArgs as CrawlArgs
