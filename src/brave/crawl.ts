@@ -96,10 +96,9 @@ export const doCrawl = async (args: CrawlArgs): Promise<void> => {
       // First load is not a navigation redirect, so we need to skip it.
       let firstLoad = true
       page.on('request', async (request: any) => {
-        const parentFrame = request.frame().parentFrame()
         // Only capture parent frame navigation requests.
         logger.debug(`Request intercepted: ${request.url()}, first load: ${firstLoad}`)
-        if (request.isNavigationRequest() && parentFrame === null && !firstLoad) {
+        if (!firstLoad && request.isNavigationRequest() && request.frame() !== null && request.frame().parentFrame() === null) {
           logger.debug('Page is redirecting...')
           redirectedUrl = request.url()
           // Stop page load
