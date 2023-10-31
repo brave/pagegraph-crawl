@@ -17,13 +17,15 @@ jobs:
           shopt -s inherit_errexit
           set -xeEo pipefail
 
-          export DEBIAN_FRONTEND=noninteractive 
-          apt-get -qq update
-          apt-get -qq install curl
-          curl -fsSLo /usr/share/keyrings/brave-browser-nightly-archive-keyring.gpg https://brave-browser-apt-nightly.s3.brave.com/brave-browser-nightly-archive-keyring.gpg
-          echo "deb [signed-by=/usr/share/keyrings/brave-browser-nightly-archive-keyring.gpg] https://brave-browser-apt-nightly.s3.brave.com/ stable main" >/etc/apt/sources.list.d/brave-browser-nightly.list
-          apt-get -qq update
-          apt-get -qq --no-install-recommends install brave-browser-nightly
+          id
+          which curl || true
+
+          sudo apt-get -qq update
+          sudo apt-get -qq install curl
+          sudo curl -fsSLo /usr/share/keyrings/brave-browser-nightly-archive-keyring.gpg https://brave-browser-apt-nightly.s3.brave.com/brave-browser-nightly-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/brave-browser-nightly-archive-keyring.gpg] https://brave-browser-apt-nightly.s3.brave.com/ stable main"|sudo tee /etc/apt/sources.list.d/brave-browser-nightly.list
+          sudo apt-get -qq update
+          sudo apt-get -qq --no-install-recommends install brave-browser-nightly
 
       - name: test
         run: |
