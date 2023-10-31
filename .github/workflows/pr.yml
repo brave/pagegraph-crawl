@@ -17,6 +17,8 @@ jobs:
           shopt -s inherit_errexit
           set -xeEo pipefail
 
+          ls -al /usr/bin/brave-browser-nightly
+
           sudo apt-get -qq update
           sudo curl -fsSLo /usr/share/keyrings/brave-browser-nightly-archive-keyring.gpg https://brave-browser-apt-nightly.s3.brave.com/brave-browser-nightly-archive-keyring.gpg
           echo "deb [signed-by=/usr/share/keyrings/brave-browser-nightly-archive-keyring.gpg] https://brave-browser-apt-nightly.s3.brave.com/ stable main"|sudo tee /etc/apt/sources.list.d/brave-browser-nightly.list
