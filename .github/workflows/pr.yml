@@ -22,13 +22,12 @@ jobs:
           echo "deb [signed-by=/usr/share/keyrings/brave-browser-nightly-archive-keyring.gpg] https://brave-browser-apt-nightly.s3.brave.com/ stable main"|sudo tee /etc/apt/sources.list.d/brave-browser-nightly.list
           sudo apt-get -qq update
           sudo apt-get -qq --no-install-recommends install brave-browser-nightly
-          ls -al /usr/bin/brave-browser-nightly
 
       - name: test
         run: |
           shopt -s inherit_errexit
           set -xeEo pipefail
 
-          sed -i 's,pagegraph:.*,pagegraph: "/usr/bin/brave-browser-nightly",' test/config.js
+          sed -i 's,pagegraph:.*,pagegraph: "/opt/brave.com/brave-nightly/brave-browser-nightly",' test/config.js
           npm install
           npm run test
