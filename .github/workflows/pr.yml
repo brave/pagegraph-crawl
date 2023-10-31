@@ -6,7 +6,7 @@ on:
 
 jobs:
   pr:
-    name: pr
+    name: test
     runs-on: ubuntu-latest
     steps:
       - name: checkout
