@@ -1,0 +1,33 @@
+name: pr
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  pr:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+
+      - name: install dependencies
+        run: |
+          shopt -s inherit_errexit
+          set -xeEo pipefail
+
+          sudo apt-get -qq update
+          sudo curl -fsSLo /usr/share/keyrings/brave-browser-nightly-archive-keyring.gpg https://brave-browser-apt-nightly.s3.brave.com/brave-browser-nightly-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/brave-browser-nightly-archive-keyring.gpg] https://brave-browser-apt-nightly.s3.brave.com/ stable main"|sudo tee /etc/apt/sources.list.d/brave-browser-nightly.list
+          sudo apt-get -qq update
+          sudo apt-get -qq --no-install-recommends install brave-browser-nightly
+
+      - name: test
+        run: |
+          shopt -s inherit_errexit
+          set -xeEo pipefail
+
+          sed -i 's,pagegraph:.*,pagegraph: "/opt/brave.com/brave-nightly/brave-browser-nightly",' test/config.js
+          npm install
+          npm run test
