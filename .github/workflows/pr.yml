@@ -1,8 +1,6 @@
 name: pr
 
 on:
-  push:
-    branches: [wknapik-pr-tests]
   pull_request:
     types: [opened, reopened, synchronize]
 
@@ -16,22 +14,22 @@ jobs:
 
       - name: install dependencies
         run: |
-        shopt -s inherit_errexit
-        set -xeEo pipefail
-        
-        export DEBIAN_FRONTEND=noninteractive 
-        apt-get -qq update
-        apt-get -qq install curl
-        curl -fsSLo /usr/share/keyrings/brave-browser-nightly-archive-keyring.gpg https://brave-browser-apt-nightly.s3.brave.com/brave-browser-nightly-archive-keyring.gpg
-        echo "deb [signed-by=/usr/share/keyrings/brave-browser-nightly-archive-keyring.gpg] https://brave-browser-apt-nightly.s3.brave.com/ stable main" >/etc/apt/sources.list.d/brave-browser-nightly.list
-        apt-get -qq update
-        apt-get -qq --no-install-recommends install brave-browser-nightly
+          shopt -s inherit_errexit
+          set -xeEo pipefail
+
+          export DEBIAN_FRONTEND=noninteractive 
+          apt-get -qq update
+          apt-get -qq install curl
+          curl -fsSLo /usr/share/keyrings/brave-browser-nightly-archive-keyring.gpg https://brave-browser-apt-nightly.s3.brave.com/brave-browser-nightly-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/brave-browser-nightly-archive-keyring.gpg] https://brave-browser-apt-nightly.s3.brave.com/ stable main" >/etc/apt/sources.list.d/brave-browser-nightly.list
+          apt-get -qq update
+          apt-get -qq --no-install-recommends install brave-browser-nightly
 
       - name: test
         run: |
-        shopt -s inherit_errexit
-        set -xeEo pipefail
+          shopt -s inherit_errexit
+          set -xeEo pipefail
 
-        sed -i 's,pagegraph:.*,pagegraph: "/usr/bin/brave-browser-nightly",' test/config.js
-        npm install
-        npm run test
+          sed -i 's,pagegraph:.*,pagegraph: "/usr/bin/brave-browser-nightly",' test/config.js
+          npm install
+          npm run test
