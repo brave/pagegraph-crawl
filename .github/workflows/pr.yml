@@ -1,6 +1,8 @@
 name: pr
 
 on:
+  push:
+    branches: [wknapik-pr-tests]
   pull_request:
     types: [opened, reopened, synchronize]
 
