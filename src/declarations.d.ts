@@ -23,7 +23,8 @@ interface CrawlArgs {
   interactive: boolean,
   userAgent?: string,
   proxyServer?: URL,
-  extraArgs?: string[]
+  extraArgs?: string[],
+  crawlDuplicates: boolean
 }
 
 type ValidationResult = [boolean, CrawlArgs | ErrorMsg]
