@@ -71,6 +71,7 @@ export const doCrawl = async (args: CrawlArgs): Promise<void> => {
   const depth = args.recursiveDepth || 1
   let randomChildUrl: Url = null
   let redirectedUrl: Url = null
+  let redirectChain: Url[] = url && [new URL(url)?.pathname === '/' && !url?.endsWith("/") ? url + '/' : url] || [];
 
   const { puppeteerArgs, pathForProfile, shouldClean } = puppeteerConfigForArgs(args)
 
@@ -98,9 +99,12 @@ export const doCrawl = async (args: CrawlArgs): Promise<void> => {
       page.on('request', async (request: any) => {
         // Only capture parent frame navigation requests.
         logger.debug(`Request intercepted: ${request.url()}, first load: ${firstLoad}`)
-        if (!firstLoad && request.isNavigationRequest() && request.frame() !== null && request.frame().parentFrame() === null) {
+        logger.debug(`The redirect chain is : \t ${redirectChain}`)
+        if (!firstLoad && request.isNavigationRequest() && request.frame() !== null && request.frame().parentFrame() === null && !(redirectChain.includes(request.url()))) {
           logger.debug('Page is redirecting...')
           redirectedUrl = request.url()
+          // Add the redirected URL to the redirection chain
+          redirectChain.push(redirectedUrl);
           // Stop page load
           logger.debug(`Stopping page load of ${url}`)
           await page._client.send('Page.stopLoading')
