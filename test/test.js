@@ -59,7 +59,7 @@ describe('PageGraph Crawl CLI', () => {
 
   const doCrawl = (url) => {
     const crawlPromise = execPromise(
-      `npm run crawl -- -b ${pagegraphBinaryPath} -u ${url} -t 5 -o ${outputDir} ${debugArg}`
+      `npm run crawl -- -b ${pagegraphBinaryPath} -u ${url} -t 5 -o ${outputDir} ${debugArg} -nc`
     )
     DEBUG && crawlPromise.child.stdout.on('data', function (data) {
       console.log(data)
@@ -170,6 +170,36 @@ describe('PageGraph Crawl CLI', () => {
       } else {
         expect(graphml).to.contain('hJc9ZK1sGr')
         expect(graphml).to.not.contain('Zym8MZp')
+      }
+    })
+  })
+
+  it('works for redirect chain case (A->B->A)', async () => {
+    // Crawl with recursive redirects, cross-site.
+    const initialUrl = `${baseUrl}/redirect-chain-A.html`
+    // This has to be hard-coded because it's being set in redirect-chain-A.html
+    const finalUrl = 'http://127.0.0.1:3000/redirect-chain-B.html'
+    const expectedFilenameInitial = getExpectedFilename(initialUrl)
+    const expectedFilenameFinal = getExpectedFilename(finalUrl)
+    DEBUG && console.log(`initialUrl: ${initialUrl}`)
+    DEBUG && console.log(`expectedFilenameInitial: ${expectedFilenameInitial}`)
+
+    await doCrawl(initialUrl)
+
+    // Check output/
+    expect(existsSync(outputDir)).to.be.true
+    const files = readdirSync(outputDir)
+    expect(files.length).to.equal(2)
+    files.forEach((file) => {
+      expect(file.endsWith(graphMlExtension)).to.be.true
+      expect(file.startsWith(expectedFilenameFinal) || file.startsWith(expectedFilenameInitial)).to.be.true
+      const graphml = readFileSync(join(outputDir, file), 'UTF-8')
+      if (file.startsWith(expectedFilenameInitial)) {
+        expect(graphml).to.contain('Jro8qF9KOg')
+        expect(graphml).to.not.contain('Ec9Z5dlgA5')
+      } else {
+        expect(graphml).to.contain('Ec9Z5dlgA5')
+        expect(graphml).to.not.contain('Jro8qF9KOg')
       }
     })
   })

@@ -65,13 +65,13 @@ function writeToFile (args: CrawlArgs, url: Url, response: any, logger: Logger) 
   })
 }
 
-export const doCrawl = async (args: CrawlArgs): Promise<void> => {
+export const doCrawl = async (args: CrawlArgs,redirectChain: Url[] = []): Promise<void> => {
   const logger = getLogger(args)
   const url: Url = args.urls[0]
   const depth = args.recursiveDepth || 1
   let randomChildUrl: Url = null
   let redirectedUrl: Url = null
-  let redirectChain: Url[] = url && [new URL(url)?.pathname === '/' && !url?.endsWith("/") ? url + '/' : url] || [];
+  redirectChain = url && !redirectChain.includes(url) ? [...redirectChain, new URL(url)?.pathname === '/' && !url.endsWith('/') ? url + '/' : url] : redirectChain;
   
   const { puppeteerArgs, pathForProfile, shouldClean } = puppeteerConfigForArgs(args)
 
@@ -100,11 +100,14 @@ export const doCrawl = async (args: CrawlArgs): Promise<void> => {
         // Only capture parent frame navigation requests.
         logger.debug(`Request intercepted: ${request.url()}, first load: ${firstLoad}`)
         logger.debug(`The redirect chain is : \t ${redirectChain}`)
-        if (!firstLoad && request.isNavigationRequest() && request.frame() !== null && request.frame().parentFrame() === null && args.crawlDuplicates && !(redirectChain.includes(request.url()))) {
+        if (!firstLoad && request.isNavigationRequest() && request.frame() !== null && request.frame().parentFrame() === null) {
           logger.debug('Page is redirecting...')
+
+          if (!args.nocrawlDuplicates || !redirectChain.includes(request.url())){
           redirectedUrl = request.url()
           // Add the redirected URL to the redirection chain
           redirectChain.push(redirectedUrl);
+          }
           // Stop page load
           logger.debug(`Stopping page load of ${url}`)
           await page._client.send('Page.stopLoading')
@@ -141,13 +144,13 @@ export const doCrawl = async (args: CrawlArgs): Promise<void> => {
     const newArgs = { ...args }
     newArgs.urls = [redirectedUrl]
     logger.debug(`Doing new crawl with redirected URL: ${redirectedUrl}`)
-    await doCrawl(newArgs)
+    await doCrawl(newArgs,redirectChain)
   }
   if (randomChildUrl) {
     const newArgs = { ...args }
     newArgs.urls = [randomChildUrl]
     newArgs.recursiveDepth = depth - 1
-    await doCrawl(newArgs)
+    await doCrawl(newArgs,redirectChain)
   }
 }
 
