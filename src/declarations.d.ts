@@ -24,7 +24,7 @@ interface CrawlArgs {
   userAgent?: string,
   proxyServer?: URL,
   extraArgs?: string[],
-  nocrawlDuplicates: boolean
+  crawlDuplicates: boolean
 }
 
 type ValidationResult = [boolean, CrawlArgs | ErrorMsg]

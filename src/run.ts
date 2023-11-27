@@ -73,8 +73,8 @@ parser.addArgument(['-x', '--extra-args'], {
   help: 'Pass JSON_ARRAY as extra CLI argument to the browser instance launched',
   metavar: 'JSON_ARRAY'
 })
-parser.addArgument(['-nc','--no-crawl-duplicates'], {
-  help: 'Do not crawl URLs that are already present in the redirection chain',
+parser.addArgument(['-c','--crawl-duplicates'], {
+  help: 'Enable crawls for redirected URLs that are already present in the redirection chain',
   action: 'storeTrue',
   defaultValue: false
 })

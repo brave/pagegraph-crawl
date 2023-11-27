@@ -97,7 +97,7 @@ export const validate = (rawArgs: any): ValidationResult => {
   const recursiveDepth: number = rawArgs.recursive_depth
   const interactive: boolean = rawArgs.interactive
   const userAgent: string | undefined = rawArgs.user_agent
-  const nocrawlDuplicates: boolean = rawArgs.no_crawl_duplicates
+  const crawlDuplicates: boolean = rawArgs.crawl_duplicates
   const validatedArgs: CrawlArgs = {
     executablePath: String(executablePath),
     outputPath,
@@ -110,7 +110,7 @@ export const validate = (rawArgs: any): ValidationResult => {
     persistProfilePath: undefined,
     interactive,
     userAgent,
-    nocrawlDuplicates
+    crawlDuplicates
   }
 
   if (rawArgs.proxy_server) {

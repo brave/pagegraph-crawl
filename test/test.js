@@ -59,7 +59,7 @@ describe('PageGraph Crawl CLI', () => {
 
   const doCrawl = (url) => {
     const crawlPromise = execPromise(
-      `npm run crawl -- -b ${pagegraphBinaryPath} -u ${url} -t 5 -o ${outputDir} ${debugArg} -nc`
+      `npm run crawl -- -b ${pagegraphBinaryPath} -u ${url} -t 5 -o ${outputDir} ${debugArg}`
     )
     DEBUG && crawlPromise.child.stdout.on('data', function (data) {
       console.log(data)

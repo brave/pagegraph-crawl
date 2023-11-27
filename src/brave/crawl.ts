@@ -99,11 +99,10 @@ export const doCrawl = async (args: CrawlArgs,redirectChain: Url[] = []): Promis
       page.on('request', async (request: any) => {
         // Only capture parent frame navigation requests.
         logger.debug(`Request intercepted: ${request.url()}, first load: ${firstLoad}`)
-        logger.debug(`The redirect chain is : \t ${redirectChain}`)
         if (!firstLoad && request.isNavigationRequest() && request.frame() !== null && request.frame().parentFrame() === null) {
           logger.debug('Page is redirecting...')
 
-          if (!args.nocrawlDuplicates || !redirectChain.includes(request.url())){
+          if (args.crawlDuplicates || !redirectChain.includes(request.url())){
           redirectedUrl = request.url()
           // Add the redirected URL to the redirection chain
           redirectChain.push(redirectedUrl);
