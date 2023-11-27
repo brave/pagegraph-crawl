@@ -2,7 +2,7 @@ pagegraph-crawl
 ===
 
 Command line tool for crawling with PageGraph.  It does not include a
-PageGraph enabled build though; you can point it at the latest Nightly
+PageGraph enabled build; you can point it at the latest Nightly
 version of Brave.
 
 Install
@@ -22,17 +22,17 @@ Test
 ```bash
 npm run test
 ```
-The tests are defined in `test/test.js`. Test parameters are defined in `test/config.js` and can be overriden via environment variables. You need to specify a pagegraph binary path.
+The tests are defined in `test/test.js`. Test parameters are defined in `test/config.js` and can be overriden via environment variables. You need to specify a PageGraph binary path.
 
 Usage
 ---
-Since [PageGraph](https://github.com/brave/brave-browser/wiki/PageGraph) is built as part of Brave, you can simply point the binary path to be your local installation.
+Since [PageGraph](https://github.com/brave/brave-browser/wiki/PageGraph) is built as part of Brave, you can simply point the binary path to your local installation of Brave.
 
 ```bash
 npm run crawl -- -b /Applications/Brave\ Browser\ Nightly.app/Contents/MacOS/Brave\ Browser\ Nightly -u https://brave.com -t 5 -o output/ --debug debug
 ```
 
-The `-t` specifies how many seconds to crawl the URL provided in `-u` using the PageGraph binary in `-b`. 
+The `-t` specifies how many seconds to crawl the URL provided in `-u` using the PageGraph binary at `-b`. 
 
 You can see all supported options:
 ```bash
