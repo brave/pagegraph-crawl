@@ -73,7 +73,11 @@ parser.addArgument(['-x', '--extra-args'], {
   help: 'Pass JSON_ARRAY as extra CLI argument to the browser instance launched',
   metavar: 'JSON_ARRAY'
 })
-
+parser.addArgument(['-c','--crawl-duplicates'], {
+  help: 'Enable crawls for redirected URLs that are already present in the redirection chain',
+  action: 'storeTrue',
+  defaultValue: false
+})
 const rawArgs = parser.parseArgs()
 const [isValid, errorOrArgs] = validate(rawArgs)
 if (!isValid) {
