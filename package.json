@@ -17,7 +17,7 @@
   "dependencies": {
     "@supercharge/promise-pool": "^1.2.0",
     "argparse": "^1.0.10",
-    "fs-extra": "^9.0.0",
+    "fs-extra": "^11.0.0",
     "hasbin": "^1.2.3",
     "node-fs-extra": "^0.8.2",
     "puppeteer-core": "^3.3.0",
