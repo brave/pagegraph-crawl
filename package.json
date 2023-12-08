@@ -15,7 +15,7 @@
   "author": "",
   "license": "MPL-2.0",
   "dependencies": {
-    "@supercharge/promise-pool": "^1.2.0",
+    "@supercharge/promise-pool": "^3.0.0",
     "argparse": "^1.0.10",
     "fs-extra": "^11.0.0",
     "hasbin": "^1.2.3",
