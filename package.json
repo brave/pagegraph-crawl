@@ -23,7 +23,7 @@
     "puppeteer-core": "^3.3.0",
     "tmp": "^0.2.1",
     "typescript": "^5.0.4",
-    "xvfb": "^0.3.0"
+    "xvfb": "^0.4.0"
   },
   "devDependencies": {
     "@types/hasbin": "^1.2.0",
