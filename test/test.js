@@ -1,5 +1,5 @@
 
-import { mkdirSync, rmSync, existsSync, readFileSync, readdirSync } from 'fs'
+import { mkdirSync, rmSync, existsSync, readFileSync, readdirSync, cpSync } from 'fs'
 import { expect } from 'chai'
 import { resolve, join } from 'path'
 import { config } from './config.js'
@@ -31,7 +31,9 @@ const expectedFilenameSimple = getExpectedFilename(simpleUrl)
 const debugArg = DEBUG ? '--debug debug' : ''
 
 const outputDir = resolve(join('test', 'output'))
+const debugOutputDir = resolve(join('test', 'debug_output'))
 DEBUG && console.log(`outputDir: ${outputDir}`)
+DEBUG && console.log(`debugOutputDir: ${debugOutputDir}`)
 DEBUG && console.log(`simpleUrl: ${simpleUrl}`)
 DEBUG && console.log(`expectedFilenameSimple: ${expectedFilenameSimple}`)
 
@@ -41,11 +43,15 @@ describe('PageGraph Crawl CLI', () => {
   beforeEach('Create output directory', () => {
     mkdirSync(outputDir, { recursive: true })
   })
-
   afterEach('Clean up output directory', () => {
-    if (!DEBUG) {
-      rmSync(outputDir, { recursive: true, force: true })
+    if (DEBUG) {
+      // Copy over test files to debug output directory for manual inspection.
+      if (!existsSync(debugOutputDir)) {
+        mkdirSync(debugOutputDir, { recursive: true })
+      }
+      cpSync(outputDir, debugOutputDir, {recursive: true});
     }
+    rmSync(outputDir, { recursive: true, force: true })
   })
   before((done) => {
     server = app.listen(port, () => {
