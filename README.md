@@ -33,3 +33,5 @@ You can see all supported options:
 ```bash
 npm run crawl -- -h
 ```
+
+**NOTE:** PageGraph currently does not track puppeteer / automation scripts, and so modifying or interacting with the document through [devtools/puppeteer](https://pptr.dev/) while recording a PageGraph file will fail.
