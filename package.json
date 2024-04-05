@@ -26,13 +26,13 @@
     "xvfb": "^0.4.0"
   },
   "devDependencies": {
-    "@types/hasbin": "^1.2.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "chai": "^4.3.6",
-    "express": "^4.18.2",
-    "mocha": "^10.0.0",
-    "standardx": "^7.0.0"
+    "@types/hasbin": "1.2.2",
+    "@typescript-eslint/eslint-plugin": "6.14.0",
+    "@typescript-eslint/parser": "6.14.0",
+    "chai": "4.3.10",
+    "express": "4.18.2",
+    "mocha": "10.2.0",
+    "standardx": "7.0.0"
   },
   "eslintConfig": {
     "rules": {
