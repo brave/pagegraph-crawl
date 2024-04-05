@@ -23,7 +23,9 @@ parser.addArgument(['-r', '--recursive-depth'], {
   help: 'If provided, choose a link at random on page and do another crawl to this depth. Default: 1 (no recursion).'
 })
 parser.addArgument(['-o', '--output'], {
-  help: 'Path (directory) to write graphs to.',
+  help: 'Path to write to. If a directory is provided, then results are ' +
+        'written to a file in that directory. If a full path is given, ' +
+        'then results are written to that path.',
   required: true
 })
 parser.addArgument(['-u', '--url'], {

@@ -17,11 +17,11 @@ const isUrl = (possibleUrl: string): boolean => {
   }
 }
 
-const isFile = (path: string): boolean => {
+export const isFile = (path: string): boolean => {
   return fsLib.existsSync(path) && fsLib.lstatSync(path).isFile()
 }
 
-const isDir = (path: string): boolean => {
+export const isDir = (path: string): boolean => {
   if (!fsLib.existsSync(path)) {
     return false
   }
@@ -83,8 +83,13 @@ export const validate = (rawArgs: any): ValidationResult => {
     executablePath = rawArgs.binary
   }
 
+  // The output path either needs to be a directory, or a filename in
+  // an existing directory.
   if (!isDir(rawArgs.output)) {
-    return [false, `Invalid path to write results to: ${rawArgs.output}`]
+    const outputPathParts = pathLib.parse(rawArgs.output)
+    if (!isDir(outputPathParts.dir)) {
+      return [false, `Invalid path to write results to: ${rawArgs.output}`]
+    }
   }
   const outputPath: FilePath = rawArgs.output
 
