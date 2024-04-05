@@ -1,5 +1,6 @@
 'use strict'
 
+import fsLib from 'node:fs/promises'
 import * as osLib from 'os'
 
 import fsExtraLib from 'fs-extra'
@@ -8,6 +9,7 @@ import Xvbf from 'xvfb'
 
 import { getLogger } from './debug.js'
 import { puppeteerConfigForArgs, launchWithRetry } from './puppeteer.js'
+import { isDir } from './validate.js'
 
 const xvfbPlatforms = new Set(['linux', 'openbsd'])
 
@@ -55,11 +57,11 @@ function createFilename (url: Url) : FilePath {
   return `page_graph_${url?.replace(/[^\w]/g, '_')}_${Math.floor(Date.now() / 1000)}.graphml`
 }
 
-function writeToFile (args: CrawlArgs, url: Url, response: any, logger: Logger) {
-  const outputFilename = pathLib.join(
-    args.outputPath,
-    createFilename(url)
-  )
+async function writeToFile (args: CrawlArgs, url: Url, response: any, logger: Logger) {
+  const outputFilename = isDir(args.outputPath)
+    ? pathLib.join(args.outputPath, createFilename(url))
+    : args.outputPath
+
   fsExtraLib.writeFile(outputFilename, response.data).catch((err: Error) => {
     logger.debug('ERROR saving Page.generatePageGraph output:', err)
   })
