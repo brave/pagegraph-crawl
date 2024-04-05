@@ -31,7 +31,7 @@
     "@typescript-eslint/parser": "6.14.0",
     "chai": "4.4.1",
     "express": "4.19.2",
-    "mocha": "10.2.0",
+    "mocha": "10.4.0",
     "standardx": "7.0.0"
   },
   "eslintConfig": {
