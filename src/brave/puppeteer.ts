@@ -53,14 +53,11 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
     ignoreDefaultArgs: [
       '--disable-sync'
     ],
-    dumpio: args.debugLevel !== 'none',
+    dumpio: args.debugLevel === 'verbose',
     headless: false
   }
 
-  if (args.debugLevel === 'debug') {
-    puppeteerArgs.args.push('--enable-logging=stderr')
-    puppeteerArgs.args.push('--vmodule=page_graph*=1')
-  } else if (args.debugLevel === 'verbose') {
+  if (args.debugLevel === 'verbose') {
     puppeteerArgs.args.push('--enable-logging=stderr')
     puppeteerArgs.args.push('--vmodule=page_graph*=2')
   }

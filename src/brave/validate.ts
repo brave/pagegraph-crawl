@@ -7,7 +7,6 @@ import * as hasBinLib from 'hasbin'
 
 import { getLoggerForLevel } from './debug.js'
 
-
 const isUrl = (possibleUrl: string): boolean => {
   try {
     (new urlLib.URL(possibleUrl))  // eslint-disable-line
@@ -56,7 +55,7 @@ const guessBinary = (): string | boolean => {
 
   // Otherwise, see if we can find a Brave binary in the path
   const possibleBraveBinaryNames = ['brave-browser-nightly',
-      'brave-browser-beta', 'brave-browser-stable', 'brave-browser']
+    'brave-browser-beta', 'brave-browser-stable', 'brave-browser']
   const firstBraveBinary = hasBinLib.first.sync(possibleBraveBinaryNames)
   if (firstBraveBinary === false) {
     return false
@@ -103,6 +102,7 @@ export const validate = (rawArgs: any): ValidationResult => {
   const interactive: boolean = rawArgs.interactive
   const userAgent: string | undefined = rawArgs.user_agent
   const crawlDuplicates: boolean = rawArgs.crawl_duplicates
+  const screenshot: boolean = rawArgs.screenshot
   const validatedArgs: CrawlArgs = {
     executablePath: String(executablePath),
     outputPath,
@@ -115,7 +115,8 @@ export const validate = (rawArgs: any): ValidationResult => {
     persistProfilePath: undefined,
     interactive,
     userAgent,
-    crawlDuplicates
+    crawlDuplicates,
+    screenshot
   }
 
   if (rawArgs.proxy_server) {
