@@ -16,6 +16,7 @@
   "license": "MPL-2.0",
   "dependencies": {
     "@supercharge/promise-pool": "^3.0.0",
+    "@typescript-eslint/typescript-estree": "^7.6.0",
     "argparse": "^2.0.0",
     "fs-extra": "^11.0.0",
     "hasbin": "^1.2.3",
@@ -23,7 +24,7 @@
     "puppeteer-core": "^3.3.0",
     "tmp": "^0.2.1",
     "ts-standard": "^12.0.2",
-    "typescript": "^5.0.4",
+    "typescript": "^5.4.4",
     "xvfb": "^0.4.0"
   },
   "devDependencies": {
@@ -32,8 +33,7 @@
     "@typescript-eslint/parser": "6.14.0",
     "chai": "4.4.1",
     "express": "4.19.2",
-    "mocha": "10.4.0",
-    "standardx": "7.0.0"
+    "mocha": "10.4.0"
   },
   "eslintConfig": {
     "rules": {

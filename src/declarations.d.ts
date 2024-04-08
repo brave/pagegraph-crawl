@@ -30,18 +30,14 @@ interface CrawlArgs {
 
 type ValidationResult = [boolean, CrawlArgs | ErrorMsg]
 
-interface LoggerFunc {
-  (message?: string, ...optional: any[]): void
-}
+type LoggerFunc = (message?: string, ...optional: any[]) => void
 
 interface Logger {
   debug: LoggerFunc
   verbose: LoggerFunc
 }
 
-interface TearDownEnvFunc {
-  (): void
-}
+type TearDownEnvFunc = () => void
 
 interface EnvHandle {
   close: TearDownEnvFunc

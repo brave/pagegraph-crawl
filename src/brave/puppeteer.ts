@@ -62,22 +62,22 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
     puppeteerArgs.args.push('--vmodule=page_graph*=2')
   }
 
-  if (args.proxyServer) {
+  if (args.proxyServer != null) {
     puppeteerArgs.args.push(`--proxy-server=${args.proxyServer.toString()}`)
     if (args.proxyServer.protocol === 'socks5') {
       puppeteerArgs.args.push(`--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE ${args.proxyServer.hostname}`)
     }
   }
 
-  if (args.extraArgs) {
+  if (args.extraArgs != null) {
     puppeteerArgs.args.push(...args.extraArgs)
   }
 
   return { puppeteerArgs, pathForProfile, shouldClean }
 }
 
-const asyncSleep = (millis: number): Promise<void> => {
-  return new Promise(resolve => setTimeout(resolve, millis))
+const asyncSleep = async (millis: number): Promise<void> => {
+  return await new Promise(resolve => setTimeout(resolve, millis))
 }
 
 export const launchWithRetry = async (puppeteerArgs: any, logger: Logger, options?: LaunchRetryOptions): Promise<any> /* puppeteer Browser */ => {
@@ -85,7 +85,7 @@ export const launchWithRetry = async (puppeteerArgs: any, logger: Logger, option
   const {
     retries = 3,
     computeTimeout = (tryIndex: number) => Math.pow(2, tryIndex - 1) * 1000
-  } = options || {}
+  } = (options != null) || {}
 
   try {
     return await puppeteerLib.launch(puppeteerArgs)

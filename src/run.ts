@@ -83,11 +83,11 @@ parser.add_argument('-c', '--crawl-duplicates', {
   action: 'store_true',
   default: false
 })
-parser.add_argument('--no-screenshot', {
+parser.add_argument('--screenshot', {
   help: 'Do not record a screenshot of the page at the end of the crawl.',
-  action: 'store_false',
+  action: 'store_true',
   dest: 'screenshot',
-  default: true
+  default: false
 })
 
 const rawArgs = parser.parse_args()
