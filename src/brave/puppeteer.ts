@@ -85,7 +85,7 @@ export const launchWithRetry = async (puppeteerArgs: any, logger: Logger, option
   const {
     retries = 3,
     computeTimeout = (tryIndex: number) => Math.pow(2, tryIndex - 1) * 1000
-  } = (options != null) || {}
+  } = options || {}
 
   try {
     return await puppeteerLib.launch(puppeteerArgs)
