@@ -1,6 +1,5 @@
 'use strict'
 
-import fsLib from 'node:fs/promises'
 import * as osLib from 'os'
 
 import fsExtraLib from 'fs-extra'
@@ -53,28 +52,37 @@ async function generatePageGraph (seconds: number, page: any, client: any, logge
   return response
 }
 
-function createFilename (url: Url) : FilePath {
+function createFilename (url: Url): FilePath {
   return `page_graph_${url?.replace(/[^\w]/g, '_')}_${Math.floor(Date.now() / 1000)}.graphml`
 }
 
-async function writeToFile (args: CrawlArgs, url: Url, response: any, logger: Logger) {
-  const outputFilename = isDir(args.outputPath)
+function createGraphMLPath (args: CrawlArgs, url: Url): FilePath {
+  return isDir(args.outputPath)
     ? pathLib.join(args.outputPath, createFilename(url))
     : args.outputPath
+}
 
+function createScreenshotPath (args: CrawlArgs, url: Url): FilePath {
+  const outputPath = createGraphMLPath(args, url)
+  const pathParts = pathLib.parse(outputPath)
+  return pathParts.dir + '/' + pathParts.name + '.png'
+}
+
+function writeGraphML (args: CrawlArgs, url: Url, response: any, logger: Logger) {
+  const outputFilename = createGraphMLPath(args, url)
   fsExtraLib.writeFile(outputFilename, response.data).catch((err: Error) => {
     logger.debug('ERROR saving Page.generatePageGraph output:', err)
   })
 }
 
-export const doCrawl = async (args: CrawlArgs,redirectChain: Url[] = []): Promise<void> => {
+export const doCrawl = async (args: CrawlArgs, redirectChain: Url[] = []): Promise<void> => {
   const logger = getLogger(args)
   const url: Url = args.urls[0]
   const depth = args.recursiveDepth || 1
   let randomChildUrl: Url = null
   let redirectedUrl: Url = null
-  redirectChain = url && !redirectChain.includes(url) ? [...redirectChain, new URL(url)?.pathname === '/' && !url.endsWith('/') ? url + '/' : url] : redirectChain;
-  
+  redirectChain = url && !redirectChain.includes(url) ? [...redirectChain, new URL(url)?.pathname === '/' && !url.endsWith('/') ? url + '/' : url] : redirectChain
+
   const { puppeteerArgs, pathForProfile, shouldClean } = puppeteerConfigForArgs(args)
 
   const envHandle = setupEnv(args)
@@ -97,17 +105,17 @@ export const doCrawl = async (args: CrawlArgs,redirectChain: Url[] = []): Promis
 
       await page.setRequestInterception(true)
       // First load is not a navigation redirect, so we need to skip it.
-      let firstLoad = true
+      let firstLoad: boolean = true
       page.on('request', async (request: any) => {
         // Only capture parent frame navigation requests.
-        logger.debug(`Request intercepted: ${request.url()}, first load: ${firstLoad}`)
+        logger.verbose(`Request intercepted: ${request.url()}, first load: ${firstLoad}`)
         if (!firstLoad && request.isNavigationRequest() && request.frame() !== null && request.frame().parentFrame() === null) {
           logger.debug('Page is redirecting...')
 
-          if (args.crawlDuplicates || !redirectChain.includes(request.url())){
-          redirectedUrl = request.url()
-          // Add the redirected URL to the redirection chain
-          redirectChain.push(redirectedUrl);
+          if (args.crawlDuplicates || !redirectChain.includes(request.url())) {
+            redirectedUrl = request.url()
+            // Add the redirected URL to the redirection chain
+            redirectChain.push(redirectedUrl)
           }
           // Stop page load
           logger.debug(`Stopping page load of ${url}`)
@@ -118,14 +126,21 @@ export const doCrawl = async (args: CrawlArgs,redirectChain: Url[] = []): Promis
       })
 
       logger.debug(`Navigating to ${url}`)
-      await page.goto(url, { waitUntil: 'load' })
+      await page.goto(url, { waitUntil: 'domcontentloaded' })
       logger.debug(`Loaded ${url}`)
       const response = await generatePageGraph(args.seconds, page, client, logger)
-      writeToFile(args, url, response, logger)
+      writeGraphML(args, url, response, logger)
       if (depth > 1) {
         randomChildUrl = await getRandomLinkFromPage(page, logger)
       }
       logger.debug('Closing page')
+
+      if (args.screenshot) {
+        const screenshotPath = createScreenshotPath(args, url)
+        logger.debug(`About to write screenshot to ${screenshotPath}`)
+        await page.screenshot({ type: 'png', path: screenshotPath })
+        logger.debug('Screenshot recorded')
+      }
       await page.close()
     } catch (err) {
       logger.debug('ERROR runtime fiasco from browser/page:', err)
@@ -145,17 +160,17 @@ export const doCrawl = async (args: CrawlArgs,redirectChain: Url[] = []): Promis
     const newArgs = { ...args }
     newArgs.urls = [redirectedUrl]
     logger.debug(`Doing new crawl with redirected URL: ${redirectedUrl}`)
-    await doCrawl(newArgs,redirectChain)
+    await doCrawl(newArgs, redirectChain)
   }
   if (randomChildUrl) {
     const newArgs = { ...args }
     newArgs.urls = [randomChildUrl]
     newArgs.recursiveDepth = depth - 1
-    await doCrawl(newArgs,redirectChain)
+    await doCrawl(newArgs, redirectChain)
   }
 }
 
-const getRandomLinkFromPage = async (page: any, logger: Logger) : Promise<Url> /* puppeteer Page */ => {
+const getRandomLinkFromPage = async (page: any, logger: Logger): Promise<Url> /* puppeteer Page */ => {
   let rawLinks
   try {
     rawLinks = await page.$$('a[href]')

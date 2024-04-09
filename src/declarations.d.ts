@@ -11,53 +11,50 @@ type ErrorMsg = string
 type DebugLevel = 'none' | 'debug' | 'verbose'
 
 interface CrawlArgs {
-  executablePath: FilePath,
-  outputPath: FilePath,
-  urls: Url[],
-  recursiveDepth: number,
-  withShieldsUp: boolean,
-  debugLevel: DebugLevel,
-  seconds: number,
-  existingProfilePath?: FilePath,
-  persistProfilePath?: FilePath,
-  interactive: boolean,
-  userAgent?: string,
-  proxyServer?: URL,
-  extraArgs?: string[],
+  executablePath: FilePath
+  outputPath: FilePath
+  urls: Url[]
+  recursiveDepth: number
+  withShieldsUp: boolean
+  debugLevel: DebugLevel
+  seconds: number
+  existingProfilePath?: FilePath
+  persistProfilePath?: FilePath
+  interactive: boolean
+  userAgent?: string
+  proxyServer?: URL
+  extraArgs?: string[]
   crawlDuplicates: boolean
+  screenshot: boolean
 }
 
 type ValidationResult = [boolean, CrawlArgs | ErrorMsg]
 
-interface LoggerFunc {
-  (message?: string, ...optional: any[]): void;
-}
+type LoggerFunc = (message?: string, ...optional: any[]) => void
 
 interface Logger {
-  debug: LoggerFunc,
+  debug: LoggerFunc
   verbose: LoggerFunc
 }
 
-interface TearDownEnvFunc {
-  (): void
-}
+type TearDownEnvFunc = () => void
 
 interface EnvHandle {
   close: TearDownEnvFunc
 }
 
 interface LaunchRetryOptions {
-  retries?: number,
-  computeTimeout?: (tryCount: number) => number,
+  retries?: number
+  computeTimeout?: (tryCount: number) => number
 }
 
 interface TargetCrashedEvent {
-  targetId: string,
-  status: string,
+  targetId: string
+  status: string
   errorCode: number
 }
 
 interface FinalPageGraphEvent {
-  frameId: string,
+  frameId: string
   data: string
 }

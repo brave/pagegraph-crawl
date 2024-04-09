@@ -53,34 +53,31 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
     ignoreDefaultArgs: [
       '--disable-sync'
     ],
-    dumpio: args.debugLevel !== 'none',
+    dumpio: args.debugLevel === 'verbose',
     headless: false
   }
 
-  if (args.debugLevel === 'debug') {
-    puppeteerArgs.args.push('--enable-logging=stderr')
-    puppeteerArgs.args.push('--vmodule=page_graph*=1')
-  } else if (args.debugLevel === 'verbose') {
+  if (args.debugLevel === 'verbose') {
     puppeteerArgs.args.push('--enable-logging=stderr')
     puppeteerArgs.args.push('--vmodule=page_graph*=2')
   }
 
-  if (args.proxyServer) {
+  if (args.proxyServer != null) {
     puppeteerArgs.args.push(`--proxy-server=${args.proxyServer.toString()}`)
     if (args.proxyServer.protocol === 'socks5') {
       puppeteerArgs.args.push(`--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE ${args.proxyServer.hostname}`)
     }
   }
 
-  if (args.extraArgs) {
+  if (args.extraArgs != null) {
     puppeteerArgs.args.push(...args.extraArgs)
   }
 
   return { puppeteerArgs, pathForProfile, shouldClean }
 }
 
-const asyncSleep = (millis: number): Promise<void> => {
-  return new Promise(resolve => setTimeout(resolve, millis))
+const asyncSleep = async (millis: number): Promise<void> => {
+  return await new Promise(resolve => setTimeout(resolve, millis))
 }
 
 export const launchWithRetry = async (puppeteerArgs: any, logger: Logger, options?: LaunchRetryOptions): Promise<any> /* puppeteer Browser */ => {
