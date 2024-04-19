@@ -69,7 +69,7 @@ export const validate = (rawArgs: any): ValidationResult => {
 
   let executablePath: FilePath | undefined
 
-  if (rawArgs.binary === null) {
+  if (!rawArgs.binary) {
     const possibleBinary = guessBinary()
     if (possibleBinary === false) {
       return [false, 'No binary specified, and could not guess one']
