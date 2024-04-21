@@ -127,7 +127,7 @@ export const doCrawl = async (args: CrawlArgs, redirectChain: Url[] = []): Promi
 
       logger.debug(`Navigating to ${url}`)
       try {
-      await page.goto(url, { waitUntil: 'domcontentloaded' })
+        await page.goto(url, { waitUntil: 'domcontentloaded' })
       } catch(e) {
         if (e instanceof TimeoutError || (e.name && e.name === 'TimeoutError')) {
           logger.debug('Navigation timeout exceeded.');
