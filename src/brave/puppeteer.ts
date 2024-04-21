@@ -6,6 +6,9 @@ import puppeteerLib from 'puppeteer-core'
 
 import { getLogger } from './debug.js'
 
+
+export const TimeoutError = puppeteerLib.errors.TimeoutError;
+
 const profilePathForArgs = (args: CrawlArgs): { path: FilePath, shouldClean: boolean } => {
   const logger = getLogger(args)
 
