@@ -113,6 +113,7 @@ export const validate = (rawArgs: any): ValidationResult => {
     debugLevel: rawArgs.debug,
     existingProfilePath: undefined,
     persistProfilePath: undefined,
+    extensionsPath: undefined,
     interactive,
     userAgent,
     crawlDuplicates,
@@ -154,6 +155,14 @@ export const validate = (rawArgs: any): ValidationResult => {
                      `profile: ${rawArgs.persist_profile}.`]
     }
     validatedArgs.persistProfilePath = rawArgs.persist_profile
+  }
+
+  if (rawArgs.extensions_path) {
+    if (!isDir(rawArgs.extensions_path)) {
+      return [false, 'Provided extensions path is not a directory: ' +
+                     `${rawArgs.extensions_path}.`]
+    }
+    validatedArgs.extensionsPath = rawArgs.extensions_path
   }
 
   logger.debug('Running with settings: ', validatedArgs)

@@ -20,6 +20,7 @@ interface CrawlArgs {
   seconds: number
   existingProfilePath?: FilePath
   persistProfilePath?: FilePath
+  extensionsPath?: FilePath
   interactive: boolean
   userAgent?: string
   proxyServer?: URL
