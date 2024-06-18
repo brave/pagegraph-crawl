@@ -87,6 +87,11 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
     puppeteerArgs.args.push('--vmodule=page_graph*=2')
   }
 
+  if (args.extensionsPath !== undefined) {
+    puppeteerArgs.args.push('--disable-extensions-except=' + args.extensionsPath)
+    puppeteerArgs.args.push('--load-extension=' + args.extensionsPath)
+  }
+
   if (args.proxyServer != null) {
     puppeteerArgs.args.push(`--proxy-server=${args.proxyServer.toString()}`)
     if (args.proxyServer.protocol === 'socks5') {
