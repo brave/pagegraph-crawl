@@ -87,7 +87,12 @@ export const validate = (rawArgs: any): ValidationResult => {
   if (!isDir(rawArgs.output)) {
     const outputPathParts = pathLib.parse(rawArgs.output)
     if (!isDir(outputPathParts.dir)) {
-      return [false, `Invalid path to write results to: ${rawArgs.output}`]
+      try {
+        console.log(`Output path ${rawArgs.output} does not exist. Creating directory.`)
+        fsLib.mkdirSync(rawArgs.output)
+      } catch (e) {
+        return [false, `Invalid path to write results to and unable to create the directory:\n${e}`]
+      }
     }
   }
   const outputPath: FilePath = rawArgs.output
