@@ -45,6 +45,9 @@ parser.add_argument('-p', '--persist-profile', {
   help: 'If provided, the user profile will be saved at this path. Cannot ' +
         'be used with "--existing-profile"'
 })
+parser.add_argument('--extensions-path', {
+  help: 'If provided, the browser starts with the provided extensions installed.'
+})
 parser.add_argument('-s', '--shields', {
   help: 'Whether to measure with shields up or down. Ignored when using ' +
         `"--existing-profile".  Default: ${defaultShieldsSetting}`,
