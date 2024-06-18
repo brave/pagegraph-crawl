@@ -1,0 +1,1 @@
+{"locale": "us", "version": 1, "timestamp": "2024-06-12 13:26:12", "conversion_id_patterns": {"https://buy.norton.com/estore/spcCheckOutConfirmation*": {"search_in": "html", "id_pattern": "window.purchaseid\\s*=\\s*'([a-zA-Z0-9]*)'"}}}
