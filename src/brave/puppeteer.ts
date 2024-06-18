@@ -6,6 +6,28 @@ import puppeteerLib from 'puppeteer-core'
 
 import { getLogger } from './debug.js'
 
+const disabled_brave_features = [
+  'BraveSync',
+  'Speedreader',
+  'Playlist',
+  'BraveVPN',
+  'AIRewriter',
+  'AIChat',
+  'BravePlayer',
+  'BraveDebounce',
+  'BraveRewards',
+  'BraveSearchOmniboxBanner',
+  'BraveGoogleSignInPermission',
+  'BraveNTPBrandedWallpaper',
+  'AdEvent',
+  'NewTabPageAds',
+  'CustomNotificationAds',
+  'InlineContentAds',
+  'PromotedContentAds',
+  'TextClassification',
+  'SiteVisit',
+]
+
 const profilePathForArgs = (args: CrawlArgs): { path: FilePath, shouldClean: boolean } => {
   const logger = getLogger(args)
 
@@ -47,11 +69,12 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
       '--disable-brave-update',
       '--user-data-dir=' + pathForProfile,
       '--disable-site-isolation-trials',
-      '--enable-features=PageGraph'
+      '--enable-features=PageGraph',
+      '--disable-features=' + disabled_brave_features.join(','),
     ],
     executablePath: args.executablePath,
     ignoreDefaultArgs: [
-      '--disable-sync'
+      '--disable-sync',
     ],
     dumpio: args.debugLevel === 'verbose',
     headless: false
