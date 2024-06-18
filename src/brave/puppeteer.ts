@@ -6,6 +6,8 @@ import puppeteerLib from 'puppeteer-core'
 
 import { getLogger } from './debug.js'
 
+export const TimeoutError = puppeteerLib.errors.TimeoutError;
+
 const disabled_brave_features = [
   'BraveSync',
   'Speedreader',

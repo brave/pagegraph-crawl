@@ -7,7 +7,7 @@ import pathLib from 'path'
 import Xvbf from 'xvfb'
 
 import { getLogger } from './debug.js'
-import { puppeteerConfigForArgs, launchWithRetry } from './puppeteer.js'
+import { puppeteerConfigForArgs, launchWithRetry, TimeoutError } from './puppeteer.js'
 import { isDir } from './validate.js'
 
 const xvfbPlatforms = new Set(['linux', 'openbsd'])
@@ -126,7 +126,15 @@ export const doCrawl = async (args: CrawlArgs, redirectChain: Url[] = []): Promi
       })
 
       logger.debug(`Navigating to ${url}`)
-      await page.goto(url, { waitUntil: 'domcontentloaded' })
+      try {
+        await page.goto(url, { waitUntil: 'domcontentloaded' })
+      } catch(e) {
+        if (e instanceof TimeoutError || (e.name && e.name === 'TimeoutError')) {
+          logger.debug('Navigation timeout exceeded.');
+        } else {
+            throw e;
+        }
+      }
       logger.debug(`Loaded ${url}`)
       const response = await generatePageGraph(args.seconds, page, client, logger)
       writeGraphML(args, url, response, logger)
