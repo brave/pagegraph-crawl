@@ -27,7 +27,7 @@ const disabled_brave_features = [
   'InlineContentAds',
   'PromotedContentAds',
   'TextClassification',
-  'SiteVisit',
+  'SiteVisit'
 ]
 
 const profilePathForArgs = (args: CrawlArgs): { path: FilePath, shouldClean: boolean } => {
@@ -71,8 +71,10 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
       '--disable-brave-update',
       '--user-data-dir=' + pathForProfile,
       '--disable-site-isolation-trials',
+      '--disable-component-update',
+      '--deny-permission-prompts',
       '--enable-features=PageGraph',
-      '--disable-features=' + disabled_brave_features.join(','),
+      '--disable-features=' + disabled_brave_features.join(',')
     ],
     executablePath: args.executablePath,
     ignoreDefaultArgs: [
