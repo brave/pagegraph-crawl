@@ -15,7 +15,7 @@ const parser = new argparseLib.ArgumentParser({
 })
 parser.add_argument('-v', '--version', {
   action: 'version',
-  version: '0.2'
+  version: '0.3'
 })
 parser.add_argument('-b', '--binary', {
   help: 'Path to the PageGraph enabled build of Brave. If not provided, ' +
