@@ -45,8 +45,8 @@ interface EnvHandle {
 }
 
 interface LaunchRetryOptions {
-  retries?: number
-  computeTimeout?: (tryCount: number) => number
+  retries: number
+  computeTimeout: (tryCount: number) => number
 }
 
 interface TargetCrashedEvent {

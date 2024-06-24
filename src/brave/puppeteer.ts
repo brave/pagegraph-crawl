@@ -6,9 +6,9 @@ import puppeteerLib from 'puppeteer-core'
 
 import { getLogger } from './debug.js'
 
-export const TimeoutError = puppeteerLib.errors.TimeoutError;
+export const TimeoutError = puppeteerLib.errors.TimeoutError
 
-const disabled_brave_features = [
+const disabledBraveFeatures = [
   'BraveSync',
   'Speedreader',
   'Playlist',
@@ -35,7 +35,7 @@ const profilePathForArgs = (args: CrawlArgs): { path: FilePath, shouldClean: boo
 
   // The easiest case is if we've been told to use an existing profile.
   // In this case, just return the given path.
-  if (args.existingProfilePath) {
+  if (args.existingProfilePath !== undefined) {
     logger.debug(`Crawling with profile at ${args.existingProfilePath}.`)
     return { path: args.existingProfilePath, shouldClean: false }
   }
@@ -49,14 +49,14 @@ const profilePathForArgs = (args: CrawlArgs): { path: FilePath, shouldClean: boo
 
   // Finally, either copy the above profile to the destination path
   // that was specified, or figure out a temporary location for it.
-  const destProfilePath = args.persistProfilePath
+  const destProfilePath = args.persistProfilePath !== undefined
     ? args.persistProfilePath
     : tmpLib.dirSync({ prefix: 'pagegraph-profile-' }).name
 
-  const shouldClean = !args.persistProfilePath
+  const shouldClean = args.persistProfilePath === undefined
 
   fsExtraLib.copySync(templateProfile, destProfilePath)
-  logger.debug(`Crawling with profile at ${destProfilePath}.`)
+  logger.debug(`Crawling with profile at ${String(destProfilePath)}.`)
   return { path: destProfilePath, shouldClean }
 }
 
@@ -74,11 +74,11 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
       '--disable-component-update',
       '--deny-permission-prompts',
       '--enable-features=PageGraph',
-      '--disable-features=' + disabled_brave_features.join(',')
+      '--disable-features=' + disabledBraveFeatures.join(',')
     ],
     executablePath: args.executablePath,
     ignoreDefaultArgs: [
-      '--disable-sync',
+      '--disable-sync'
     ],
     dumpio: args.debugLevel === 'verbose',
     headless: false
@@ -112,25 +112,29 @@ const asyncSleep = async (millis: number): Promise<void> => {
   return await new Promise(resolve => setTimeout(resolve, millis))
 }
 
-export const launchWithRetry = async (puppeteerArgs: any, logger: Logger, options?: LaunchRetryOptions): Promise<any> /* puppeteer Browser */ => {
+const defaultComputeTimeout = (tryIndex: number): number => {
+  return Math.pow(2, tryIndex - 1) * 1000
+}
+
+export const launchWithRetry = async (puppeteerArgs: any, logger: Logger, retryOptions?: LaunchRetryOptions): Promise<any> /* puppeteer Browser */ => {
   // default to 3 retries with a base-2 exponential-backoff delay between each retry (1s, 2s, 4s, ...)
-  const {
-    retries = 3,
-    computeTimeout = (tryIndex: number) => Math.pow(2, tryIndex - 1) * 1000
-  } = options || {}
+  const retries: number = retryOptions === undefined ? 3 : +retryOptions.retries
+  const computeTimeout = retryOptions !== undefined
+    ? retryOptions.computeTimeout
+    : defaultComputeTimeout
 
   try {
-    return await puppeteerLib.launch(puppeteerArgs)
+    return puppeteerLib.launch(puppeteerArgs)
   } catch (err) {
-    logger.debug(`Failed to launch browser (${err}): ${retries} left...`)
+    logger.debug(`Failed to launch browser (${String(err)}): ${retries} left...`)
   }
 
   for (let i = 1; i <= retries; ++i) {
     await asyncSleep(computeTimeout(i))
     try {
-      return await puppeteerLib.launch(puppeteerArgs)
+      return puppeteerLib.launch(puppeteerArgs)
     } catch (err) {
-      logger.debug(`Failed to launch browser (${err}): ${retries - i} left...`)
+      logger.debug(`Failed to launch browser (${String(err)}): ${retries - i} left...`)
     }
   }
 

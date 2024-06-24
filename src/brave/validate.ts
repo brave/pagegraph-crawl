@@ -16,8 +16,12 @@ const isUrl = (possibleUrl: string): boolean => {
   }
 }
 
-export const isFile = (path: string): boolean => {
-  return fsLib.existsSync(path) && fsLib.lstatSync(path).isFile()
+export const isExecFile = (path: string): boolean => {
+  try {
+    return !!(fsLib.statSync(path).mode & fsLib.constants.S_IXUSR)
+  } catch (_) {
+    return false
+  }
 }
 
 export const isDir = (path: string): boolean => {
@@ -47,7 +51,7 @@ const guessBinary = (): string | boolean => {
       '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
     ]
     for (const aPossibleBinaryPath of possibleBraveBinaryPaths) {
-      if (isFile(aPossibleBinaryPath)) {
+      if (isExecFile(aPossibleBinaryPath)) {
         return aPossibleBinaryPath
       }
     }
@@ -76,7 +80,7 @@ export const validate = (rawArgs: any): ValidationResult => {
     }
     executablePath = possibleBinary as FilePath
   } else {
-    if (!isFile(rawArgs.binary)) {
+    if (!isExecFile(rawArgs.binary)) {
       return [false, `Invalid path to Brave binary: ${rawArgs.binary}`]
     }
     executablePath = rawArgs.binary
@@ -155,7 +159,7 @@ export const validate = (rawArgs: any): ValidationResult => {
   }
 
   if (rawArgs.persist_profile) {
-    if (isDir(rawArgs.persist_profile) || isFile(rawArgs.persist_profile)) {
+    if (isDir(rawArgs.persist_profile) || isExecFile(rawArgs.persist_profile)) {
       return [false, 'File already exists at path for persisting a ' +
                      `profile: ${rawArgs.persist_profile}.`]
     }
