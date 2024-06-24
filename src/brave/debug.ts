@@ -1,4 +1,4 @@
-const nullLogFunc = () => {}
+const nullLogFunc = (): undefined => {}
 const actualLogFunc = console.log
 
 const nullLogger = Object.freeze({
