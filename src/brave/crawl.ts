@@ -90,6 +90,16 @@ export const doCrawl = async (args: CrawlArgs, redirectChain: Url[] = []): Promi
   try {
     logger.debug('Launching puppeteer with args: ', puppeteerArgs)
     const browser = await launchWithRetry(puppeteerArgs, logger)
+
+    const pages = await browser.pages()
+    if (pages.length > 0) {
+      logger.debug(`Closing the ${pages.length} pages that are already open.`)
+      for (const aPage of pages) {
+        logger.debug(`  - closing tab with url ${aPage.url}`)
+        await aPage.close()
+      }
+    }
+
     try {
       // create new page, update UA if needed, navigate to target URL, and wait for idle time
       const page = await browser.newPage()

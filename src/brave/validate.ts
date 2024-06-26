@@ -158,7 +158,7 @@ export const validate = (rawArgs: any): ValidationResult => {
     validatedArgs.existingProfilePath = rawArgs.existing_profile
   }
 
-  if (rawArgs.persist_profile) {
+  if (rawArgs.persist_profile === true) {
     if (isDir(rawArgs.persist_profile) || isExecFile(rawArgs.persist_profile)) {
       return [false, 'File already exists at path for persisting a ' +
                      `profile: ${rawArgs.persist_profile}.`]
@@ -166,10 +166,10 @@ export const validate = (rawArgs: any): ValidationResult => {
     validatedArgs.persistProfilePath = rawArgs.persist_profile
   }
 
-  if (rawArgs.extensions_path) {
+  if (rawArgs.extensions_path !== undefined) {
     if (!isDir(rawArgs.extensions_path)) {
       return [false, 'Provided extensions path is not a directory: ' +
-                     `${rawArgs.extensions_path}.`]
+                     `${String(rawArgs.extensions_path)}.`]
     }
     validatedArgs.extensionsPath = rawArgs.extensions_path
   }
