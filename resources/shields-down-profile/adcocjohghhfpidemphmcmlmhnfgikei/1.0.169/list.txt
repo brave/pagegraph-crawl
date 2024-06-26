@@ -1,0 +1,2845 @@
+! Firstparty specific filters
+! Ads
+!
+! Generic blocks
+/advanced-ads-$domain=~wordpress.org
+/adservice.$domain=~adservice.io|~github.com|~githubusercontent.com
+/cmbdv2.js
+/display-ad/*
+/greenoaks.gif?
+/discourse-adplugin-
+/legion-advertising-atlasastro/*
+/jquery.adx.js
+/porpoiseant/*
+/plugins/advanced-ads/*$domain=~wordpress.org
+/prebid/*$script
+/webads.
+! imported from uBO
+/api/users/*&ev=$script
+! Admiral anti adblock
+phoronix.com##div[dir="auto"][style]
+baeldung.com##.aelzmn
+sonichits.com##+js(set-session-storage-item, fs.adb831.dis, 1)
+baeldung.com##+js(set-session-storage-item, fs.adb.dis, 1)
+smithsonianmag.com##+js(set-local-storage-item, fs.adb, 1)
+! tioeroge.blogspot.com (anti-adblock)
+tioeroge.blogspot.com##.popSc
+! Anti-drainer eth phishing
+||89563servers.top^
+||acala-bridge.com^
+||ads-management.su^
+||airdrop-alarm.net^
+||airdrop-manager.ru^
+||antenta.site^
+||apisjwer.com^
+||apiszapp.com^
+||asdfasdasd9987.co^
+||bnb-announce.online^
+||brdecolar.com^
+||cdn1.su^
+||cdnjs-bnn.com^
+||cdnjs-gst.com^
+||cdnjs-mht.com^
+||celestia.guru^
+||chopflexhit.online^
+||ciphercapital.tech^
+||compound-swap.com^
+||cpi.abcapiabc.com^
+||creatrin.site^
+||cthulhu.cash^
+||ddfskjdfh.site^
+||deappzap.com^
+||discord-verification.com^
+||diseusy.top^
+||downzoner.xyz^
+||gousy11.top^
+||ipjsonapi.com^
+||iq7grexsvo.ru^
+||iq7grexsvo.su^
+||js-api.net^
+||metamask.blog^
+||metasteal.xyz^
+||moralis-api.zip^
+||moralis-node.dev^
+||nesolam.com^
+||nftfastapi.com^
+||nginxxx.xyz^
+||nodeclaim.com^
+||nonusy.top^
+||papeilist.pics^
+||r202cop.xyz^
+||satanishka.fun^
+||sugaringsofia2.com^
+||titanex.pro^
+||uniswaps.website^
+||verifyconnection.org^
+||w14s58toxo.su^
+||wallet-connect.ru^
+||web3-analytic.ru^
+||web3-api.in^
+||web3-api.ru^
+||whaleman.ru^
+||world-claim.org^
+||zhu-ni-hao-yun.sh^
+! Taboola
+/taboola-header.js
+/taboola.js
+/taboola/loader.js
+/taboolaHead.js
+/taboola-footer.js
+/taboola_7.4.1.js
+/taboola_header.js
+/taboolaarticle.min.js
+||taboolasyndication.com^$third-party
+! Outbrain
+/obtp.js
+/outbrainAd.
+/outbrain.js
+/ads/outbrain?
+||outbrainimg.com^$third-party
+! Remove google login popup nag
+###credential_picker_container
+###credential_picker_iframe
+! google.com maps survey
+google.com###google-hats-survey
+! google.com Signin pop
+www.google.ac,www.google.ae,www.google.at,www.google.be,www.google.bg,www.google.by,www.google.ca,www.google.ch,www.google.cl,www.google.co.id,www.google.co.il,www.google.co.in,www.google.co.jp,www.google.co.ke,www.google.co.kr,www.google.co.nz,www.google.co.th,www.google.co.uk,www.google.co.ve,www.google.co.za,www.google.com,www.google.com.ar,www.google.com.au,www.google.com.br,www.google.com.co,www.google.com.ec,www.google.com.eg,www.google.com.hk,www.google.com.mx,www.google.com.my,www.google.com.pe,www.google.com.ph,www.google.com.pk,www.google.com.py,www.google.com.sa,www.google.com.sg,www.google.com.tr,www.google.com.tw,www.google.com.ua,www.google.com.uy,www.google.com.vn,www.google.cz,www.google.de,www.google.dk,www.google.dz,www.google.ee,www.google.es,www.google.fi,www.google.fr,www.google.gr,www.google.hr,www.google.hu,www.google.ie,www.google.it,www.google.lt,www.google.lv,www.google.nl,www.google.no,www.google.pl,www.google.pt,www.google.ro,www.google.rs,www.google.ru,www.google.se,www.google.sk###div[jscontroller="MaoVMd"][jsdata*="nTLyye;"]
+www.google.ac,www.google.ae,www.google.at,www.google.be,www.google.bg,www.google.by,www.google.ca,www.google.ch,www.google.cl,www.google.co.id,www.google.co.il,www.google.co.in,www.google.co.jp,www.google.co.ke,www.google.co.kr,www.google.co.nz,www.google.co.th,www.google.co.uk,www.google.co.ve,www.google.co.za,www.google.com,www.google.com.ar,www.google.com.au,www.google.com.br,www.google.com.co,www.google.com.ec,www.google.com.eg,www.google.com.hk,www.google.com.mx,www.google.com.my,www.google.com.pe,www.google.com.ph,www.google.com.pk,www.google.com.py,www.google.com.sa,www.google.com.sg,www.google.com.tr,www.google.com.tw,www.google.com.ua,www.google.com.uy,www.google.com.vn,www.google.cz,www.google.de,www.google.dk,www.google.dz,www.google.ee,www.google.es,www.google.fi,www.google.fr,www.google.gr,www.google.hr,www.google.hu,www.google.ie,www.google.it,www.google.lt,www.google.lv,www.google.nl,www.google.no,www.google.pl,www.google.pt,www.google.ro,www.google.rs,www.google.ru,www.google.se,www.google.sk##div.nD2EKb.VEELad
+! Google signin popup (fixes)
+thebetterindia.com##.vspl__gtap-notification-content
+thebetterindia.com##.vspl__gtap-notification-overlay
+grubhub.com,dashboard.razorpay.com,joinhoney.com#@##credential_picker_container
+! 
+###ad--article-top-wrapper
+###ad--sidebar
+###ad-block-2
+###ad-box-2
+###ad-halfpage
+###ad-mpu
+###ad-overlay
+###ad-leaderboard
+###ad-placeholder
+###ad-standard-wrap
+###ad_1
+###ad_2
+###ad_3
+###ad_4
+###ad_5
+###ad_6
+###ad_7
+###ad_8
+###ad_bnr_atf_01
+###ad_bnr_atf_02
+###ad_leaderboard
+###ad_lead1
+###ad_rect_btf_01
+###ad_rect_btf_02
+###ads_tower_top
+###ad_container
+###adhesion
+###adm-inline-article-ad-1
+###adm-inline-article-ad-2
+###admobilefoot
+###admobilefootinside
+###admobilemiddle
+###admobiletop
+###admobiletopinside
+###adslot1
+###adspace
+###adslot300x250ATF
+###adslot300x250BTF
+###advert-article
+###advert-article-1
+###advert-article-2
+###after-dfp-ad-mid1
+###after-dfp-ad-mid3
+###after-dfp-ad-top
+###aniview-ads
+###adwrapper
+###banner_pos1_ddb_0
+###banner_pos2_ddb_0
+###banner_pos3_ddb_0
+###banner_pos4_ddb_0
+###bottom-adhesion
+###comments-standalone-mpu
+###ddb_fluid_native_ddb_0
+###dfp-wallpaper-wrapper
+###dfp_bigbox_2
+###dfp_bigbox_recipe_top
+###dfp_leaderboard
+###dfp_prog_bigbox
+###gpt-leaderboard-ad
+###dsk-box-ad-d
+###dsk-banner-ad-a
+###dsk-banner-ad-b
+###header-ad-block
+###interstory_first_ddb_0
+###interstory_second_ddb_0
+###intro_ad_1
+###js-image-ad-mpu
+###leaderboard.ad
+###leftrail_dynamic_ad_wrapper
+###mpu1_parent
+###mpu2_parent
+###mpu_bottom_sb_1_parent
+###mpu_bottom_sb_2_parent
+###ppvideoadvertisement
+###premium_ddb_0
+###rightrail_pos1_ddb_0
+###rightrail_pos2_ddb_0
+###rightrail_pos3_ddb_0
+###skin-ad-left-rail-container
+###sidebar_ad
+###splashy-ad-container-top
+###story_bottom_ddb_0
+###story_top_ddb_0
+###sponsor_posts
+###taboola-below-article-thumbnails
+###td-ad-placeholder
+###topad
+###TopAd
+##.ATF_wrapper
+##.Ad--empty
+##.AdBox
+##.AdModule
+##.AdSense
+##.AdSlot
+##.adsSticky
+##.AdOneColumnContainer
+##.advertSlot
+##.AdvertWrapper
+##.BoxRail-ad
+##.ConnatixAd
+##.FooterAd
+##.GoogleDfpAd
+##.GoogleDfpAd-Content
+##.GRVAd
+##.GRVMpuWrapper
+##.GoogleDfpAd
+##.NavBarAd
+##.PageTopAd
+##.SimpleAd
+##.StickyAdRail__Inner
+###banner-ad
+##.ad300x250
+##.ad__placeholder
+##.ads-label
+##.banner-ad
+##.ad-block
+##.ad-observer
+##.ad--banner
+##.ad--billboard
+##.ad--container
+##.ad--desktop
+##.ad--footer
+##.ad--in-content
+##.ad--mid-content
+##.ad--mobile
+##.ad--outstream
+##.ad--placeholder
+##.ad--rail
+##.ad--sponsor-content
+##.ad-250x300
+##.ad-300
+##.ad-728x90
+##.ad-article-inline
+##.ad-background
+##.ad-banner-container
+##.ad-banner-wrapper
+##.ad-box:not(#ad-banner):not(:empty)
+##.ad.box
+##.ad-bigbox
+##.ad-disclaimer
+##.ad-stickyhero
+##.ad-top-billboard
+##.horizontal-full-ad
+##.sidebar-square-ad
+##.ad-label
+##.ad-callout-wrapper
+##.ad-caption
+##.ad-center
+##.ad-current
+##.ad-entity-container
+##.ad-fixed
+##.ad-footer
+##.ad-giga
+##.ad-halfpage
+##.ad-header
+##.ad-header-pencil
+##.ad-holder
+##.ad-incontent
+##.ad-inline
+##.ad-lead
+##.ad-leaderboard
+##.ad-left-top
+##.ad-link
+##.ad-mobile
+##.ad-mobile-dynamic
+##.ad-mount
+##.ad-mpu
+##.ad-mrec
+##.ad-notice
+##.ad-overlay
+##.ad-panel
+##.ad-placeholder
+##.ad-rail
+##.ad-rectangle
+##.ad-risingstar-container
+##.ad-section
+##.ad-sidebar
+##.ad-slot
+##.ad-slot--container
+##.ad-slot-1
+##.ad-slot-2
+##.ad-slot-container
+##.ad-slot-header
+##.ad-slot-header__wrapper
+##.ad-slot-placeholder
+##.ad-slot-rail
+##.ad-slot-top
+##.ad-slot-wrapper
+##.ad-space
+##.ad-splash
+##.ad-sponsor
+##.ad-standard
+##.ad-sticky
+##.ad-sticky-banner
+##.ad-sticky-wrapper
+##.ad-stickyhero
+##.ad-stickyhero-enable-mobile
+##.ad-stickyhero--standard
+##.ad-tag
+##.ad_tag
+##.ad-text
+##.ad-title
+##.ad-top
+##.ad-top-banner
+##.ad-type-cube
+##.ad-type-flex-leaderboard
+##.ad-unit
+##.ad-unit--leaderboard
+##.ad-widget-wrapper
+##.ad-wrap
+##.ad-wrapper
+##.ad-wrapper--ad-unit-wrap
+##.ad-wrapper--articletop
+##.ad-wrapper__ad-slug
+##.advertisement-wrapper
+##.ad-zone
+##.ad-zone-container
+##.ad.card
+##.adBlock
+##.adBox
+##.adContent
+##.adElement
+##.adHeight280
+##.adHolder
+##.adMinHeight280
+##.adModule
+##.adModule--inner
+##.adModule--outer
+##.adRectangle-pos-medium
+##.adSense
+##.adSizer
+##.adSlotHeaderContainer
+##.adWrapper
+##.ad.module
+##.ad_300
+##.ad_300by250
+##.ad__align
+##.ad__container
+##.ad__label
+##.ad__section-border
+##.ad__w728
+##.ad_background_1
+##.ad_background_true
+##.ad_blk
+##.ad_bottom
+##.ad_break_container
+##.ad_container
+##.ad_slot
+##.ad_text
+##.ad_top
+##.ad_unit
+##.ad_wrapper
+##.adhesiveAdWrapper
+##.admz
+##.adplaceholder
+##.ad--mpu
+##.ads--no-preload
+##.ads-cont
+##.ad-container-wrapper
+##.ads-box
+##.ads-global-header
+##.ads-wrapper
+##.ads_leaderboard
+##.ads_inline_640
+##.ads_tb-c
+##.ad_left
+##.ad_right
+##.ad__window
+##.adboxtop
+##.adsbox970x90
+##.adsbyvli
+##.adsbytrafficjunky
+##.adslot
+##.adspot
+##.adsCont
+##.adslot970
+##.adtester-container
+##.adthrive
+##.adthrive-ad
+##.adthrive-content
+##.adthrive-placeholder-content
+##.adwidget
+##.adun
+##.adunitContainer
+##.adUnit
+##.advert-container
+##.advert-mpu
+##.advert--header
+##.advert--leaderboard
+##.advert-label
+##.advert-wrapper
+##.advert_container
+##.advertise_text
+##.advertising-top-desktop
+##.advertising-side-hp
+##.advertising-section
+##.advertisement-holder
+##.advertisement-label
+##.ajdg_grpwidgets
+##.alt_ad_block
+##.amp-ad-container
+##.amp-ads
+##.am-adslot
+##.anchored-ad-widget
+##.apexAd
+##.arc-ad-wrapper
+##.arcad-block-container
+##.article-ad
+##.article-mid-ad
+##.article__adhesion
+##.banner_ads
+##.banner-ads
+##.belowMastheadWrapper
+##.bidbarrel-ad
+##.bigbox-ad
+##.block-ad
+##.block-ad-entity
+##.block-advertisement-banner-block
+##.block-dfp
+##.block--dfp
+##.block-yt-ads
+##.bottom-ad
+##.bottom-ads-container
+##.bottomAds
+##.br-ad
+##.br-ad-wrapper
+##.breaker-ad
+##.bvp-ad
+##.c-ad
+##.c-advertisement
+##.c-adDisplay
+##.c-adDisplay_container
+##.c-adSkyBox
+##.c-advert
+##.c-asurionBottomBanner
+##.c-gallery-vertical__advert
+##.c-sidebar-ad-stream__ad
+##.c-ad--bigbox
+##.c-posts__ad
+##.center_add
+##.channel--ad
+##.channel-sidebar-big-box-ad
+##.cnx-player-wrapper
+##.collapsed-ad
+##.column-ad
+##.container__ad
+##.connatix-main-container
+##.container--ads
+##.container--ads-leaderboard-atf
+##.content-ad
+##.crain-advertisement
+##.custom-sticky-ad-container
+##.dac__banner__wrapper
+##.dac__mpu-card
+##.desktop-ad
+##.desktop-ads
+##.dfpad
+##.dfp-ad
+##.dfp-ad-container
+##.dfp-ad-widget
+##.dfp-ad-top-wrapper
+##.dfp-leaderboard-container
+##.dfp-ad-hideempty
+##.dfp-slot
+##.dfp-tag-wrapper
+##.dfp_ATF_wrapper
+##.dfpAdspot
+##.dianomi_context
+##.discourse-adplugin
+##.display-ad
+##.dotcom-ad
+##.dtads-desktop
+##.empire-unit-prefill-container
+##.evolve-ad
+##.ezo_ad
+##.ezoic-ad
+##.ezoic-ad-adaptive
+##.ezoic-adpicker-ad
+##.ezoic-floating-bottom
+##.first_ad
+##.floating-preroll-ad
+##.freestar-ad-container
+##.freestar-incontent-ad
+##.freestar-ad-sidebar-container
+##.freestar-ad-wide-container
+##.themonic-ad1
+##.themonic-ad2
+##.themonic-ad3
+##.themonic-ad6
+##.fs_ad
+##.gallery-ad-lazyload-placeholder
+##.glacier-ad
+##.google-adsense
+##.google-dfp-ad-caption
+##.google-dfp-ad-wrapper
+##.gpt-ad
+##.gpt-ad-container
+##.gpt-ad-wrapper
+##.gpt-breaker-container
+##.header-ad
+##.headerAds
+##.headerAds250
+##.header-ad-region
+##.header_ads-container
+##.header-and-footer--banner-ad
+##.hide-ad
+##.homepage__native-ad
+##.html-advertisement
+##.gnm-ad-unit
+##.gnm-ad-unit-container
+##.gnm-adhesion-ad
+##.gnm-banner-ad
+##.header__ad
+##.homead
+##.home-ad-region-1
+##.horizontal-ad
+##.horizontal-ad-wrapper
+##.horizontal.ad
+##.index-module_rightrailTop__mag4
+##.index-module_rightrailBottom__IJEl
+##.index-module_adBeforeContent__AMXn
+##.ipc-advert
+##.ima-ad-container
+##.image-viewer-ad
+##.image-viewer-mpu
+##.index-module_adBeforeContent__UYZT
+##.in-text-ad
+##.inline-ad
+##.inline-ad-container
+##.inline-story-add
+##.ins_adwrap
+##.insert_ad_column
+##.insticator-ads
+##.instoryAdBlock
+##.instoryAdNoBlock
+##.instream_ad
+##.js-ad
+##.js-ad-placement
+##.js-advert
+##.js-adzone
+##.js-lazy-ad
+##.js-ad-banner-container
+##.js-mapped-ad
+##.js_ad-sticky-footer
+##.js_desktop-horizontal-ad
+##.js_midbanner_ad_slot
+##.js_preheader-ad-container
+##.js_related-stories-inset
+##.js_modal_exit_intent
+##.js_sticky-top-ad
+##.lastAdSlot
+##.latestStoriesAd
+##.leaderboard-ad
+##.leaderboard-ad-fixed
+##.leaderboard.advert
+##.leaderboard_a
+##.leaderboard_ad
+##.listicle-instream-ad-holder
+##.longform-ad
+##.l-article__ad
+##.mgid_3x2
+##.m-ad
+##.m-adaptive-ad-component
+##.m-advert
+##.m-content-advert
+##.m-content-advert-wrap
+##.m-header-ad
+##.m-in-content-ad
+##.m-in-content-ad-row
+##.m-jac-ad
+##.m-sidebar-ad
+##.m-sidebar-ad--slot
+##.m1-header-ad
+##.mapped-ad
+##.media-network-ad
+##.min-height-ad
+##.mm-ad-sponsored
+##.mm-ads-adhesive-ad
+##.mm-ads-gpt-adunit
+##.mm-ads-leaderboard-header
+##.mm-banner970-ad
+##.mntl-gpt-adunit
+##.mntl-sc-block-adslot
+##.mntl-leaderboard-header
+##.mntl-leaderboard-spacer
+##.mobile-ad
+##.mobile-ads
+##.mobile-ad-placeholder
+##.multiad2
+##.native-ad
+##.newspack_global_ad
+##.newsfeed_adunit
+##.noskim.ad
+##.nts-ad
+##.nuk-ad-placeholder
+##.outer-ad-unit-wrapper
+##.outer_ad_container
+##.p-ads-billboard
+##.p-ads-rec
+##.page-ad
+##.pageAdSkin
+##.pageAdSkinUrl
+##.pane-sasia-ad
+##.pmc-adm-boomerang-pub-div
+##.post-ads
+##.post_detail_right_advert
+##.post__article-top-ad-wrapper
+##.premium_PremiumPlacement__2dEp0
+##.primary-ad-widget
+##.primis-wrapper
+##.pubexchange_module
+##.queue_ad
+##.rail-ads-1
+##.recent-ad
+##.region-ad-top
+##.region-ad-bottom-leaderboard
+##.rhs_ad
+##.rhsWidgetNotAdFree
+##.right-column-ad
+##.rightAd
+##.right_ad_1
+##.right_ad_2
+##.right_ad_4
+##.row-ad
+##.right-rail-ad
+##.right-rail-ad-container
+##.rj-ads-wrapper
+##.section-ad
+##.secondary-ad-widget
+##.side_ads
+##.side-ad
+##.sidebar-ad-container
+##.single-post-ad
+##.sponsored-headlines
+##.sponsored-links
+##.sponsored-post
+##.spotlight-ad
+##.square-ad
+##.staticAd
+##.sticky-ad
+##.sticky-bottom-ad
+##.sticky-ad-container
+##.sticky-ads
+##.sticky-footer-ad
+##.sticky-footer-ad-container
+##.stickyRailAd
+##.sticky-rail-ad-container
+##.stickyAd
+##.tablet-ad
+##.tadm_ad_unit
+##.takeover-ad
+##.td-a-ad
+##.td-ad
+##.td-ad-m
+##.td-ad-p
+##.tpd-banner-desktop
+##.tpd-banner-ad-container
+##.top__ad
+##.block-quartz-ads
+##.nn_mobile_mpu_wrapper
+##.static_mpu_wrap
+##.squirrel_widget
+##.BeOpWidget
+##.td-ad-tp
+##.td-adspot-title
+##.tmo-ad
+##.tmo-ad-ezoic
+##.tnt-ads
+##.tnt-ads-container
+##.top-ad
+##.top-advert
+##.top-ad-block
+##.top-ad-wrapper
+##.top-ads-container
+##.top-banner-advert
+##.topbannerAd
+##.tnw-ad
+##.upx-ad-placeholder
+##.vertical-ad
+##.vf-promo-gtag
+##.video-ad
+##.vjs-ima3-ad-container
+##.vf3-conversations-list__promo
+##.wh_ad_inner
+##.wide-ad
+##.widget-ads
+##.widget-dfp
+##.widget_evolve_ad_gpt_widget
+##.wp-block-ad-slot
+##.wp-block-gamurs-ad
+##.zmgad-right-rail
+##.zergnet
+##.zergnet-widget
+##.zergnet__container
+##.zox_ad_widget
+##.zox-post-ad-wrap
+##AD-SLOT
+##gpt-ad
+##[aria-label="advertisement"]
+##[class^="adm-inline-article-ad"]
+##[data-ad-name]
+##[data-ad-width]
+##[data-ad-module]
+##[data-ad-manager-id]
+##[data-adbridg-ad-class]
+##[data-component="ad-unit"]
+##[data-ez-name]
+##[data-freestar-ad]
+##[data-block-type="ad"]
+##[data-rc-widget]
+##[data-revive-zoneid]
+##[data-testid="ad_testID"]
+##[data-testid="prism-ad-wrapper"]
+##[id^="div-gpt-ad"]
+##display-ads
+##div[data-content="Advertisement"]
+##div[class^="native-ad-"]
+##div[class^="Display_displayAd"]
+##div[data-ad-placeholder]
+##div[data-ad-targeting]
+##div[data-adunit]
+##div[data-dfp-id]
+##div[id*="ScriptRoot"]
+##div[id^="div-gpt-"]
+##div[id^="ezoic-pub-ad-"]
+##div[id^="rc-widget-"]
+##div[id^="zergnet-widget"]
+##ins.adsbygoogle[data-ad-slot]
+##span[data-ez-ph-id]
+##span[id^="ezoic-pub-ad-placeholder-"]
+! Specific generic
+##div.adsninja-ad-zone
+##div.bgr-ad-leaderboard
+##div.adsHeight300x250
+##div#topAd
+##div.proper-ad-unit
+##div.rs_ad_block
+##div.header-ad-container
+! (invideo advertising)
+###Player_Playoncontent
+###Player_Playoncontent_footer
+###aniview--player
+###cmg-video-player-placeholder
+###jwplayer-container-div
+###jwplayer_contextual_player_div
+###kargo-player
+###mplayer-embed
+###primis-holder
+###primis_intext
+###vidazoo-player
+##.GRVPrimisVideo
+##.GRVVideo
+##.ac-lre-desktop
+##.ac-lre-player-ph
+##.ac-lre-wrapper
+##.ad-container--hot-video
+##.ae-player__itv
+##.ami-video-wrapper
+##.ampexcoVideoPlayer
+##.aniview-inline-player
+##.anyClipWrapper
+##.aplvideo
+##.article-connatix-wrap
+##.article-detail-ad
+##.avp-p-wrapper
+##.ck-anyclips
+##.ck-anyclips-article
+##.exco-container
+##.ez-sidebar-wall-ad
+##.ez-video-wrap
+##.htl-inarticle-container
+##.js-widget-distroscale
+##.js-widget-send-to-news
+##.jwPlayer--floatingContainer
+##.legion_primiswrapper
+##.mm-embed--sendtonews
+##.mm-widget--sendtonews
+##.nts-video-wrapper
+##.oovvuu-embed-player
+##.pbs__player
+##.playwire-article-leaderboard-ad
+##.pmc-contextual-player
+##.pop-out-eplayer-container
+##.popup-box-ads
+##.primis-ad
+##.primis-ad-wrap
+##.primis-custom
+##.primis-player
+##.primis-player__container
+##.primis-video-player
+##.primis_1
+##.s2nContainer
+##.send-to-news
+##.van_vid_carousel
+##.video--container--aniview
+##.vidible-wrapper
+##.wps-player-wrap
+##[class^="s2nPlayer"]
+! Outbrain
+###around-the-web
+###g-outbrain
+###js-outbrain-module
+###js-outbrain-relateds
+###outbrain
+###outbrain-id
+###outbrain-section
+###outbrain1
+###outbrainWidget
+###outbrain_widget_0
+##.ArticleFooter-outbrain
+##.ArticleOutbrainLocal
+##.OUTBRAIN
+##.Outbrain
+##.article_OutbrainContent
+##.box-outbrain
+##.c2_outbrain
+##.component-outbrain
+##.ob-smartfeed-wrapper
+##.outbrain
+##.outbrain-ads
+##.outbrain-bloc
+##.outbrain-content
+##.outbrain-group
+##.outbrain-module
+##.outbrain-placeholder
+##.outbrain-recommended
+##.outbrain-reserved-space
+##.outbrain-widget
+##.outbrain-wrap
+##.outbrain-wrapper
+##.outbrain-wrapper-outer
+##.outbrainWidget
+##.outbrain__main
+##.outbrain_container
+##.outbrain_skybox
+##.outbrainbox
+##.sics-component__outbrain
+##.voc-ob-wrapper
+##.widget_outbrain
+##.widget_outbrain_widget
+###js-outbrain-ads-module
+###outbrain-wrapper
+###outbrainAdWrapper
+##.adv_outbrain
+##.js-outbrain-container
+##.ob-p.ob-dynamic-rec-container
+##.ob-widget-header
+##.outBrainWrapper
+##.outbrain-ad-slot
+##.outbrain-ad-units
+##.outbrain-bg
+##.outbrainAdHeight
+##.outbrainad
+##.promoted-outbrain
+##.responsive-ad-outbrain
+##.single__outbrain
+##a[data-obtrack^="http://paid.outbrain.com/network/redir?"]
+##a[data-oburl^="https://paid.outbrain.com/network/redir?"]
+##a[data-redirect^="https://paid.outbrain.com/network/redir?"]
+##a[data-url^="http://paid.outbrain.com/network/redir?"] + .author
+##a[data-widget-outbrain-redirect^="http://paid.outbrain.com/network/redir?"]
+##a[href^="https://paid.outbrain.com/network/redir?"]
+##a[onmousedown^="this.href='http://paid.outbrain.com/network/redir?"][target="_blank"]
+##a[onmousedown^="this.href='http://paid.outbrain.com/network/redir?"][target="_blank"] + .ob_source
+##a[onmousedown^="this.href='https://paid.outbrain.com/network/redir?"][target="_blank"]
+##a[onmousedown^="this.href='https://paid.outbrain.com/network/redir?"][target="_blank"] + .ob_source
+##a[target="_blank"][onmousedown="this.href^='http://paid.outbrain.com/network/redir?"]
+! Taboola
+###block-boxes-taboola
+###component-taboola-below-article-feed
+###component-taboola-below-article-feed-2
+###component-taboola-below-homepage-feed
+###taboola-ad
+###taboola-adverts
+###taboola-below
+###taboola-below-article-1
+###taboola-below-article-thumbnails-express
+###taboola-below-article-thumbnails-v2
+###taboola-below-forum-thumbnails
+###taboola-mid-article-thumbnails
+###taboola-mid-article-thumbnails-ii
+###taboola-mobile-article-thumbnails
+###taboola-placeholder
+###taboola-right-rail
+###taboola-right-rail-express
+###taboola_responsive_wrapper
+##.article-taboola
+##.grid__module-sizer_name_taboola
+##.nya-slot[style]
+##.taboola-above-article
+##.taboola-above-article-thumbnails
+##.taboola-ad
+##.taboola-block
+##.taboola-general
+##.taboola-in-plug-wrap
+##.taboola-item
+##.taboola-widget
+##.taboolaArticle
+##.taboolaHeight
+##.taboola__container
+##.taboola_blk
+##.taboola_container
+##.taboola_lhs
+##.trb_taboola
+##.trc_excludable
+##.trc_rbox
+##.trc_rbox_border_elm
+##.trc_rbox_div
+##.trc_related_container
+##.van_taboola
+##.widget_taboola
+##.RC-AD
+##.RC-AD-BOX-BOTTOM
+##.RC-AD-BOX-MIDDLE
+##.RC-AD-BOX-TOP
+##.RC-AD-TOP-BANNER
+##amp-embed[type="taboola"]
+##div[id^="taboola-stream-"]
+###block-taboolablock
+###js-Taboola-Container-0
+###moduleTaboolaRightRail
+###possible_taboola
+###taboola
+###taboola-above-homepage-thumbnails
+###taboola-below-article-thumbnails-2
+###taboola-below-disco-board
+###taboola-below-main-column
+###taboola-belowarticle
+###taboola-bottom
+###taboola-bottom-main-column
+###taboola-div
+###taboola-homepage-thumbnails
+###taboola-horizontal-toolbar
+###taboola-in-feed-thumbnails
+###taboola-mid-main-column-thumbnails
+###taboola-native-right-rail-thumbnails
+###taboola-right-rail-text-right
+###taboola-right-rail-thumbnails
+###taboola-right-rail-thumbnails-2nd
+###taboola-text-2-columns-mix
+###taboola-vid-container
+###taboola-widget-wrapper
+###taboola_bottom
+###taboola_side
+###taboola_wrapper
+##.divider-taboola
+##.js-taboola
+##.m-article-taboola
+##.taboola
+##.taboola-banner
+##.taboola-bottom-adunit
+##.taboola-container
+##.taboola-frame
+##.taboola-inbetweener
+##.taboola-like-block
+##.taboola-module
+##.taboola-recommends
+##.taboola-sidebar
+##.taboola-sidebar-container
+##.taboola-skip-wrapper
+##.taboola-thumbnails-container
+##.taboola-vertical
+##.taboola-wrapper
+##.taboolaDiv
+##.taboola_module
+##.taboolaloader
+##.trc-first-recommendation
+##.trc-spotlight-first-recommendation
+##.trc_spotlight_item
+##[data-taboola-options]
+! Gannett https://github.com/easylist/easylist/issues/13015
+###gnt_atomsnc
+###gpt-dynamic_native_article_4
+###gpt-high_impact
+###gpt-poster
+##.gnt_flp
+##.gnt_rr_xpst
+##.gnt_rr_xst
+##.gnt_tb.gnt_tbb
+##.gnt_tbr.gnt_tb
+##.gnt_x
+##.gnt_xmst
+##.gnt_x__lbl
+##.partner-loading-shown.partner-label
+! exception rules
+azclick.jp,tubefilter.com#@#div#topAd
+news.artnet.com,powernationtv.com,worldsurfleague.com#@#div[data-ad-targeting]
+! ezoic ads (first-party ad insertion)
+/beardeddragon/armadillo.js
+/beardeddragon/drake.js
+/beardeddragon/tortoise.js
+/beardeddragon/turtle.js
+/detroitchicago/anaheim.js
+/detroitchicago/augusta.js
+/detroitchicago/boise.js
+/detroitchicago/denver.js
+/detroitchicago/houston.js
+/detroitchicago/kenai.js
+/detroitchicago/memphis.js
+/detroitchicago/minneapolis.js
+/detroitchicago/portland.js
+/detroitchicago/raleigh.js
+/detroitchicago/reportads.js
+/detroitchicago/rochester.js
+/detroitchicago/sidebarwall.js
+/detroitchicago/tampa.js
+/detroitchicago/tuscon.js
+/detroitchicago/vista.js
+/detroitchicago/vpp.gif?
+/edmonton.webp$script
+/ez_aba_load/*
+/ezcl.webp?
+/ezf-min.$script
+/ezo/*$script,~third-party,domain=~yandex.by|~yandex.com|~yandex.kz|~yandex.ru|~yandex.ua
+/ezoic/*$script,~third-party
+/jellyfish.webp$script
+/parsonsmaize/mulvane.js
+/parsonsmaize/olathe.js
+/tardisrocinante/vitals.js
+! remove-params (ads)
+$removeparam=ad-config-id,xhr,domain=telequebec.tv
+&caid=$removeparam=caid,xhr,domain=max.com
+||brightcove.com/playback/*/*?ad_config_id$removeparam=ad-config-id,xhr,domain=tvnz.co.nz
+||brightcove.com^$removeparam=ad-config-id,domain=player.stv.tv
+||brightcove.com^$removeparam=ad-config-id,xhr,domain=roosterteeth.com
+||brightcovecdn.com/playback/*/*?ad_config_id$removeparam=ad-config-id,xhr,domain=tvnz.co.nz
+||cxm-api.fifa.com/fifaplusweb/api/video/$removeparam=adconfig,xhr
+||edge.api.brightcove.com^$removeparam=ad-config-id,xhr,domain=9now.com.au|mech-plus.com|threenow.co.nz
+||hbo.yspsvc-na.net/csm/*&caid=$removeparam=caid,xhr,domain=play.hbomax.com
+||medium.ngtv.io/v2/media/*&ssaiprofile=$xhr,removeparam=ssaiProfile,domain=~cnn.com
+||warnermediacdn.com/csm/*&caid=$removeparam=caid,xhr,domain=cnn.com
+||warnermediacdn.com/csm/*afid=$removeparam=afid,xhr,domain=cnn.com
+||warnermediacdn.com/csm/*app_csid=$removeparam=app-csid,xhr,domain=cnn.com
+||warnermediacdn.com/csm/*conf_csid=$removeparam=conf-csid,xhr,domain=cnn.com
+! invideo advertising
+gunsandammo.com###VideoPlayerDivIframe
+usnews.com###ac-lre-player-ph
+wral.com###exco
+ispreview.co.uk###footer-slot-3
+ginx.tv###ginx-floatingvod-containerspacer
+gunsandammo.com###inline-player
+pubs.rsc.org###journal-info > .text--centered
+forums.whathifi.com###jwplayer-container-div
+mentalfloss.com###mm-player-placeholder-large-screen
+ispreview.co.uk###mobile-takeover-slot-8
+bossip.com,hiphopwired.com,madamenoire.com###player-wrapper
+bar-planb.com,hakibavuong.com###player_dev
+flightradar24.com###primisAdContainer
+realclearpolitics.com###realclear_jwplayer_container
+ispreview.co.uk###sidebar-slot-5
+uproxx.com###upx-mm-player-wrap
+newseveryday.com###vplayer_large
+telegraph.co.uk##.article-betting-unit-container
+sciencetimes.com##.article-videoplayer
+people.com##.article__broad-video
+washingtonexaminer.com##.bridtv
+cnet.com,zdnet.com##.c-avStickyVideo
+stuff.tv##.c-squirrel-embed
+mb.com.ph##.code-block
+techwalla.com##.component-article-section-jwplayer-wrapper
+familystylefood.com##.email-highlight
+comicbook.com##.embedVideoContainer
+taskandpurpose.com##.empire-unit-prefill-container
+europeanpharmaceuticalreview.com##.europ-fixed-footer
+ibtimes.sg##.featured_video
+dailymail.co.uk##.footballco-container
+redboing.com##.fw-ad
+foxsports.com##.fwAdContainer
+thestar.co.uk##.gOoqzH
+electricianforum.co.uk##.gb-sponsored
+arboristsite.com##.gb-sponsored-wrapper
+givemesport.com##.gms-videos-container
+bringmethenews.com,mensjournal.com,thestreet.com##.is-fallback-player
+anandtech.com##.jwplayer
+gamesradar.com,livescience.com,tomshardware.com,whathifi.com##.jwplayer__widthsetter
+space.com##.jwplayer__wrapper
+southernliving.com##.karma-sticky-rail
+gearjunkie.com##.ldm_ad
+ispreview.co.uk##.midarticle-slot-10
+insideevs.com##.minutely_video_wrap
+bestrecipes.com.au,delicious.com.au,taste.com.au##.news-video
+picrew.me##.play-Imagemaker_Footer
+sciencetimes.com##.player
+bossip.com##.player-wrapper-inner
+swimswam.com##.polls-461
+avclub.com,deadspin.com,gizmodo.com,jalopnik.com,kotaku.com,theonion.com,theroot.com,thetakeout.com##.related-stories-inset-video
+kidspot.com.au##.secondary-video
+playbuzz.com##.stickyplayer-container
+mentalfloss.com##.style_k8mr7b-o_O-style_uhlm2
+gamesradar.com,tomsguide.com,tomshardware.com,whathifi.com##.vid-present
+petapixel.com##.video-aspect-wrapper
+gearjunkie.com##.video-jwplayer
+bolavip.com##.video-player-placeholder
+benzinga.com##.video-player-wrapper
+consequence.net##.video_container
+bigthink.com##.wrapper-connatixElements
+bigthink.com##.wrapper-connatixPlayspace
+offidocs.com##[id^="ja-container-prev"]
+hollywoodreporter.com##[id^="jwplayer"]
+wlevradio.com##a[href^="https://omny.fm/shows/just-start-the-conversation"]
+firstforwomen.com##div[class^="article-content__www_ex_co_video_player_"]
+! Mgid
+##div[id*="MarketGid"]
+! Google funding
+##div[style*="box-shadow: rgb(136, 136, 136) 0px 0px 12px; color: "]
+! https://github.com/uBlockOrigin/uAssets/issues/23268
+megacloud.tv###overlay-center
+! (admiral script) Imported from uBO
+||baeldung.com/*/ad-recovery.$script,1p
+! counterpunch.org
+counterpunch.org##.header-center
+! nn_astro_wrapper
+pcgamebenchmark.com###nn_mpu1
+pcgamebenchmark.com##.nova_wrapper
+pcgamebenchmark.com##.placement
+pcgamebenchmark.com##.side
+pcgamebenchmark.com,pcgamesn.com,pockettactics.com,thedigitalfix.com,wargamer.com###nn_astro_wrapper
+wargamer.com,pockettactics.com##.curated-spotlight
+! frankspeech.com
+frankspeech.com##.bunny-banner
+||rev.frankspeech.com^
+! trademe
+trademe.co.nz##.tm-display-ad__wrapper
+trademe.co.nz##tm-display-ad
+! nationalworld.com
+nationalworld.com##.banner
+nationalworld.com,scotsman.com##.dmpu-item
+! theautopian.com
+theautopian.com##[data-widget_type="html.default"]
+! bossip.com
+bossip.com###player-wrapper
+bossip.com##.fsb-desktop
+bossip.com##.fsb-toggle
+bossip.com##.player-wrapper-inner
+! delish.com
+delish.com##.css-3oqygl
+! independent.co.uk/the-independent.com
+independent.co.uk,the-independent.com###partners
+independent.co.uk,the-independent.com###stickyFooterRoot
+independent.co.uk,the-independent.com###top-banner-wrapper
+independent.co.uk,the-independent.com##[data-mpu1]
+independent.co.uk##article > div[class^="sc-"]:has(> div[class^="sc-"] > div[data-ad-unit-path])
+! appleinsider.com
+appleinsider.com##.push
+! macrumors.com
+macrumors.com##.sidebarblock
+macrumors.com##.tertiary
+! coindesk.com
+coindesk.com##.high-impact-ad
+! pastebin.com
+pastebin.com##.content > [style^="padding-bottom:"]
+pastebin.com##div[style^="color: #999; font-size: 12px; text-align: center;"]
+! spectrum.ieee.org
+spectrum.ieee.org##.top-leader-container
+spectrum.ieee.org##div[class^="rblad-"]
+! theglobeandmail.com
+theglobeandmail.com##.BaseAd__StyledRootBaseAd-sc-1khlkqq-1
+theglobeandmail.com###BaseAd__StyledAdPlaceholder-sc-1khlkqq-0
+! adblock-tester.com
+adblock-tester.com##embed[width="240"]
+adblock-tester.com##object[width="240"]
+||adblock-tester.com/banners/
+! atlasobscura.com
+atlasobscura.com##.advertisement-disclaimer
+atlasobscura.com##.advertisement-shadow
+atlasobscura.com##.ad-site-top-full-width
+! twitch.tv
+||edge.ads.twitch.tv^
+! securityweek.com
+||ads.securityweek.com/app.js
+! plos.org
+plos.org##.head-top
+plos.org##.skyscraper-container
+! engadget.com
+engadget.com##.post-article-ad
+engadget.com##.Mih\(90px\)
+engadget.com##.Py\(30px\).Bgc\(engadgetGhostWhite\)
+engadget.com##.Td\(n\).Bdbc\(engadgetGutter\).Py\(40px\)
+engadget.com##.da-container
+engadget.com##.related-content-lazyload
+! ghacks.net
+ghacks.net###snhb-snhb_ghacks_bottom-0
+ghacks.net##.box-banner
+ghacks.net##.ftd-item
+ghacks.net##.ghacks-ad
+ghacks.net##.ghacks_ad_code
+! torrentfreak.com
+torrentfreak.com##.widget_custom_html
+||torrentfreak.com/wp-content/banners/
+! fortune.com
+fortune.com##.homepage:has(> div[id^="InStream"])
+fortune.com##[class]:has(> #Leaderboard0)
+fortune.com###Leaderboard0
+! phonearena.com 
+phonearena.com##.announcements
+! .insert
+nintendolife.com,purexbox.com,pushsquare.com,timeextension.com##.insert
+nintendolife.com,purexbox.com,pushsquare.com,timeextension.com##.insert-label
+! lasvegassun.com
+lasvegassun.com###ad-colB-1
+! dallasnews.com
+dallasnews.com##[class^="dmnc_features-ads-arc-ad-"]
+! lasvegasweekly.com
+lasvegasweekly.com###bottom-bar-container
+! thedriven.io
+thedriven.io###solarchoice_banner_1
+! alternativeto.net
+alternativeto.net##[class^="AdsenseAd"]
+! lrt.lt
+lrt.lt##.article-content__inline-block
+! standard.co.uk
+standard.co.uk###polar-sidebar-sponsored
+standard.co.uk###stickyFooterRoot
+standard.co.uk##.sc-kAeStu.bkIZsH
+! euronews.com
+euronews.com###js-smart-banner
+euronews.com##.base-leaderboard
+euronews.com##.enw-MPU
+euronews.com##.qa-dfpLeaderBoard
+! merriam-webster.com
+merriam-webster.com##.home-redesign-ad
+! themessenger.com
+themessenger.com##.htlad-leaderboard_top
+! dailyvoice.com
+dailyvoice.com##.b-banner
+dailyvoice.com##.e-nativo-container
+! mbl.is
+mbl.is##.augl
+! thepinknews.com
+thepinknews.com##.pn-ad-container
+thepinknews.com##.pn-remove-ads-container
+! inews.co.uk
+inews.co.uk##.inews__advert
+inews.co.uk##.inews__mpu
+! semafor.com
+semafor.com##div[class^="styles_ad"]
+! #topbanner
+absolutelyrics.com,cdrlabs.com,eonline.com,exiledonline.com,findtheword.info,realitywanted.com,revizoronline.com,snapfiles.com###topbanner
+! comicbookmovie.com
+comicbookmovie.com##.ad > .blur-up
+! boingboing.net
+boingboing.net##.boing-amp-triple13-amp-1
+boingboing.net##.boing-homepage-after-first-article-in-list
+boingboing.net##.boing-primis-video-in-article-content
+! nyctourism.com
+nyctourism.com##.Layout_mobileStickyAdContainer__fCbCq
+! propublica.org
+propublica.org##.bb-ad
+! bestlifeonline.com
+bestlifeonline.com##.vi-video-wrapper
+bestlifeonline.com##.inline
+bestlifeonline.com##.widget_gm_karmaadunit_widget
+! softonic.com
+softonic.com##.sam-slot
+! business-standard.com
+business-standard.com##.advertisement-bg
+business-standard.com##div[id^="between_article_content_"]
+! foodnetwork.com
+foodnetwork.com###leaderboard-wrap
+! greencarreports.com
+greencarreports.com##.adv-spacer
+! snopes.com
+snopes.com##.banner_ad_between_sections
+! darko.audio
+darko.audio##.audio_widget
+snopes.com##.sidebar_ad
+! .arcad_feature
+1news.co.nz,actionnewsjax.com,boston25news.com,easy93.com,fox23.com,kiro7.com,wftv.com,whio.com,wpxi.com,wsbradio.com,wsbtv.com,wsoctv.com##.arcad_feature
+! allkpop.com
+###div-insticator-ad-1
+###div-insticator-ad-2
+allkpop.com##.akp2_wrap
+! videogameschronicle.com
+videogameschronicle.com##div[id^="ad__billboard_"]
+videogameschronicle.com##div[id^="ad__hugebreak"]
+! siasat.com
+siasat.com###tie-block_3274
+siasat.com##.awt_ad_code
+siasat.com##.stream-item-below-post-content
+siasat.com##.stream-item-inline-post
+siasat.com##.stream-item-widget
+! wbur.org
+wbur.org##.bp-label
+wbur.org##.bp--rec
+wbur.org##.bp--outer
+! fxstreet.com
+fxstreet.com###fxs-sposorBroker-topBanner
+fxstreet.com##.fxs_leaderboard
+! essentiallysports.com
+essentiallysports.com##.es-ad-space-container
+! extremetech.com
+extremetech.com##.bg-gray-100
+extremetech.com##.min-h-24
+extremetech.com##section > .mt-8
+! .topWrapper
+click2houston.com,clickondetroit.com,clickorlando.com,ksat.com,local10.com,news4jax.com##.topWrapper
+! timesnownews.com
+timesnownews.com##.atfAdContainer
+! wral.com
+wral.com###exco
+! upi.com
+upi.com##.ad_slot_inread
+upi.com##.col-md-12 > table
+upi.com##[style="min-height: 305px;"]
+! geekwire.com
+geekwire.com###sponsors
+! indy100.com
+indy100.com###top_banner
+! kyivpost.com
+kyivpost.com##.ad_between_paragraphs
+! hellomagazine.com
+hellomagazine.com##.-variation-megabanner
+hellomagazine.com##.-variation-robainferior
+hellomagazine.com##.-variation-robapaginas
+! alternet.org
+alternet.org###leaderboard-placeholder
+alternet.org##.sidebar_sticky_container
+! howstuffworks.com
+howstuffworks.com###inline-video-wrap
+howstuffworks.com##.leaderboard-banner
+howstuffworks.com##.z-999
+! rawstory.com
+rawstory.com###rawstory_front_2_container
+rawstory.com###story-top-ad
+rawstory.com##.container_proper-ad-unit
+rawstory.com##.connatix-hodler
+! 9gag
+9gag.com##article:has(.promoted)
+! distractify.com
+distractify.com,greenmatters.com,inquisitr.com,okmagazine.com,radaronline.com##.dpbdIG
+! comicbook.com
+comicbook.com##.embedVideoContainer
+comicbook.com##.mobile
+comicbook.com##.oas
+comicbook.com,popculture.com##.popculture-embed
+comicbook.com,popculture.com##[id^="native-plus-"]
+! theartnewspaper.com
+theartnewspaper.com##.justify-center.flex.w-full
+theartnewspaper.com##[style="min-height:250px;"]
+! eonline.com
+eonline.com##.article-detail__right-rail--topad
+eonline.com##.article-detail__segment-ad
+! yardbarker.com
+yardbarker.com###leaderboard_container
+yardbarker.com###right_top_sticky
+yardbarker.com###yb_recirc_container_mobile
+yardbarker.com##.mb_promo_responsive_right
+yardbarker.com##.yb-card-ad
+! topgear.com
+topgear.com##div[class^="AdContainer"]
+topgear.com##div[class^="TopContainer-"]
+! motortrend.com
+motortrend.com##._3HQN_
+! whatcar.com
+whatcar.com##.ArticleTemplate_masthead__oY950
+! zillow.com
+zillow.com##[data-test="search-list-first-ad"]
+! crypto.news
+crypto.news##.a49292cf69626
+crypto.news##.b6470de94dc
+! telegraph.co.uk
+telegraph.co.uk##.commercial-unit
+! cryptonews.net
+cryptonews.net##.vert-public
+! cointelegraph.com
+cointelegraph.com##.ad-slot_NjPAE
+cointelegraph.com##.advertise-with-us-link_O9rIX
+cointelegraph.com##.componentAdbutler_uF1zH
+cointelegraph.com##mm-collectors
+! trulia.com
+! the-scientist.com
+the-scientist.com###Torpedo
+the-scientist.com###preHeader
+the-scientist.com##.adverts
+the-scientist.com##.footer-ad
+! bettycrocker.com
+bettycrocker.com##+js(rc, adhesiveHeaderAdFixed, body, stay)
+! gizmochina.com
+gizmochina.com##.adsbygoogle
+! dexerto.com
+charlieintel.com,dexerto.com##.Ad_ad__SqDQA
+charlieintel.com,dexerto.com##.bg-neutral-grey-4.items-center
+charlieintel.com,dexerto.com##.bg-neutral-grey.justify-center
+charlieintel.com,dexerto.com##.text-center.italic
+charlieintel.com,dexerto.com##.top-0.justify-center
+charlieintel.com,dexerto.com##.top-10
+! trustedreviews.com
+trustedreviews.com##.keystone-single-widget
+! stuff.tv
+stuff.tv##.c-ad--leftpageskin
+stuff.tv##.c-ad--mpu-bottom
+stuff.tv##.c-ad--mpu-top
+stuff.tv##.c-ad--rightpageskin
+stuff.tv##.c-freestar-video-ad__container
+! arstechnica.com
+arstechnica.com##.ad_crown
+arstechnica.com##.ad_fullwidth
+arstechnica.com##.ad_xrail
+! nytimes.com
+nytimes.com,nytimesn7cgmftshazwhfgzm37qxb44r64ytbb2dj3x62d2lljsciiyd.onion###bottom-wrapper
+nytimes.com,nytimesn7cgmftshazwhfgzm37qxb44r64ytbb2dj3x62d2lljsciiyd.onion###top-wrapper
+nytimes.com,nytimesn7cgmftshazwhfgzm37qxb44r64ytbb2dj3x62d2lljsciiyd.onion##.css-142l3g4
+nytimes.com,nytimesn7cgmftshazwhfgzm37qxb44r64ytbb2dj3x62d2lljsciiyd.onion##.css-bs95eu
+nytimes.com,nytimesn7cgmftshazwhfgzm37qxb44r64ytbb2dj3x62d2lljsciiyd.onion##.css-oeful5
+nytimes.com,nytimesn7cgmftshazwhfgzm37qxb44r64ytbb2dj3x62d2lljsciiyd.onion##.e1xxpj0j1.css-4vtjtj
+nytimes.com,nytimesn7cgmftshazwhfgzm37qxb44r64ytbb2dj3x62d2lljsciiyd.onion##.g-paid
+nytimes.com,nytimesn7cgmftshazwhfgzm37qxb44r64ytbb2dj3x62d2lljsciiyd.onion##[data-testid="StandardAd"]
+cooking.nytimes.com##.adunit_ad-unit__IhpkS
+! abovethelaw.com
+abovethelaw.com##.single-post__sponsored-post--desktop
+abovethelaw.com##.sidebar-sponsored
+abovethelaw.com###div-id-for-middle-300x250
+abovethelaw.com###div-id-for-top-300x250
+! cnbc.com
+cnbc.com##.BoxRail-styles-makeit-ad--lyuQB
+cnbc.com##.TopBanner-container
+cnbc.com##div[class^="TopBanner-"]
+cnbc.com##div[class^="BoxRail-Styles-"]
+! .zone
+bellinghamherald.com,bnd.com,bradenton.com,centredaily.com,charlotteobserver.com,elnuevoherald.com,fresnobee.com,heraldonline.com,heraldsun.com,idahostatesman.com,islandpacket.com,kansas.com,kansascity.com,kentucky.com,ledger-enquirer.com,macon.com,mcclatchydc.com,mercedsunstar.com,miamiherald.com,modbee.com,myrtlebeachonline.com,newsobserver.com,sacbee.com,sanluisobispo.com,star-telegram.com,sunherald.com,thenewstribune.com,theolympian.com,thestate.com,tri-cityherald.com##.zone
+! .ads
+1sale.com,1v1.lol,7billionworld.com,9jaflaver.com,achieveronline.co.za,canstar.com.au,canstarblue.co.nz,cheapies.nz,climatechangenews.com,cryptonomist.ch,currencyrate.today,downloadtorrentfile.com,economictimes.com,energyforecastonline.co.za,esports.com,eventcinemas.co.nz,ezgif.com,flashx.tv,gamesadshopper.com,geo.tv,govtrack.us,gramfeed.com,hentaikun.com,hockeyfeed.com,i24news.tv,icons8.com,idiva.com,indiatimes.com,inspirock.com,investing.com,m.economictimes.com,mangasect.com,marinetraffic.com,mb.com.ph,mega4upload.com,mehrnews.com,meta-calculator.com,mini-ielts.com,miningprospectus.co.za,motogp.com,mugshots.com,nbc.na,news.nom.co,nsfwyoutube.com,onlinerekenmachine.com,ozbargain.com.au,piliapp.com,readcomicsonline.ru,recipes.net,russia-insider.com,russian-faith.com,savevideo.me,sgcarmart.com,sherdog.com,straitstimes.com,teamblind.com,tehrantimes.com,tellerreport.com,thenews.com.pk,thestar.com.my,viamichelin.com,viamichelin.ie,vijesti.me,y8.com,yummy.ph##.ads
+! .advert
+barkinganddagenhampost.co.uk,becclesandbungayjournal.co.uk,blogto.com,burymercury.co.uk,cambstimes.co.uk,cardealermagazine.co.uk,crimemagazine.com,dailyedge.ie,datalounge.com,derehamtimes.co.uk,dermnetnz.org,dissmercury.co.uk,dunmowbroadcast.co.uk,eadt.co.uk,eastlondonadvertiser.co.uk,economist.com,edp24.co.uk,elystandard.co.uk,etf.com,eveningnews24.co.uk,exmouthjournal.co.uk,fakenhamtimes.co.uk,football.co.uk,gearspace.com,gematsu.com,greatyarmouthmercury.co.uk,hackneygazette.co.uk,hamhigh.co.uk,hertsad.co.uk,huntspost.co.uk,icaew.com,ilfordrecorder.co.uk,iol.co.za,ipswichstar.co.uk,islingtongazette.co.uk,lgr.co.uk,lowestoftjournal.co.uk,maltapark.com,midweekherald.co.uk,morningstar.co.uk,newhamrecorder.co.uk,newstalkzb.co.nz,northnorfolknews.co.uk,northsomersettimes.co.uk,pinkun.com,proxcskiing.com,romfordrecorder.co.uk,royston-crow.co.uk,saffronwaldenreporter.co.uk,sidmouthherald.co.uk,stowmarketmercury.co.uk,stylecraze.com,sudburymercury.co.uk,tbivision.com,the42.ie,thecomet.net,thedrum.com,thejournal.ie,tineye.com,trucksplanet.com,wattonandswaffhamtimes.co.uk,whtimes.co.uk,wisbechstandard.co.uk,wtatennis.com,wymondhamandattleboroughmercury.co.uk##.advert
+! .advertisement
+aan.com,aarp.org,additudemag.com,animax-asia.com,apkforpc.com,audioxpress.com,axn-asia.com,bravotv.com,citiblog.co.uk,cnbctv18.com,cnn59.com,controleng.com,downzen.com,dw.com,dwturkce.com,escapeatx.com,foodsforbetterhealth.com,gemtvasia.com,hcn.org,huffingtonpost.co.uk,inqld.com.au,inspiredminds.de,investmentnews.com,jewishworldreview.com,legion.org,lifezette.com,livestly.com,magtheweekly.com,moneyland.ch,offshore-energy.biz,onetvasia.com,oxygen.com,pch.com,prospectmagazine.co.uk,readamericanfootball.com,readarsenal.com,readastonvilla.com,readbasketball.com,readbetting.com,readbournemouth.com,readboxing.com,readbrighton.com,readbundesliga.com,readburnley.com,readcars.co,readceltic.com,readchampionship.com,readchelsea.com,readcricket.com,readcrystalpalace.com,readeverton.com,readeverything.co,readfashion.co,readfilm.co,readfood.co,readfootball.co,readgaming.co,readgolf.com,readhorseracing.com,readhuddersfield.com,readhull.com,readinternationalfootball.com,readlaliga.com,readleicester.com,readliverpoolfc.com,readmancity.com,readmanutd.com,readmiddlesbrough.com,readmma.com,readmotorsport.com,readmusic.co,readnewcastle.com,readnorwich.com,readnottinghamforest.com,readolympics.com,readpl.com,readrangers.com,readrugbyunion.com,readseriea.com,readshowbiz.co,readsouthampton.com,readsport.co,readstoke.com,readsunderland.com,readswansea.com,readtech.co,readtennis.co,readtottenham.com,readtv.co,readussoccer.com,readwatford.com,readwestbrom.com,readwestham.com,readwsl.com,reason.com,redvoicemedia.com,revolver.news,rogerebert.com,smithsonianmag.com,streamingmedia.com,the-scientist.com,thecatholicthing.org,therighthairstyles.com,topsmerch.com,weatherwatch.co.nz,wheels.ca,whichcar.com.au,woot.com,worldofbitco.in##.advertisement
+! .leaderboard
+agcanada.com,allmusic.com,allrecipes.com,allthatsinteresting.com,autoaction.com.au,autos.ca,ballstatedaily.com,bdonline.co.uk,boardgamegeek.com,bravewords.com,broadcastnow.co.uk,cantbeunseen.com,cattime.com,chairmanlol.com,chemistryworld.com,citynews.ca,comingsoon.net,coolmathgames.com,crn.com.au,diyfail.com,dogtime.com,drugtargetreview.com,edmunds.com,europeanpharmaceuticalreview.com,explainthisimage.com,foodandwine.com,foodista.com,freshbusinessthinking.com,funnyexam.com,funnytipjars.com,gamesindustry.biz,gmanetwork.com,iamdisappoint.com,imedicalapps.com,itnews.com.au,japanisweird.com,jta.org,legion.org,lifezette.com,liveoutdoors.com,milesplit.com,monocle.com,morefailat11.com,moviemistakes.com,nbl.com.au,nfcw.com,objectiface.com,passedoutphotos.com,playstationlifestyle.net,precisionvaccinations.com,retail-week.com,rollcall.com,roulettereactions.com,searchenginesuggestions.com,shinyshiny.tv,shitbrix.com,sparesomelol.com,spoiledphotos.com,spokesman.com,sportsnet.ca,sportsvite.com,stopdroplol.com,straitstimes.com,suffolknews.co.uk,supersport.com,tattoofailure.com,thedriven.io,thefashionspot.com,thestar.com.my,titantv.com,tutorialrepublic.com,where.ca,yoimaletyoufinish.com##.leaderboard
+! clutchpoints.com
+clutchpoints.com##.cafemedia-clutchpoints-header
+! nba.com
+nba.com##[data-ad-type="banner"]
+! si.com
+si.com##.m-balloon-header--ad
+si.com##[data-ad-group]
+athlonsports.com,bringmethenews.com,meidastouch.com,si.com,thestreet.com##.is-exco-player
+! digitaltrends.com
+digitaltrends.com##.dt-primis
+digitaltrends.com##.dtads-location
+! soundonsound.com
+soundonsound.com##.block---managed
+! theverge.com
+theverge.com##div[data-concert]
+! zdnet.com
+zdnet.com##.c-adDisplay_container_incontent-all-top
+! musescore.com
+musescore.com###ad_cs_12219747_728_90
+musescore.com##.js-musescore-hb-728--wrapper
+musescore.com###ad_cs_12219747_300_250
+! sherdog.com
+sherdog.com###adViAi
+sherdog.com##.top_ads
+! chron.com/houstonchronicle.com/sfgate.com/seattlepi.com
+chron.com,ctinsider.com,ctpost.com,middletownpress.com,mysanantonio.com,beaumontenterprise.com,expressnews.com,houstonchronicle.com,lmtonline.com,mrt.com,newstimes.com,nhregister.com,registercitizen.com,seattlepi.com,sfchronicle.com,sfgate.com,stamfordadvocate.com,thehour.com,timesunion.com##.ar16-9
+beaumontenterprise.com,chron.com,ctinsider.com,ctpost.com,expressnews.com,houstonchronicle.com,lmtonline.com,middletownpress.com,mrt.com,mysanantonio.com,newstimes.com,nhregister.com,registercitizen.com,seattlepi.com,sfchronicle.com,sfgate.com,stamfordadvocate.com,thehour.com,timesunion.com##.b-gray300.bt
+beaumontenterprise.com,chron.com,ctinsider.com,ctpost.com,expressnews.com,houstonchronicle.com,lmtonline.com,middletownpress.com,mrt.com,mysanantonio.com,newstimes.com,nhregister.com,registercitizen.com,seattlepi.com,sfchronicle.com,sfgate.com,stamfordadvocate.com,thehour.com,timesunion.com##.b-gray300.md\:bt
+beaumontenterprise.com,chron.com,ctinsider.com,ctpost.com,expressnews.com,houstonchronicle.com,lmtonline.com,middletownpress.com,mrt.com,mysanantonio.com,newstimes.com,nhregister.com,registercitizen.com,seattlepi.com,sfchronicle.com,sfgate.com,stamfordadvocate.com,thehour.com,timesunion.com##.b-gray300.md\:bt.md\:bb
+mysanantonio.com,sfgate.com##.x100.bg-gray100
+! ctpost.com
+beaumontenterprise.com,chron.com,ctinsider.com,ctpost.com,expressnews.com,houstonchronicle.com,lmtonline.com,middletownpress.com,mrt.com,mysanantonio.com,newstimes.com,nhregister.com,registercitizen.com,seattlepi.com,sfchronicle.com,sfgate.com,stamfordadvocate.com,thehour.com,timesunion.com,ctpost.com###modals
+beaumontenterprise.com,chron.com,ctinsider.com,ctpost.com,expressnews.com,houstonchronicle.com,lmtonline.com,middletownpress.com,mrt.com,mysanantonio.com,newstimes.com,nhregister.com,registercitizen.com,seattlepi.com,sfchronicle.com,sfgate.com,stamfordadvocate.com,thehour.com,timesunion.com,ctpost.com##body:style(overflow: auto !important;)
+! sfchronicle.com
+sfchronicle.com##div[class^="ad-module-"]
+! androidauthority.com
+androidauthority.com##._--_-___Yb
+androidauthority.com##._--_-___Zb
+! foxweather.com
+foxweather.com##.sticky-pre-content
+! iflscience.com
+iflscience.com##.trendmd-container
+! ebar.com
+ebar.com###skin-right
+ebar.com###skin-left
+! .Ad
+buzzfeed.com,imgur.io,iotworldtoday.com,sevendaysvt.com,tasty.co,tucsonweekly.com##.Ad
+! .billboard
+9gag.com,bundesliga.com,hotstar.com,scotsman.com,talksport.com,the-sun.com,thescottishsun.co.uk,thesun.co.uk,thesun.ie##.billboard
+! .g
+aframnews.com,afro.com,aurn.com,aviacionline.com,borneobulletin.com.bn,businessday.ng,businessofapps.com,chicagodefender.com,chimpreports.com,coinweek.com,collive.com,coralspringstalk.com,dailynews.co.zw,dailysport.co.uk,dallasvoice.com,defence-industry.eu,dieworkwear.com,draxe.com,gatewaynews.co.za,gayexpress.co.nz,gematsu.com,hamodia.com,islandecho.co.uk,jacksonvillefreepress.com,mediaplaynews.com,moviemaker.com,newpittsburghcourier.com,nondoc.com,richmondshiretoday.co.uk,sammobile.com,savannahtribune.com,spaceref.com,talkers.com,talkradioeurope.com,thegolfnewsnet.com,utdmercury.com,waamradio.com,womensagenda.com.au##.g
+! thefastmode.com
+thefastmode.com##.takeover
+! ndtv.com
+ndtv.com##.add-section
+ndtv.com##.add-wrp
+ndtv.com##.add__txt
+ndtv.com##.add__wrp
+ndtv.com##.add_dxt-non
+ndtv.com##.ads-wrp
+ndtv.com##.hmpage_rhs
+ndtv.com,ndtv.in##[class^="firework"]
+ndtv.com,ndtv.in##[id^="firework"]
+ndtv.com##div[class^="add_"]
+! .ad
+11alive.com,12news.com,12newsnow.com,13newsnow.com,13wmaz.com,5newsonline.com,9news.com,abc10.com,abovethelaw.com,adelaidenow.com.au,adtmag.com,aero-news.net,airportia.com,americanprofile.com,appleinsider.com,arstechnica.com,as.com,asianwiki.com,askmen.com,associationsnow.com,autoevolution.com,autoguide.com,automation.com,autotrader.com.au,bab.la,barchart.com,bdnews24.com,beinsports.com,bgr.in,biometricupdate.com,boats.com,bobvila.com,booksourcemagazine.com,bostonglobe.com,bradleybraves.com,businessdailyafrica.com,businessinsider.com,businesstech.co.za,businessworld.in,c21media.net,cbc.ca,cbs19.tv,celebdigs.com,celebified.com,ch-aviation.com,chargedevs.com,chemistryworld.com,cnn.com,cnnphilippines.com,colourlovers.com,computerworld.com,couriermail.com.au,cracked.com,createtv.com,crn.com,crossmap.com,crosswalk.com,csoonline.com,cyberscoop.com,dailycaller.com,dailylobo.com,dailyparent.com,dailytarheel.com,dcist.com,dealnews.com,deccanherald.com,defenseone.com,defensescoop.com,discordbotlist.com,downdetector.co.nz,downdetector.co.uk,downdetector.co.za,downdetector.com,downdetector.in,downdetector.sg,dpreview.com,dynamicwallpaper.club,earlygame.com,edmontonjournal.com,elpais.com,emoji.gg,eurosport.com,excellence-mag.com,familydoctor.org,fanpop.com,femalefirst.co.uk,filehippo.com,filerox.com,finance.yahoo.com,firstcoastnews.com,flightglobal.com,fox6now.com,foxbusiness.com,foxnews.com,fxnowcanada.ca,gamesadshopper.com,gayvegas.com,geelongadvertiser.com.au,gmanetwork.com,go.com,golfweather.com,gtplanet.net,heraldnet.com,heraldsun.com.au,hodinkee.com,homebeautiful.com.au,hoodline.com,inc-aus.com,indiatvnews.com,infobyip.com,infoworld.com,inhabitat.com,insider.com,interfax.com.ua,joc.com,jscompress.com,kagstv.com,kare11.com,kcentv.com,kens5.com,kgw.com,khou.com,kiiitv.com,king5.com,koreabang.com,kpopstarz.com,krem.com,ksdk.com,ktvb.com,kvue.com,lagom.nl,leaderpost.com,letsgodigital.org,lifezette.com,lonestarlive.com,looktothestars.org,mangarockteam.com,marketwatch.com,maxpreps.com,mcpmag.com,minecraftmods.com,modernretail.co,monkeytype.com,motherjones.com,mprnews.org,mybroadband.co.za,myfox8.com,myfoxzone.com,mygaming.co.za,myrecipes.com,namibtimes.net,nejm.org,neowin.net,networkworld.com,newbeauty.com,news.com.au,news.sky.com,newscentermaine.com,newsday.com,newstatesman.com,nymag.com,nytimes.com,nytimesn7cgmftshazwhfgzm37qxb44r64ytbb2dj3x62d2lljsciiyd.onion,nzherald.co.nz,patch.com,patheos.com,pcgamesn.com,petfinder.com,picmix.com,planelogger.com,playsnake.org,playtictactoe.org,pokertube.com,politico.com,politico.eu,powernationtv.com,proremodeler.com,quackit.com,ranker.com,ratemds.com,ratemyprofessors.com,redmondmag.com,refinery29.com,revolver.news,roadsideamerica.com,salisburypost.com,scholarlykitchen.sspnet.org,seattletimes.com,segmentnext.com,silive.com,simpledesktops.com,slickdeals.net,slippedisc.com,sltrib.com,smartcompany.com.au,smsfi.com,softpedia.com,soranews24.com,spot.im,spryliving.com,statenews.com,statscrop.com,straight.com,streetinsider.com,stv.tv,sundayworld.com,the-decoder.com,thecut.com,thedigitalfix.com,thedp.com,theeastafrican.co.ke,thefader.com,thefirearmblog.com,thegrocer.co.uk,themercury.com.au,theringreport.com,thestarphoenix.com,thv11.com,time.com,tntsports.co.uk,today.com,toonado.com,townhall.com,tracker.gg,tribalfootball.com,triblive.com,tripadvisor.at,tripadvisor.be,tripadvisor.ca,tripadvisor.ch,tripadvisor.cl,tripadvisor.cn,tripadvisor.co,tripadvisor.co.id,tripadvisor.co.il,tripadvisor.co.kr,tripadvisor.co.nz,tripadvisor.co.uk,tripadvisor.co.za,tripadvisor.com,tripadvisor.com.ar,tripadvisor.com.au,tripadvisor.com.br,tripadvisor.com.eg,tripadvisor.com.gr,tripadvisor.com.hk,tripadvisor.com.mx,tripadvisor.com.my,tripadvisor.com.pe,tripadvisor.com.ph,tripadvisor.com.sg,tripadvisor.com.tr,tripadvisor.com.tw,tripadvisor.com.ve,tripadvisor.com.vn,tripadvisor.de,tripadvisor.dk,tripadvisor.es,tripadvisor.fr,tripadvisor.ie,tripadvisor.in,tripadvisor.it,tripadvisor.jp,tripadvisor.nl,tripadvisor.pt,tripadvisor.ru,tripadvisor.se,tweaktown.com,ultimatespecs.com,uptodown.com,usmagazine.com,usnews.com,vancouversun.com,vogue.in,vulture.com,wamu.org,washingtonexaminer.com,washingtontimes.com,watzatsong.com,wbir.com,wcnc.com,weatheronline.co.uk,webestools.com,webmd.com,weeklytimesnow.com.au,wfaa.com,wfmynews2.com,wgnt.com,wgntv.com,wgrz.com,whas11.com,windsorstar.com,winnipegfreepress.com,wkyc.com,wltx.com,wnep.com,worthplaying.com,wqad.com,wral.com,wrif.com,wtsp.com,wusa9.com,wwltv.com,wzzm13.com,x17online.com,xatakaon.com,yorkpress.co.uk##.ad
+! .ad-container
+12news.com,9news.com,9to5google.com,9to5mac.com,aad.org,advfn.com,all3dp.com,allaboutcookies.org,allnovel.net,amny.com,athleticbusiness.com,audiokarma.org,beeradvocate.com,beliefnet.com,bizjournals.com,biznews.com,bolavip.com,businessinsider.com,cbs8.com,cc.com,ccjdigital.com,computerworld.com,dailytrust.com,delish.com,driven.co.nz,ecr.co.za,electrek.co,engineeringnews.co.za,equipmentworld.com,etcanada.com,fastcompany.com,footyheadlines.com,fox10phoenix.com,fox13news.com,fox26houston.com,fox29.com,fox2detroit.com,fox32chicago.com,fox35orlando.com,fox4news.com,fox5atlanta.com,fox5dc.com,fox5ny.com,fox7austin.com,fox9.com,foxbusiness.com,foxla.com,foxnews.com,funkidslive.com,gfinityesports.com,globalspec.com,gmanetwork.com,grammarbook.com,hbr.org,howstuffworks.com,huffpost.com,insidehook.com,insider.com,intouchweekly.com,khou.com,koat.com,ktvu.com,lifeandstylemag.com,longislandpress.com,macstories.net,mail.com,mangakakalot.app,memuplay.com,metro.us,metrophiladelphia.com,minecraftforum.net,miningweekly.com,mixed-news.com,mobilesyrup.com,modernhealthcare.com,msnbc.com,my9nj.com,namemc.com,nbcnews.com,newrepublic.com,nzherald.co.nz,oneesports.gg,opb.org,outkick.com,papermag.com,physiology.org,pixiv.net,punchng.com,qns.com,realsport101.com,reason.com,refinery29.com,roadandtrack.com,scroll.in,seattletimes.com,songkick.com,sportskeeda.com,thebaltimorebanner.com,thelocal.at,thelocal.ch,thelocal.de,thelocal.dk,thelocal.es,thelocal.fr,thelocal.it,thelocal.no,thelocal.se,themarketherald.ca,thenationonlineng.net,tmz.com,toofab.com,uploadvr.com,usmagazine.com,vanguardngr.com,wildtangent.com,wogx.com,worldsoccertalk.com,wral.com##.ad-container
+! .adBanner
+chron.com,greenwichtime.com,houstonchronicle.com,mysanantonio.com,seattlepi.com,sfchronicle.com,sfgate.com,thetelegraph.com,timesunion.com##.adBanner
+! .code-block
+100percentfedup.com,180gadgets.com,247media.com.ng,academicful.com,addapinch.com,aiarticlespinner.co,allaboutfpl.com,alltechnerd.com,americansongwriter.com,androidsage.com,animatedtimes.com,anoopcnair.com,askpython.com,asurascans.com,australiangeographic.com.au,autodaily.com.au,bigleaguepolitics.com,bohemian.com,borncity.com,boxingnews24.com,browserhow.com,charlieintel.com,chillinghistory.com,chromeunboxed.com,circuitbasics.com,coincodecap.com,conservativebrief.com,corrosionhour.com,crimereads.com,cryptobriefing.com,cryptopotato.com,cryptoreporter.info,cryptoslate.com,dafontfree.io,dailynewshungary.com,dcenquirer.com,dexdotexe.com,dorohedoro.online,epicdope.com,eurweb.com,exeo.app,fandomwire.com,firstsportz.com,flickeringmyth.com,flyingmag.com,freemagazines.top,gadgetinsiders.com,gameinfinitus.com,gamertweak.com,gatewaynews.co.za,geekdashboard.com,getdroidtips.com,goodyfeed.com,greekreporter.com,hard-drive.net,hollywoodinsider.com,hollywoodunlocked.com,indianhealthyrecipes.com,inspiredtaste.net,iotwreport.com,jojolandsmanga.com,journeybytes.com,journeyjunket.com,jujustukaisen.com,libertyunlocked.com,linuxfordevices.com,lithub.com,meaningfulspaces.com,medicotopics.com,medievalists.net,mpost.io,mycariboonow.com,nationalfile.com,nintendoeverything.com,notalwaysright.com,nsw2u.com,nxbrew.com,organicfacts.net,patriotfetch.com,premiumtimesng.com,protrumpnews.com,pureinfotech.com,redrightvideos.com,reneweconomy.com.au,reptilesmagazine.com,respawnfirst.com,rezence.com,roadaheadonline.co.za,rok.guide,sciencenotes.org,sdnews.com,simscommunity.info,small-screen.co.uk,storypick.com,streamingbetter.com,superwatchman.com,talkandroid.com,talkers.com,tech-latest.com,techpp.com,techrounder.com,techviral.net,theblueoceansgroup.com,thecinemaholic.com,thecricketlounge.com,thedriven.io,thegamehaus.com,thegatewaypundit.com,thegeekpage.com,thelibertydaily.com,thenipslip.com,thewincentral.com,trendingpolitics.com,trendingpoliticsnews.com,twistedvoxel.com,videogamer.com,walletinvestor.com,waves4you.com,wbiw.com,welovetrump.com,wepc.com,win.gg,wisden.com,wnd.com,zerohanger.com##.code-block
+! #leaderboard-container / .leaderboard-container
+abbynews.com,biv.com,lakelandtoday.ca,orilliamatters.com,reddeeradvocate.com,sootoday.com,theprogress.com,time.com,timescolonist.com,vancouverisawesome.com###leaderboard-container
+apnews.com,arabiaweather.com,atlasobscura.com,forum.audiogon.com,gamesindustry.biz,news957.com##.leaderboard-container
+! #leaderboard
+12tomatoes.com,allwomenstalk.com,bloomberg.com,datpiff.com,logotv.com,newcartestdrive.com,news.sky.com,news.tvguide.co.uk,onthesnow.ca,onthesnow.co.nz,onthesnow.co.uk,onthesnow.com,penny-arcade.com,publishersweekly.com,skysports.com,thedrinknation.com,theserverside.com###leaderboard
+! .code-block > center p
+storytohear.com,thefamilybreeze.com,thetravelbreeze.com,theworldreads.com,womensmethod.com##.code-block > center p
+! kokomotribune.com,goshennews.com
+###floorboard_block
+! phys.org
+phys.org##.ads-336x280
+phys.org##.embed-responsive-trendmd
+phys.org##[style="min-height: 601px;"]
+! .fdn-interstitial-slideshow-block
+orlandoweekly.com,sacurrent.com##.fdn-interstitial-slideshow-block
+! news12.com
+news12.com##.hCauqx
+news12.com##[alignitems="normal"][justifycontent][direction="row"][gap="0"]
+! fastcompany
+fastcompany.com##.post__promotion
+! yts.mx
+yts.mx##.bbj
+yts.mx###iwkjdooqw
+! food.com
+food.com##.ad__ad
+! jamieoliver.com
+jamieoliver.com##.top-avocado
+! thekitchn.com/apartmenttherapy.com
+thekitchn.com##.DesktopStickyFooter
+thekitchn.com##.Post__inPostVideoAdDesktop
+apartmenttherapy.com,cubbyathome.com,thekitchn.com##.StickyFooter
+apartmenttherapy.com,cubbyathome.com,thekitchn.com##.pov_recirc__ad
+! vox.com
+vox.com##.l66a0c1k
+vox.com##.l66a0c1n
+vox.com##.l66a0c1p
+vox.com##[data-concert="leaderboard_top_tablet_desktop"]
+! planetrugby.com
+planetrugby.com##.ps-block-a
+! tweaktown.com
+tweaktown.com###DesktopTop
+tweaktown.com##.DesktopRightBA
+! mentalfloss.com
+mentalfloss.com##.style_k8mr7b-o_O-style_uhlm2
+! indianexpress.com
+indianexpress.com##.osv-ad-class
+! upworthy
+upworthy.com##.upworthy_infinte_scroll_outer_wrap
+upworthy.com##.upworthy_infinite_scroll_ad
+! westword.com (and other cms's)
+browardpalmbeach.com,dallasobserver.com,miaminewtimes.com,phoenixnewtimes.com,westword.com##.AirLeaderboardMediumRectanglesComboInlineContent
+browardpalmbeach.com,dallasobserver.com,miaminewtimes.com,phoenixnewtimes.com,westword.com##.AirMediumRectangleComboInlineContent
+browardpalmbeach.com,dallasobserver.com,miaminewtimes.com,phoenixnewtimes.com,westword.com##.fdn-site-header-ad-block
+westword.com##.hil28zhf1wyd
+westword.com##.SurveyLinkSlideModal
+! arktimes.com
+arktimes.com###top-banner-container
+arktimes.com###EdwardsFooterFlyer
+! wgnsradio.com
+wgnsradio.com##.bw-special-image-wrapper
+wgnsradio.com##.bw-special-image
+! gothamist.com
+gothamist.com##.leaderboard-ad-backdrop
+! newshub.co.nz
+newshub.co.nz###island-unit-2
+newshub.co.nz##[data-belt-widget]
+! interest.co.nz
+interest.co.nz###banner-ad-wrapper
+interest.co.nz###sidebar-wrapper
+! wunderground.com
+wunderground.com##.pane-wu-fullscreenweather-ad-box-atf
+! sbs.com.au
+sbs.com.au##.MuiBox-root:has(> .desktop-ads)
+! tmz.com
+tmz.com###ad-header
+! nbcsports.com
+nbcsports.com###nbcsports-leaderboard
+! paulickreport.com
+paulickreport.com##.s-teleaderboard-ad
+! sportskeeda.com
+sportskeeda.com##.primis-container
+! courthousenews.com
+courthousenews.com##.ad-banner
+! bgr.com
+bgr.com##.bg-black
+! mindbodygreen.com
+mindbodygreen.com##.sc-10p0iao-0
+! healthline.com/medicalnewstoday.com etc
+greatist.com,healthline.com,medicalnewstoday.com,psychcentral.com##.css-1cg0byz
+greatist.com,healthline.com,medicalnewstoday.com,psychcentral.com##.css-20w1gi
+greatist.com,healthline.com,medicalnewstoday.com,psychcentral.com##[data-empty]
+greatist.com,healthline.com,medicalnewstoday.com,psychcentral.com##[data-testid="driver"]
+greatist.com,healthline.com,medicalnewstoday.com,psychcentral.com##[data-testid="header-leaderboard"]
+greatist.com,healthline.com,medicalnewstoday.com,psychcentral.com##[data-testid="sponsored-bar"]
+! gearpatrol.com
+gearpatrol.com##.gearpatrol-ad
+gearpatrol.com##.wp-block-gearpatrol-ad-slot
+! nasdaq.com
+nasdaq.com##.ads-placeholder
+nasdaq.com##.ads__inline
+nasdaq.com##.header-ads
+nasdaq.com##.taboola-placeholder
+! bloodyelbow.com
+bloodyelbow.com##.c-inblog_ad
+bloodyelbow.com##.snackStickyParent
+! channelnewsasia.com
+channelnewsasia.com##.programtic-ads
+! express.co.uk
+express.co.uk###ovp-primis
+express.co.uk###taboola-mid-article-thumbnails-outstream
+express.co.uk##.viafoura-standalone-mpu
+express.co.uk##.superbanner
+express.co.uk##[data-tb-non-consent]
+express.co.uk###mantis-recommender-placeholder
+! hindustantimes.com
+hindustantimes.com##.adHeight270
+hindustantimes.com##.adHeight313
+hindustantimes.com##.adMinHeight313
+hindustantimes.com##.desktopAd
+hindustantimes.com##.right-top-ad
+hindustantimes.com##.storyAd
+! tech.hindustantimes.com
+tech.hindustantimes.com##.adsHeight720x90
+tech.hindustantimes.com##.topGadgetsAppend
+! eurogamer.net,rockpapershotgun.com,vg247.com
+eurogamer.net,rockpapershotgun.com,vg247.com###sticky_leaderboard
+! dailymail.co.uk / thisismoney.co.uk
+dailymail.co.uk###promo-unit
+dailymail.co.uk###sky-left
+dailymail.co.uk###sky-right
+dailymail.co.uk,thisismoney.co.uk###sky-left-container
+dailymail.co.uk,thisismoney.co.uk###sky-right-container
+dailymail.co.uk,thisismoney.co.uk##.watermark
+dailymail.co.uk##.billboard-container
+dailymail.co.uk##.mpu_puff_wrapper
+dailymail.co.uk##.connatix-wrapper
+! #below-toprail
+al.com,cleveland.com,gulflive.com,lehighvalleylive.com,masslive.com,mlive.com,newyorkupstate.com,nj.com,oregonlive.com,pennlive.com,silive.com,syracuse.com###below-toprail
+! businessinsider.com,insider.com
+businessinsider.com,insider.com##.in-post-sticky
+businessinsider.com,insider.com##.l-ad
+businessinsider.com,insider.com##.subnav-ad-position-sticky
+! thedailybeast.com
+thedailybeast.com##.CheatSheetList__placeholder
+thedailybeast.com##.Cheat__out-of-page-ads
+thedailybeast.com##.Cheat__top-ad
+thedailybeast.com##.Sizer
+! indianexpress.com
+indianexpress.com##.add-first
+! fivethirtyeight.com
+fivethirtyeight.com##.master-ad
+! dailykos.com
+dailykos.com##.story-banner-ad-placeholder
+! newsnow.co.uk
+newsnow.co.uk##.hero-wrapper
+newsnow.co.uk##.skyscraper-left
+##[id^="ad_sky"]
+! webmd.com
+webmd.com###hp-ad-container
+! .leaderboard-wrap
+cbssports.com,nowthisnews.com,popsugar.com,scout.com,seeker.com,thedodo.com,thrillist.com##.leaderboard-wrap
+! cbssports.com
+cbssports.com##.skybox-top-wrapper
+! Twitter ad cosmetic element
+twitter.com,x.com##.promoted-account
+twitter.com,x.com##.promotion
+twitter.com,x.com##.stream-item-group-start[label="promoted"]
+twitter.com,x.com##a[href*="src=promoted_trend_click"]
+twitter.com,x.com##a[href*="src=promoted_trend_click"] + div
+twitter.com,x.com##div[data-testid="cellInnerDiv"] > div > div[class] > div[class][data-testid="placementTracking"]
+twitter.com,x.com##div[data-testid="UserCell"]:has(path[d$="10H8.996V8h7v7z"])
+twitter.com,x.com##div[data-testid="eventHero"]:has(path[d$="10H8.996V8h7v7z"])
+twitter.com,x.com##div[data-testid="placementTracking"]:has(div[data-testid$="-impression-pixel"])
+twitter.com,x.com##div[data-testid="trend"]:has(path[d$="10H8.996V8h7v7z"])
+! bbc.com
+bbc.com###leaderboard-aside-content
+bbc.com###mpu-side-aside-content
+! consequence.net
+consequence.net##.leaderboard-sticky
+! jpost.com
+jpost.com##.banner
+jpost.com##.line-left-side-before-and-after-container
+jpost.com##.line-one-row-before-and-after-container
+jpost.com##.right-side-banner
+jpost.com##.sticky-top-banner
+jpost.com##.banner-h-270
+jpost.com##.banner-h-880
+! sltrib.com
+sltrib.com##.sltrib_medrec_sidebar_atf
+sltrib.com##.grid-ad-container-2
+! msn.com
+msn.com###displayAdCard
+msn.com##div[id^="mrr-topad-"]
+msn.com###partners
+msn.com###promotions
+msn.com##.articlePage_bannerAd_wrapper-DS-EntryPoint1-1
+msn.com##.articlePage_eoabNativeAd_new-DS-EntryPoint1-1
+msn.com##.bannerAdContainer-DS-EntryPoint1-1
+msn.com##.drrTopAdWrapper
+msn.com##.galleryPage_eoabContent_new-DS-EntryPoint1-1
+msn.com##.galleryPage_eoabNativeAd_new-DS-EntryPoint1-1
+msn.com##.intra-article-ad-full
+msn.com##.intra-article-ad-half
+msn.com##.intra-article-module
+msn.com##.modernRightRail_stickyTopBannerAd-DS-EntryPoint1-1
+msn.com##.modernRightRail_topAd_container_2col_newRR-DS-EntryPoint1-1
+msn.com##.outeradcontainer
+msn.com##.qohvco-DS-EntryPoint1-1
+msn.com##.river-background
+msn.com##.views-right-rail-top-display
+msn.com##.views-right-rail-top-display-ad
+msn.com##.windowsBannerAdContainer-DS-EntryPoint1-1
+msn.com##[class^="articlePage_eoabContent"]
+msn.com##[data-m*="Infopane_CMSBasicCardstore_article"]
+msn.com##a[aria-label="AliExpress"]
+msn.com##a[aria-label="Amazon Assistant"]
+msn.com##a[aria-label="Amazon"]
+msn.com##a[aria-label="Bol.com"]
+msn.com##a[aria-label="Booking.com"]
+msn.com##a[aria-label="Ricardo"]
+msn.com##a[aria-label="Today's Deals"]
+msn.com##a[aria-label="eBay"]
+msn.com##a[href*=".booking.com/"]
+msn.com##a[href*="/aff_m?offer_id="]
+msn.com##a[href*="?sub_aff_id="]
+msn.com##a[href^="https://amzn.to/"]
+msn.com##a[href^="https://clk.tradedoubler.com/click?"]
+msn.com##a[href^="https://clkde.tradedoubler.com/click?"]
+msn.com##a[href^="https://disneyplus.bn5x.net/"]
+msn.com##a[href^="https://prf.hn/click/camref:"]
+msn.com##a[href^="https://ww55.affinity.net/"]
+msn.com##a[href^="https://www.awin1.com/cread.php"]
+msn.com##above-river-block
+msn.com##cs-native-ad-card
+msn.com##cs-native-ad-card-no-hover
+msn.com##div[class^="articlePage_topBannerAdContainer_"]
+msn.com##div[class^="galleryPage_bannerAd"]
+msn.com##div[id^="nativeAd"]
+msn.com##li[data-m*="NativeAdItem"] > a > *
+msn.com##li[data-provider="gemini"]
+msn.com##li[data-provider="outbrain"]
+msn.com##msft-article-card[class=""]
+msn.com##msft-content-card[data-t*="NativeAd"]
+msn.com##msft-content-card[href^="https://api.taboola.com/"]
+msn.com##msft-content-card[id^="contentcard_nativead-"]
+msn.com##msn-info-pane-panel[id^="tab_panel_nativead-"]
+msn.com##partner-upsell-card
+msn.com##div[id^="watch-feed-native-ad-"]
+msn.com##.consumption-page-banner-wrapper
+! imdb.com
+imdb.com##.cornerstone_slot
+imdb.com##.slot_wrapper
+! .td-a-rec
+antiguanewsroom.com,aptoslife.com,aviacionline.com,bohemian.com,carnewschina.com,constructionreviewonline.com,corvetteblogger.com,cyberparse.co.uk,darkhorizons.com,eastbayexpress.com,eindhovennews.com,ericpetersautos.com,fenuxe.com,gameplayinside.com,gamezone.com,ghpage.com,gilroydispatch.com,gizmochina.com,goodtimes.sc,goonhammer.com,greekreporter.com,greenfieldnews.com,healdsburgtribune.com,indianapolisrecorder.com,industryhit.com,jewishpress.com,kenyan-post.com,kingcityrustler.com,lankanewsweb.net,maltabusinessweekly.com,metrosiliconvalley.com,morganhilltimes.com,musictech.net,mycariboonow.com,nasilemaktech.com,newsnext.live,newstalkflorida.com,nme.com,pacificsun.com,pajaronian.com,pakobserver.net,pipanews.com,pressbanner.com,radioink.com,runnerstribe.com,salinasvalleytribune.com,sanbenito.com,scrolla.africa,sonorannews.com,telugubullet.com,theindependent.co.zw,unlockboot.com,wrestling-online.com,zycrypto.com##.td-a-rec
+! .td-a-rec-id-custom_ad_*
+##.td-a-rec-id-custom_ad_1
+##.td-a-rec-id-custom_ad_2
+##.td-a-rec-id-custom_ad_3
+##.td-a-rec-id-custom_ad_4
+##.td-a-rec-id-custom_ad_5
+! zycrypto.com
+zycrypto.com##.td-a-rec-id-content_bottom
+! news.sky.com
+news.sky.com,skysports.com###mpu-1
+news.sky.com##[data-role="ad-label"]
+news.sky.com##[data-format="leaderboard"]
+! axios.com
+axios.com##.shortFormNativeAd
+axios.com##[data-cy="injected-promo"]
+! medpagetoday.com
+medpagetoday.com##.leaderboard-region
+! thepointsguy.com
+thepointsguy.com##[aria-label="Advertisement"]
+! variety.com
+variety.com###leaderboard-no-padding
+! howtogeek.com
+howtogeek.com##div[id^="purch_"]
+! discogs.com
+! rottentomatoes.com
+rottentomatoes.com##.leaderboard_wrapper
+! memory-alpha.fandom.com
+fandom.com###featured-video__player-container
+! techrepublic.com
+techrepublic.com##.medusa-list
+! sciencealert.com
+sciencealert.com###Purch_D_R_0_1
+sciencealert.com##.ad-desktop\:block
+! wikihow.com
+wikihow.com##.al_method
+! wired.com
+wired.com##div[class^="ConsumerMarketingUnitThemedWrapper-"]
+wired.com##div[class^="StickyBoxWrapper"]
+! huffpost.com
+##.ad-leaderboard-flex
+huffpost.com##.bottom-right-sticky-container
+huffpost.com##.entry__right-rail-width-placeholder
+huffpost.com##.top-ad-recirc
+huffingtonpost.es##[data-adtype]
+! outkick.com
+outkick.com##.g1-advertisement
+! barstoolsports.com
+barstoolsports.com##.htl-ad__container
+! spotim comment ad (huffpost.com/barstoolsports.com)
+##div[class^="ads__index__adWrapper-"]
+! syfy.com
+syfy.com##.zergnet-widget__header
+! metro.co.uk
+metro.co.uk###mpu_bottom
+metro.co.uk##.ad-slot-large
+metro.co.uk##.ji-ad-slot-mpu
+! odishatv.in
+odishatv.in##.otv-300-250-ad
+odishatv.in##.otv-970-250-ad
+! gbnews.com
+gbnews.com##.video-inbody
+! austinchronicle.com
+austinchronicle.com###top-leaderboard
+austinchronicle.com##.ad-right
+! texastribune.org
+texastribune.org##.js-ad-unit
+! salon.com
+salon.com##.banner_ad_between_sections
+salon.com##.sidebar_ad
+! wsmv.com
+wsmv.com##.arc-ad
+! dallasnews.com
+dallasnews.com##.htlad-dfpPosition1_article
+dallasnews.com##.htlad-dfpTop
+! cbc.ca
+cbc.ca##.bigBoxContainer
+! .slot
+airdriecityview.com,alaskahighwaynews.ca,albertaprimetimes.com,bowenislandundercurrent.com,burnabynow.com,coastreporter.net,cochraneeagle.ca,delta-optimist.com,moosejawtoday.com,mountainviewtoday.ca,newwestrecord.ca,nsnews.com,piquenewsmagazine.com,princegeorgecitizen.com,prpeak.com,richmond-news.com,rmoutlook.com,sasktoday.ca,squamishchief.com,stalbertgazette.com,theorca.ca,townandcountrytoday.com,tricitynews.com,vancouverisawesome.com,westerninvestor.com,westernwheel.ca##.slot
+! battlefordsnow.com etc
+battlefordsnow.com,cfjctoday.com,everythinggp.com,huskiefan.ca,larongenow.com,meadowlakenow.com,nanaimonewsnow.com,northeastnow.com,panow.com,rdnewsnow.com,sasknow.com,vernonmatters.ca###banner-header
+battlefordsnow.com,cfjctoday.com,everythinggp.com,huskiefan.ca,larongenow.com,meadowlakenow.com,nanaimonewsnow.com,northeastnow.com,panow.com,rdnewsnow.com,sasknow.com,vernonmatters.ca###bumper-cars
+battlefordsnow.com,cfjctoday.com,everythinggp.com,huskiefan.ca,larongenow.com,meadowlakenow.com,nanaimonewsnow.com,northeastnow.com,panow.com,rdnewsnow.com,sasknow.com,vernonmatters.ca##.midcontent
+battlefordsnow.com,cfjctoday.com,everythinggp.com,huskiefan.ca,larongenow.com,meadowlakenow.com,nanaimonewsnow.com,northeastnow.com,panow.com,rdnewsnow.com,sasknow.com,vernonmatters.ca##.parallax-breakout
+battlefordsnow.com,cfjctoday.com,everythinggp.com,huskiefan.ca,larongenow.com,lethbridgenewsnow.com,meadowlakenow.com,nanaimonewsnow.com,northeastnow.com,panow.com,rdnewsnow.com,sasknow.com,vernonmatters.ca##.pos-top
+battlefordsnow.com,cfjctoday.com,everythinggp.com,filmdaily.co,huskiefan.ca,larongenow.com,meadowlakenow.com,nanaimonewsnow.com,northeastnow.com,panow.com,rdnewsnow.com,sasknow.com,vernonmatters.ca##.vc_single_image-wrapper
+! thespec.com
+thespec.com##.polarAds
+! .adLabelWrapper
+bramptonguardian.com,guelphmercury.com,insideottawavalley.com,niagarathisweek.com,thespec.com,thestar.com##.adLabelWrapper
+! aol.com
+aol.com##.m-gam__container
+! newsweek.com
+newsweek.com###right1ad
+newsweek.com###topad
+! dcist.com
+dcist.com##.advertisement-information-link
+! seattletimes.com
+seattletimes.com##[data-zone="Sponsored"]
+! weather.com
+weather.com##[title="Sponsored Content"]
+! smh.com.au
+brisbanetimes.com.au,smh.com.au,theage.com.au,watoday.com.au##[class] > :has(> .adWrapper)
+! drive.com.au
+drive.com.au##.gam-ad
+drive.com.au##.adSpacing_drive-ad-spacing__HdaBg
+drive.com.au##hr
+! etonline.com
+etonline.com###sticky-banner
+! timeout.com
+timeout.com##div[class^="_inlineAdWrapper_"]
+timeout.com##div[id^="ad-side-"]
+timeout.com##div[id^="ad-promo-"]
+timeout.com##._ad_1elek_1
+! nj.com
+nj.com##.revenue-display
+nj.com##.rightRail-top-wrapper
+! wionews.com
+wionews.com##.ads-box-300x300
+! anandtech.com
+anandtech.com##.jw-reset
+anandtech.com###side_ad
+anandtech.com##.header_ad
+! interestingengineering.com
+interestingengineering.com##.Ad_ad__hm0Ut
+interestingengineering.com##.Anyclip_conBody__emI_Z
+interestingengineering.com##.Ad_adContainer__XNCwI
+! .cls-hlb-wrapper-desktop
+computerweekly.com,techtarget.com,theserverside.com##.cls-hlb-wrapper-desktop
+! thesaurus.com
+dictionary.com,thesaurus.com#?#[class] > p:-abp-contains(Advertisement)
+dictionary.com,thesaurus.com##.SZjJlj7dd7R6mDTODwIT
+dictionary.com,thesaurus.com##.fHACXxic9xvQeSNITiwH
+dictionary.com,thesaurus.com##.otd-item__bottom
+dictionary.com,thesaurus.com##main div[class]:has(> [data-type="ad-vertical"])
+! glensidelocal.com
+glensidelocal.com##.advertising-callout
+! thescore.com
+thescore.com##.Ad__container--MeQWT
+! advocate.com
+advocate.com##.ad_leaderboard_wrap
+advocate.com##.ad_tag
+advocate.com##.partners__container
+advocate.com###sPost_Layout_Default_0_0_19_0_0_2_2
+! sportsnet.ca
+sciencing.com,sportsnet.ca##.sticky-leaderboard-container
+sportsnet.ca##.Ads_card-wrapper__KyXLu
+sportsnet.ca###leaderboard_master
+! powerelectronicsnews.com
+powerelectronicsnews.com##.masthead-banner
+! twz.com
+twz.com##.mtc-header__desktop__home-prefill-container
+twz.com##.mtc-header__desktop__article-prefill-container
+! esports.gg
+esports.gg##.freestar-esports_leaderboard_atf
+esports.gg###FreeStarVideoAdContainer
+esports.gg##.relative.esports-inarticle
+esports.gg##.freestar-esports_between_articles
+! nationalreview.com
+nationalreview.com##.ad-skeleton
+nationalreview.com##.revcontent-wrap
+! pagesix.com
+nypost.com##.exco-video__container
+nypost.com,pagesix.com##.billboard-ad
+nypost.com##.nyp-s2n-wrapper
+nypost.com,pagesix.com##.recirc
+nypost.com##.widget_nypost_dfp_ad_widget
+! vice.com
+vice.com##.adph
+vice.com##.docked-slot-renderer
+vice.com##.fixed-slot
+vice.com##.nav-bar__article-spacer
+vice.com##.vice-ad__container
+! krebsonsecurity.com
+krebsonsecurity.com##.a-statement
+! theguardian.com#
+theguardian.com##.top-banner-ad-container
+! ft.com
+ft.com##.o-ads
+! videogamer.com
+! bleepingcomputer.com
+bleepingcomputer.com##.cz-toa-wrapp
+bleepingcomputer.com##.s-ou-wrap
+! slate.com
+slate.com##.slate-ad
+! thedrive.com
+thedrive.com##.mtc-header__desktop__article-prefill-container
+! yahoo.com
+yahoo.com###Horizon-ad
+yahoo.com###Lead-0-Ad-Proxy
+yahoo.com###adsStream
+yahoo.com###defaultLREC
+finance.yahoo.com###mrt-node-Lead-0-Ad
+sports.yahoo.com###mrt-node-Lead-1-Ad
+sports.yahoo.com###mrt-node-Primary-0-Ad
+sports.yahoo.com###mrt-node-Secondary-0-Ad
+yahoo.com###sda-Horizon
+yahoo.com###sda-Horizon-viewer
+yahoo.com###sda-LDRB
+yahoo.com###sda-LDRB-iframe
+yahoo.com###sda-LDRB2
+yahoo.com###sda-LREC
+yahoo.com###sda-LREC-iframe
+yahoo.com###sda-LREC2
+yahoo.com###sda-LREC2-iframe
+yahoo.com###sda-LREC3
+yahoo.com###sda-LREC3-iframe
+yahoo.com###sda-LREC4
+yahoo.com###sda-MAST
+yahoo.com###sda-MON
+yahoo.com###sda-WFPAD
+yahoo.com###sda-WFPAD-1
+yahoo.com###sda-WFPAD-iframe
+yahoo.com###sda-wrapper-COMMENTSLDRB
+mail.yahoo.com###slot_LREC
+yahoo.com###viewer-LDRB
+yahoo.com###viewer-LREC2
+yahoo.com###viewer-LREC2-iframe
+yahoo.com##.Feedback
+finance.yahoo.com##.ad-lrec3
+yahoo.com##.ads
+yahoo.com##.caas-da
+yahoo.com##.darla
+yahoo.com##.darla-container
+yahoo.com##.darla-lrec-ad
+yahoo.com##.darla_ad
+yahoo.com##.ds_promo_ymobile
+yahoo.com##.gemini-ad
+yahoo.com##.gemini-ad-feedback
+yahoo.com##.item-beacon
+yahoo.com##.ntk-ad-item
+sports.yahoo.com##.post-article-ad
+finance.yahoo.com##.sdaContainer
+yahoo.com##.searchCenterBottomAds
+yahoo.com##.searchCenterTopAds
+search.yahoo.com##.searchRightBottomAds
+search.yahoo.com##.searchRightTopAds
+yahoo.com##.sys_shopleguide
+yahoo.com##.viewer-sda-container
+groupon.com##[data-bhc$="sponsored_carousel"]
+yahoo.com##[data-content="Advertisement"]
+mail.yahoo.com##[data-test-id^="pencil-ad"]
+yahoo.com##[data-wf-beacons]
+finance.yahoo.com##[id^="defaultLREC"]
+mail.yahoo.com##[rel="noreferrer"][data-test-id][href^="https://beap.gemini.yahoo.com/mbclk?"]
+yahoo.com##a[data-test-id="large-image-ad"]
+mail.yahoo.com##article[aria-labelledby*="-pencil-ad-"]
+yahoo.com##div[class*="ads-"]
+yahoo.com##div[class*="gemini-ad"]
+yahoo.com##div[data-beacon] > div[class*="streamBoxShadow"]
+yahoo.com##div[id*="ComboAd"]
+yahoo.com##div[id^="COMMENTSLDRB"]
+yahoo.com##div[id^="LeadAd-"]
+yahoo.com##div[id^="darla-ad"]
+yahoo.com##div[id^="gemini-item-"]
+yahoo.com##div[style*="/ads/"]
+yahoo.com##li[data-test-locator="stream-related-ad-item"]
+! imresizer.com
+imresizer.com##.ad-slot-1-fixed-ad
+imresizer.com##.ad-slot-2-fixed-ad
+imresizer.com##.ad-slot-3-fixed-ad
+! planefinder.net
+planefinder.net###map-ad-container
+! notebookcheck.net
+notebookcheck.net##.nbc-right-float
+! mlive.com
+mlive.com###below-toprail
+! bbc.com
+bbc.com###sticky-leaderboard
+bbc.com###sticky-mpu
+! wccftech.com
+wccftech.com##.bg-horizontal
+wccftech.com##.bg-square
+wccftech.com##.bg-square-mobile
+wccftech.com##.bg-square-mobile-without-bg
+wccftech.com##.bg-vertical
+wccftech.com##.main-background-wrap
+wccftech.com##.mb-11
+wccftech.com##[href^="https://cutt.ly/"]
+! reuters.com
+reuters.com##[data-testid="ResponsiveAdSlot"]
+reuters.com##[class^="primary-video__container_"]
+reuters.com##div[class^="AdSlot__container"]
+reuters.com##div[class^="RightRail-sticky-container"]
+reuters.com##div[class^="ad-slot__"]
+reuters.com##[data-testid="CnxPlayer"]
+! macleans.ca
+macleans.ca##.assmbly-ad-block
+! techspot.com
+techspot.com##.adContainerSide
+techspot.com##.billboard_placeholder_min
+techspot.com##.cta
+techspot.com##.jobbioapp
+! apnews.com
+apnews.com##.Leaderboard
+apnews.com##.Page-header-leaderboardAd
+apnews.com##.SovrnAd
+apnews.com##.advertisementTitle
+apnews.com##.apnews_article_midarticle_1
+apnews.com##.apnews_article_midarticle_2
+apnews.com##.apnews_article_midarticle_3
+! nationalgeographic.com
+nationalgeographic.com##.ArticleStickiness
+nationalgeographic.com##.InsertedAd
+! rollingstone.com
+rollingstone.com##.adma
+! venturebeat.com
+venturebeat.com##.tude-cw-wrap
+! newyorker.com
+newyorker.com##.should-hold-space
+! newatlas.com
+newatlas.com###desktop_article_1
+newatlas.com###desktop_article_2
+newatlas.com###desktop_article_3
+newatlas.com##.OcelotAdModule
+! washingtonpost.com
+washingtonpost.com###leaderboard-overlay
+washingtonpost.com###leaderboard-wrapper
+washingtonpost.com##.border-box.dn-hp-sm-to-mx
+washingtonpost.com##.border-box.dn-hp-xs
+washingtonpost.com##.pb-sm.pt-sm.b
+games.washingtonpost.com##[class^="DisplayAd_"]
+washingtonpost.com##[data-qa="article-body-ad"]
+washingtonpost.com##[data-qa="right-rail-ad"]
+washingtonpost.com##[data-sc-c="adslot"]
+washingtonpost.com##[data-testid="placeholder-box"]
+washingtonpost.com##[data-testid="fixed-bottom-ad"]
+! forbes.com
+forbes.com##.top-ad-container
+forbes.com##.vestpocket
+forbes.com##.inline__zephr
+forbes.com###article-stream-1
+forbes.com##.fbs-ad--ntv-deskchannel-wrapper
+forbes.com##.fbs-ad--ntv-home-wrapper
+forbes.com##.ntv-loading
+forbes.com##.fbs-ad--mobile-medianet-wrapper
+! https://freestreams-live.my/tennis-channel-17/
+||fiveyardlab.com/z-
+! buzzfeed.com
+buzzfeed.com##.subbuzz-bfp--connatix_video
+! .floatingWrapper
+click2houston.com,clickondetroit.com,clickorlando.com,ksat.com,local10.com,news4jax.com##.floatingWrapper
+! https://www.tipranks.com/news/article/hood-vs-schw-which-brokerage-stock-is-better
+tipranks.com##.mobile_displaynone.flexccc
+! bibleatlas.org
+||biblemenus.com/adframe
+||bibleh.com/b2.htm
+||biblehub.com/botmenu
+||bibleatlas.org/botmenu
+! talkingpointsmemo.com
+talkingpointsmemo.com##.--span\:12.AdSlot
+! tomsguide.com
+tomsguide.com##.bordeaux-anchored-container
+tomsguide.com##[data-widget-type="ads"]
+tomsguide.com##.bordeaux-slot
+! forums.*
+forums.anandtech.com,forums.androidcentral.com,forums.pcgamer.com,forums.space.com,forums.tomsguide.com,forums.tomshardware.com,forums.whathifi.com,redflagdeals.com###header_leaderboard
+! c-span.org
+c-span.org##.cspan-ad-still-prebid-wrapper
+c-span.org##.cspan-ad-still-wrapper
+! coindesk.com
+coindesk.com##.ad-box
+coindesk.com##.ad-content
+coindesk.com##.at-rail-wrapper
+coindesk.com##.gWUxIC
+coindesk.com##.vert
+! crypto
+crypto-news-flash.com##.adsBanner
+insidebitcoins.com##.adv-link
+coinspeaker.com##.aside-banner
+cryptopolitan.com##.crp_ads_container
+cryptopolitan.com##.crp_inarticle_ads_container
+cryptopolitan.com##.crp_sidebar_ads_container
+theblock.co##.footerRoot
+theblock.co##.fullWidthDisplay
+theblock.co##.sponsoredArticle
+cryptonewsz.com##.stream-item
+cryptonewsz.com##.stream-item-above-header
+cryptonewsz.com##.stream-item-below-header
+bitcoinist.com,captainaltcoin.com,cryptonews.com,cryptonewsz.com,insidebitcoins.com,news.bitcoin.com,philnews.ph##[class*="clickout-"]
+news.bitcoin.com##.dXWTEu
+news.bitcoin.com##.gyHIup
+! firstpost.com
+firstpost.com##.newtopadd
+firstpost.com##.rhs-tp-ad
+firstpost.com##.taboola-div
+firstpost.com##.top-addd
+! israelnationalnews.com
+israelnationalnews.com##.banner
+israelnationalnews.com###banner-sticky
+israelnationalnews.com##.banner-top
+israelnationalnews.com##.sideInf
+! cloutgist.com,codesnse.com (via jnovels.com)
+cloutgist.com,codesnse.com##[href^="https://app.adjust.com/"]
+cloutgist.com,codesnse.com##[alt="AD DESCRIPTION"]
+cloutgist.com,codesnse.com##img[fetchpriority]
+! scmp.com
+scmp.com##div[data-qa="AdSlot-Container"]
+! Ad-shield fix (replace= fix)
+@@||html-load.com/script/www.thestar.co.uk.js$domain=thestar.co.uk
+@@||html-load.com/script/www.yorkshirepost.co.uk.js$domain=yorkshirepost.co.uk
+@@||html-load.com/script/www.issuya.com.js$domain=issuya.com
+@@||07c225f3.online/script/isplus.com.js$domain=isplus.com
+@@||07c225f3.online/script/www.hometownstation.com.js$domain=hometownstation.com
+@@||07c225f3.online/script/www.sportalkorea.com.js$domain=sportalkorea.com
+@@||07c225f3.online/script/economist.co.kr.js$domain=economist.co.kr
+@@||07c225f3.online/script/www.etoday.co.kr.js$domain=etoday.co.kr
+@@||07c225f3.online/script/m.etoday.co.kr.js$domain=m.etoday.co.kr
+! https://github.com/uBlockOrigin/uAssets/commit/f835db2
+blackpoolgazette.co.uk,lep.co.uk,northamptonchron.co.uk,scotsman.com,shieldsgazette.com,thestar.co.uk,portsmouth.co.uk,sunderlandecho.com,northernirelandworld.com,3addedminutes.com,anguscountyworld.co.uk,banburyguardian.co.uk,bedfordtoday.co.uk,biggleswadetoday.co.uk,bucksherald.co.uk,burnleyexpress.net,buxtonadvertiser.co.uk,chad.co.uk,daventryexpress.co.uk,derbyshiretimes.co.uk,derbyworld.co.uk,derryjournal.com,dewsburyreporter.co.uk,doncasterfreepress.co.uk,falkirkherald.co.uk,fifetoday.co.uk,glasgowworld.com,halifaxcourier.co.uk,harboroughmail.co.uk,harrogateadvertiser.co.uk,hartlepoolmail.co.uk,hemeltoday.co.uk,hucknalldispatch.co.uk,lancasterguardian.co.uk,leightonbuzzardonline.co.uk,lincolnshireworld.com,liverpoolworld.uk,londonworld.com,lutontoday.co.uk,manchesterworld.uk,meltontimes.co.uk,miltonkeynes.co.uk,newcastleworld.com,newryreporter.com,newsletter.co.uk,northantstelegraph.co.uk,northumberlandgazette.co.uk,nottinghamworld.com,peterboroughtoday.co.uk,rotherhamadvertiser.co.uk,stornowaygazette.co.uk,surreyworld.co.uk,thescarboroughnews.co.uk,thesouthernreporter.co.uk,totallysnookered.com,wakefieldexpress.co.uk,walesworld.com,warwickshireworld.com,wigantoday.net,worksopguardian.co.uk,yorkshireeveningpost.co.uk,yorkshirepost.co.uk##.banner
+blackpoolgazette.co.uk,lep.co.uk,northamptonchron.co.uk,scotsman.com,shieldsgazette.com,thestar.co.uk,portsmouth.co.uk,sunderlandecho.com,northernirelandworld.com,3addedminutes.com,anguscountyworld.co.uk,banburyguardian.co.uk,bedfordtoday.co.uk,biggleswadetoday.co.uk,bucksherald.co.uk,burnleyexpress.net,buxtonadvertiser.co.uk,chad.co.uk,daventryexpress.co.uk,derbyshiretimes.co.uk,derbyworld.co.uk,derryjournal.com,dewsburyreporter.co.uk,doncasterfreepress.co.uk,falkirkherald.co.uk,fifetoday.co.uk,glasgowworld.com,halifaxcourier.co.uk,harboroughmail.co.uk,harrogateadvertiser.co.uk,hartlepoolmail.co.uk,hemeltoday.co.uk,hucknalldispatch.co.uk,lancasterguardian.co.uk,leightonbuzzardonline.co.uk,lincolnshireworld.com,liverpoolworld.uk,londonworld.com,lutontoday.co.uk,manchesterworld.uk,meltontimes.co.uk,miltonkeynes.co.uk,newcastleworld.com,newryreporter.com,newsletter.co.uk,northantstelegraph.co.uk,northumberlandgazette.co.uk,nottinghamworld.com,peterboroughtoday.co.uk,rotherhamadvertiser.co.uk,stornowaygazette.co.uk,surreyworld.co.uk,thescarboroughnews.co.uk,thesouthernreporter.co.uk,totallysnookered.com,wakefieldexpress.co.uk,walesworld.com,warwickshireworld.com,wigantoday.net,worksopguardian.co.uk,yorkshireeveningpost.co.uk,yorkshirepost.co.uk##div[class^="AdLoadingText"]
+blackpoolgazette.co.uk,lep.co.uk,northamptonchron.co.uk,scotsman.com,shieldsgazette.com,thestar.co.uk,portsmouth.co.uk,sunderlandecho.com,northernirelandworld.com,3addedminutes.com,anguscountyworld.co.uk,banburyguardian.co.uk,bedfordtoday.co.uk,biggleswadetoday.co.uk,bucksherald.co.uk,burnleyexpress.net,buxtonadvertiser.co.uk,chad.co.uk,daventryexpress.co.uk,derbyshiretimes.co.uk,derbyworld.co.uk,derryjournal.com,dewsburyreporter.co.uk,doncasterfreepress.co.uk,falkirkherald.co.uk,fifetoday.co.uk,glasgowworld.com,halifaxcourier.co.uk,harboroughmail.co.uk,harrogateadvertiser.co.uk,hartlepoolmail.co.uk,hemeltoday.co.uk,hucknalldispatch.co.uk,lancasterguardian.co.uk,leightonbuzzardonline.co.uk,lincolnshireworld.com,liverpoolworld.uk,londonworld.com,lutontoday.co.uk,manchesterworld.uk,meltontimes.co.uk,miltonkeynes.co.uk,newcastleworld.com,newryreporter.com,newsletter.co.uk,northantstelegraph.co.uk,northumberlandgazette.co.uk,nottinghamworld.com,peterboroughtoday.co.uk,rotherhamadvertiser.co.uk,stornowaygazette.co.uk,surreyworld.co.uk,thescarboroughnews.co.uk,thesouthernreporter.co.uk,totallysnookered.com,wakefieldexpress.co.uk,walesworld.com,warwickshireworld.com,wigantoday.net,worksopguardian.co.uk,yorkshireeveningpost.co.uk,yorkshirepost.co.uk##div[class^="SidebarAds_"]
+blackpoolgazette.co.uk,lep.co.uk,northamptonchron.co.uk,scotsman.com,shieldsgazette.com,thestar.co.uk,portsmouth.co.uk,sunderlandecho.com,northernirelandworld.com,3addedminutes.com,anguscountyworld.co.uk,banburyguardian.co.uk,bedfordtoday.co.uk,biggleswadetoday.co.uk,bucksherald.co.uk,burnleyexpress.net,buxtonadvertiser.co.uk,chad.co.uk,daventryexpress.co.uk,derbyshiretimes.co.uk,derbyworld.co.uk,derryjournal.com,dewsburyreporter.co.uk,doncasterfreepress.co.uk,falkirkherald.co.uk,fifetoday.co.uk,glasgowworld.com,halifaxcourier.co.uk,harboroughmail.co.uk,harrogateadvertiser.co.uk,hartlepoolmail.co.uk,hemeltoday.co.uk,hucknalldispatch.co.uk,lancasterguardian.co.uk,leightonbuzzardonline.co.uk,lincolnshireworld.com,liverpoolworld.uk,londonworld.com,lutontoday.co.uk,manchesterworld.uk,meltontimes.co.uk,miltonkeynes.co.uk,newcastleworld.com,newryreporter.com,newsletter.co.uk,northantstelegraph.co.uk,northumberlandgazette.co.uk,nottinghamworld.com,peterboroughtoday.co.uk,rotherhamadvertiser.co.uk,stornowaygazette.co.uk,surreyworld.co.uk,thescarboroughnews.co.uk,thesouthernreporter.co.uk,totallysnookered.com,wakefieldexpress.co.uk,walesworld.com,warwickshireworld.com,wigantoday.net,worksopguardian.co.uk,yorkshireeveningpost.co.uk,yorkshirepost.co.uk##div[class^="helper__AdContainer"]
+blackpoolgazette.co.uk,lep.co.uk,northamptonchron.co.uk,scotsman.com,shieldsgazette.com,thestar.co.uk,portsmouth.co.uk,sunderlandecho.com,northernirelandworld.com,3addedminutes.com,anguscountyworld.co.uk,banburyguardian.co.uk,bedfordtoday.co.uk,biggleswadetoday.co.uk,bucksherald.co.uk,burnleyexpress.net,buxtonadvertiser.co.uk,chad.co.uk,daventryexpress.co.uk,derbyshiretimes.co.uk,derbyworld.co.uk,derryjournal.com,dewsburyreporter.co.uk,doncasterfreepress.co.uk,falkirkherald.co.uk,fifetoday.co.uk,glasgowworld.com,halifaxcourier.co.uk,harboroughmail.co.uk,harrogateadvertiser.co.uk,hartlepoolmail.co.uk,hemeltoday.co.uk,hucknalldispatch.co.uk,lancasterguardian.co.uk,leightonbuzzardonline.co.uk,lincolnshireworld.com,liverpoolworld.uk,londonworld.com,lutontoday.co.uk,manchesterworld.uk,meltontimes.co.uk,miltonkeynes.co.uk,newcastleworld.com,newryreporter.com,newsletter.co.uk,northantstelegraph.co.uk,northumberlandgazette.co.uk,nottinghamworld.com,peterboroughtoday.co.uk,rotherhamadvertiser.co.uk,stornowaygazette.co.uk,surreyworld.co.uk,thescarboroughnews.co.uk,thesouthernreporter.co.uk,totallysnookered.com,wakefieldexpress.co.uk,walesworld.com,warwickshireworld.com,wigantoday.net,worksopguardian.co.uk,yorkshireeveningpost.co.uk,yorkshirepost.co.uk##div[data-ads-params]
+blackpoolgazette.co.uk,lep.co.uk,northamptonchron.co.uk,scotsman.com,shieldsgazette.com,thestar.co.uk,portsmouth.co.uk,sunderlandecho.com,northernirelandworld.com,3addedminutes.com,anguscountyworld.co.uk,banburyguardian.co.uk,bedfordtoday.co.uk,biggleswadetoday.co.uk,bucksherald.co.uk,burnleyexpress.net,buxtonadvertiser.co.uk,chad.co.uk,daventryexpress.co.uk,derbyshiretimes.co.uk,derbyworld.co.uk,derryjournal.com,dewsburyreporter.co.uk,doncasterfreepress.co.uk,falkirkherald.co.uk,fifetoday.co.uk,glasgowworld.com,halifaxcourier.co.uk,harboroughmail.co.uk,harrogateadvertiser.co.uk,hartlepoolmail.co.uk,hemeltoday.co.uk,hucknalldispatch.co.uk,lancasterguardian.co.uk,leightonbuzzardonline.co.uk,lincolnshireworld.com,liverpoolworld.uk,londonworld.com,lutontoday.co.uk,manchesterworld.uk,meltontimes.co.uk,miltonkeynes.co.uk,newcastleworld.com,newryreporter.com,newsletter.co.uk,northantstelegraph.co.uk,northumberlandgazette.co.uk,nottinghamworld.com,peterboroughtoday.co.uk,rotherhamadvertiser.co.uk,stornowaygazette.co.uk,surreyworld.co.uk,thescarboroughnews.co.uk,thesouthernreporter.co.uk,totallysnookered.com,wakefieldexpress.co.uk,walesworld.com,warwickshireworld.com,wigantoday.net,worksopguardian.co.uk,yorkshireeveningpost.co.uk,yorkshirepost.co.uk##[data-type="AdRowBillboard"]
+! .promo-container
+forums.minecraftforge.net,nextdoor.com,staradvertiser.com,uploadvr.com##.promo-container
+! thenewdaily.com.au
+thenewdaily.com.au##.h-home-ad-height-stop
+thenewdaily.com.au##.md\:h-\[250px\]
+! streetinsider.com
+streetinsider.com###bottom_ad_fixed
+streetinsider.com##.im-ad
+! investing.com
+investing.com##+js(nostif, offsetHeight)
+investing.com###__next > .fixed
+investing.com###ad1
+investing.com###ad2
+investing.com###ad3
+investing.com###hpAdVideo
+investing.com##.ad-blocker-popup
+investing.com##.dfpAdUnitContainer
+investing.com##.dfpVideo
+investing.com##.im-ad-visible
+investing.com##.js-general-overlay
+investing.com##.wideTopBanner
+investing.com##[class*="adBlock"]
+investing.com##[class*="overlay_overlay"]
+investing.com##div.text-\[\#5b616e\]
+investing.com##div[data-test="ad-slot-visible"]
+investing.com##div[class^="ad_"]
+||investing.com/js/n/ad-blocker-popup$script
+! psypost.org
+psypost.org##.jeg_midbar
+! iheart.com
+iheart.com##.component-pushdown
+! drivencarguide.co.nz
+drivencarguide.co.nz##.tw-min-h-\[18\.75rem\]
+drivencarguide.co.nz##.tw-bg-gray-200
+drivencarguide.co.nz##.o-adunit
+! usnews.com
+usnews.com###bfad-slot
+usnews.com##.Ad__Container-sc-1ah7c5n-0
+usnews.com##.InartAd__FirstInartAdWrapper-sc-8wv8ky-0
+usnews.com##.ad-spacer__AdSpacer-sc-nwg9sv-0
+! examiner.com.au..
+bordermail.com.au,canberratimes.com.au,examiner.com.au,theadvocate.com.au,thecourier.com.au###billboard-container
+bordermail.com.au,canberratimes.com.au,examiner.com.au,theadvocate.com.au,thecourier.com.au##.bg-gray-100
+! nbcsports.com
+nbcsports.com##[bsp-reverse-scroll-ad]
+! perthnow.com.au
+perthnow.com.au##.ad-article-mrec-one
+perthnow.com.au##.ad-sidebar-top
+! theroar.com.au
+theroar.com.au##.fuse-slot
+theroar.com.au##.pm-ad-unit
+! worldtestchampionship.com
+worldtestchampionship.com##.mobile-banner
+! 7news.com.au
+7news.com.au##.ad-no-notice
+! afr.com
+afr.com###stickyLeaderboard
+! france24.com
+france24.com##.m-block-ad
+france24.com##[data-tms-ad-container]
+! timesofisrael.com
+timesofisrael.com##.banner-placeholder
+! timesofindia.com
+timesofindia.com##.phShimmer
+timesofindia.com##div[class^="ATF_container_"]
+timesofindia.com##div[id^="custom_ad_"]
+! gadgetsnow.com
+gadgetsnow.com##._1edxh
+gadgetsnow.com##._1pjMr
+gadgetsnow.com##.colombia
+! pastemagazine.com
+jezebel.com,pastemagazine.com###above_logo
+jezebel.com,pastemagazine.com###middle_rectangle
+jezebel.com,pastemagazine.com###top_leaderboard
+jezebel.com,pastemagazine.com###top_rectangle
+! .dfp
+gadgetsnow.com,jezebel.com,nationaljeweler.com,pastemagazine.com,theonion.com##.dfp
+! urbandictionary.com
+urbandictionary.com##.mb-4.justify-center
+! globalnews.ca
+globalnews.ca##.c-adChoices
+globalnews.ca##.c-stickyRail
+globalnews.ca##.l-headerAd
+globalnews.ca##.c-ad
+##section#headerAd
+! hilltimes.com
+hilltimes.com##.elementor-element-5818a09
+! toronto.citynews.ca
+citynews.ca##.ad-load
+! ncaa.com
+ncaa.com##.top-banner
+! .arc_ad
+ajc.com,bostonglobe.com,daytondailynews.com,journal-news.com,springfieldnewssun.com##.arc_ad
+! .topbox-cls-placeholder
+belfastlive.co.uk,birminghammail.co.uk,bristolpost.co.uk,cambridge-news.co.uk,cheshire-live.co.uk,chroniclelive.co.uk,cornwalllive.com,coventrytelegraph.net,dailypost.co.uk,derbytelegraph.co.uk,devonlive.com,dublinlive.ie,edinburghlive.co.uk,examinerlive.co.uk,getsurrey.co.uk,glasgowlive.co.uk,gloucestershirelive.co.uk,hertfordshiremercury.co.uk,kentlive.news,leeds-live.co.uk,leicestermercury.co.uk,lincolnshirelive.co.uk,manchestereveningnews.co.uk,mylondon.news,nottinghampost.com,somersetlive.co.uk,stokesentinel.co.uk,walesonline.co.uk##.topbox-cls-placeholder
+! .a-wrap
+androidtrends.com,backthetruckup.com,bingehulu.com,buffalorising.com,streamsgeek.com,techcentral.co.za,trendstorys.com,vedantbhoomi.com##.a-wrap
+! australiangolfdigest.com.au
+australiangolfdigest.com.au##.desktop_header
+! myabandonware.com (anti-adblock)
+myabandonware.com##div[dir="auto"][style]
+! coingecko.com
+||ads.coingecko.com^
+coingecko.com##[data-target="ads.banner"]
+coingecko.com###top-announcement-header
+coingecko.com##.sponsored-v2
+coingecko.com##[data-controller="button-ads"]
+! livemint.com
+livemint.com##.rightAdNew
+livemint.com##.leftblockAd
+! lawandcrime.com
+lawandcrime.com,mediaite.com##.o-promo-unit
+lawandcrime.com,themarysue.com##.promo-unit
+lawandcrime.com,mediaite.com##.sidebar-hook
+! forum.nasaspaceflight.com
+forum.nasaspaceflight.com##[style="text-align:center; margin-bottom:30px;"]
+! .zad
+ign.com,mashable.com,pcmag.com##.zad
+! mmorpg.com
+mmorpg.com###mmorpg_desktop_list_1
+mmorpg.com###mmorpg_desktop_list_3
+! dailyfx.com
+dailyfx.com##.dfx-adBlock1Wrapper
+! forexlive.com
+forexlive.com##.page-wrap__top-banner
+forexlive.com##.top-forex-brokers__wrapper
+! fxempire.com
+fxempire.com##.ddAwpw
+fxempire.com##.gAruxy
+fxempire.com##[data-cy="article-ad"]
+! foxnews
+foxbusiness.com,foxnews.com,foxweather.com##.advert-txt
+fox10phoenix.com,fox13news.com,fox26houston.com,fox29.com,fox2detroit.com,fox32chicago.com,fox35orlando.com,fox4news.com,fox5atlanta.com,fox5dc.com,fox5ny.com,fox6now.com,fox7austin.com,fox9.com,foxbusiness.com,foxla.com,foxnews.com,ktvu.com,q13fox.com,wogx.com##.vendor-unit
+! marketwatch.com
+marketwatch.com##.element--ad
+marketwatch.com##.sponsored-content
+! gameshub.com
+gameshub.com##.ads-slot
+! mashable.com
+mashable.com##.exco
+mashable.com##.top-0.sticky > div
+mashable.com##section.mt-4 > div
+! kotaku.com
+kotaku.com##.japmJB
+! timesofindia.indiatimes.com
+timesofindia.indiatimes.com##.CeUoi
+timesofindia.indiatimes.com##.mgid_second_mrec_parent
+timesofindia.indiatimes.com##.paisa-wrapper
+timesofindia.indiatimes.com##.relatedVideoWrapper
+timesofindia.indiatimes.com##[data-aff-type]
+timesofindia.indiatimes.com##.topBand_adwrapper
+timesofindia.indiatimes.com##[data-contentprimestatus]
+! marketscreener.com
+marketscreener.com###zppMiddle2
+marketscreener.com###zppRight2
+! reddit.com
+reddit.com,reddittorjg6rue252oqsxryoxengawnmo46qy4kyii5wtqnwfj4ooad.onion##.promotedlink
+reddit.com,reddittorjg6rue252oqsxryoxengawnmo46qy4kyii5wtqnwfj4ooad.onion##div[data-before-content="advertisement"]
+reddit.com,reddittorjg6rue252oqsxryoxengawnmo46qy4kyii5wtqnwfj4ooad.onion#?#article.Post:-abp-has(a[rel="nofollow noopener sponsored"])
+reddit.com,reddittorjg6rue252oqsxryoxengawnmo46qy4kyii5wtqnwfj4ooad.onion##shreddit-comments-page-ad
+reddit.com,reddittorjg6rue252oqsxryoxengawnmo46qy4kyii5wtqnwfj4ooad.onion##xpromo-top-button
+! economist.com
+economist.com##.adComponent_advert__kPVUI
+! qoura.com
+quora.com##.dom_annotate_ad_image_ad
+quora.com##.spacing_log_question_page_ad
+quora.com##.PageContentsLayout___StyledBox-d2uxks-0 > .q-box > .q-sticky > .qu-pb--medium
+||quora.com/ads/
+! thewrap.com
+thewrap.com##.wp-block-the-wrap-ad
+! dallas.culturemap.com
+culturemap.com##.z-ad
+! restaurantbusinessonline.com
+restaurantbusinessonline.com,cspdailynews.com###faded
+restaurantbusinessonline.com,cspdailynews.com##.wrapper-au-popup
+! oregonlive.com
+oregonlive.com###rightRail-Bottom-300xFlex
+oregonlive.com##.below-toprail
+oregonlive.com##.rightRail-top-wrapper
+! petapixel.com
+petapixel.com##.banners
+petapixel.com##.video-aspect-wrapper
+! cbsnews.com
+cbsnews.com##.top-ad-container
+! nature.com
+nature.com##.u-lazy-ad-wrapper
+! autoevolution.com
+autoevolution.com##.ad300x600
+autoevolution.com##.bgcutgrad
+!
+||ads-api.twitter.com^
+!
+! Trackers
+!
+!
+://cmpworker.
+!
+! Fingerprinting scripts (Threatmetrix)
+/fp-3.3.6.min.js
+/fp/check.js
+/fp/clear.png
+/fp/clear1.png
+/fp/clear2.png
+/fp/clear3.png
+/fp/es.js
+/fp/HP?session_id
+/fp/ls_fp.
+/fp/tags.js
+/fp/top_fp.
+/fp2.compressed.js
+/fp_204?
+/fpc.pl?a=
+/fpcookie?
+/fpcount.exe
+/fprnt.min.js
+/fps/check.
+/fpTracker/*
+/fptrk.min.js
+/fpv2.js
+/sendLogs?cid=
+/tags.js?org_id=
+! CNAME: account.adobe.com
+@@||account.adobe.com^
+! CNAME: pol.dk
+@@||www.pol.dk^
+! CNAME: autonews.com (https://community.brave.com/t/autonews-com-images-dont-load/488276)
+@@||s3-prod.autonews.com^$domain=autonews.com
+! CNAME: linkvertise.com
+@@||taboola.com/libtrc/linkvertise-link-to/loader.js$domain=linkvertise.com
+@@||taboola.map.fastly.net^$domain=linkvertise.com
+! CNAME: https://api.atlassian.com/metal/ingest
+! https://github.com/brave/adblock-lists/issues/752
+@@||api.atlassian.com^$first-party
+! CNAME: https://yab.yomiuri.co.jp/adv/presage/3.html
+@@||yab.yomiuri.co.jp/adv/$first-party
+@@||omicroncdn.net^$domain=yab.yomiuri.co.jp
+! CNAME: https://www.imdb.com/video/vi935705113?playlistId=tt1568346
+@@||cloudfront.net^$domain=imdb.com|media-imdb.com
+! CNAME: xing.com
+@@||cloudfront.net^$domain=xing.com
+! CNAME: iraiser.eu
+@@||iraiser.eu^$image,stylesheet,subdocument
+@@||cdn.iraiser.eu^
+! CNAME: https://darknetdiaries.com/episode/78/
+@@||traffic.megaphone.fm^$domain=megaphone.fm|darknetdiaries.com
+@@||adserver.va3.megaphone.cloud.$domain=megaphone.fm|darknetdiaries.com
+!
+! paypal.com
+||paypal.com/xoplatform/logger/api/logger
+! mail.google.com
+mail.google.com##.aeF > .nH > .nH[role="main"] > .aKB
+mail.google.com##.nH.PS
+||mail-ads.google.com^
+! stoodnt.com
+stoodnt.com##.boxzilla-center-container
+stoodnt.com##.boxzilla-overlay
+! Facebook/Instagram
+facebook.com##.RectangleAd
+! linkedin.com
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="Promo"])
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="Anzeige"])
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="sponsor"])
+! Portugese
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="Patrocinado"])
+! Czech
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="Propagováno"])
+! German
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="Gepromoot"])
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="Gesponsert"])
+! Polish 
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="Treść promowana"])
+! Infonesian
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="Dipromosikan"])
+! Greek
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="Nai-promote"])
+! Russian
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="Продвигается"])
+! Swedish
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="Marknadsfört"])
+! Chinese
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="促銷內容"])
+! Korean
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="프로모션"])
+! Japanese
+linkedin.com##.feed-shared-update-v2:has(a[aria-label*="广告|プロモーション"])
+linkedin.com##.ad-banner
+! bloomberg.com
+bloomberg.com##.BaseAd_baseAd-dXBqvbLRJy0-
+bloomberg.com##.dvz-v0-ad
+bloomberg.com##[class^="FullWidthAd_"]
+bloomberg.com##[data-component="in-body-ad"]
+bloomberg.com##div[class^="media-ui-BaseAd"]
+bloomberg.com##div[class^="media-ui-FullWidthAd"]
+! thebaltimorebanner.com
+thebaltimorebanner.com###leaderboard-ad-v2
+thebaltimorebanner.com##.block-ad-zone
+! theatlantic.com
+theatlantic.com##.ArticleInjector_clsAvoider__dqIAm
+! thegazette.com
+thegazette.com###high-impact
+! news18.com
+news18.com##.topAdd
+news18.com##div[style*="min-height: 527px"]
+news18.com##div[style*="min-height:250px"]
+! pymnts.com
+pymnts.com##.pymnt_ads
+pymnts.com###bottom-ad
+! adweek.com
+adweek.com##.htl-ad-wrapper
+! decrypt.co
+decrypt.co##.aspect-video
+decrypt.co##.opacity-75
+decrypt.co##span:has-text(AD)
+decrypt.co##.flex.flex-none.relative
+! target.com
+target.com##.h-position-fixed-bottom
+target.com##[data-test="featuredProducts"]
+target.com##[data-test="sponsored-text"]
+target.com##div[class^="styles__PubAd"]
+! mail.yahoo.com
+/curveball/ads/*
+/log?count=
+||bats.video.yahoo.com^
+||jill.fc.yahoo.com^
+||yahoo.com/pdarla/
+! eporner.com
+||eporner.com/dot/
+eporner.com##.hptab
+eporner.com###movieplayer-box-adv
+eporner.com###btasd
+eporner.com###deskadmiddle
+eporner.com##.vjs-inplayer-container
+! pornhub
+pornhub.com##div[id^="customSkin"]
+pornhub.com##div.container:style(margin-top: 0px !important)
+pornhub.com###singleFeedSection > .emptyBlockSpace
+pornhub.com##.sniperModeEngaged
+pornhub.com##a[href*="?ats="]
+pornhub.com##a[href^="https://ads.trafficjunky.net/"]
+pornhub.com###pb_block
+pornhub.com##.realsex
+pornhub.com###js-abContainterMain
+pornhub.com,pornhub.net,youporn.com###pb_template
+/_xa/ads_
+/ht.js?site_
+##a[href^="https://a.adtng.com/"]
+! xhamster.com
+||brick.xhamster.com^
+! tube8
+tube8.com,tube8.es,tube8.fr##main.row > aside.col-4 > div[class]
+tube8.com,tube8.es,tube8.fr##input + div:has(.adsbytrafficjunky)
+! youporn.com
+youporn.com##.e8-column
+||youporn.com^$script,subdocument,domain=youporn.com
+! redtube.com
+redtube.com,redtube.com.br###popsByTrafficJunky
+redtube.com,redtube.com.br##li:has(.adsbytrafficjunky)
+redtube.com,redtube.com.br###paid_tabs_list
+redtube.com,redtube.com.br##+js(abort-current-script, Object.defineProperty, trafficjunky)
+redtube.com,redtube.com.br##+js(no-window-open-if)
+redtube.com,redtube.com.br,youporn.com##+js(set-constant, page_params.holiday_promo, true)
+! cnet.com
+||signup.asurion.com^$subdocument
+! play.google.com
+||play.google.com/log
+! kijiji.ca
+kijiji.ca##.adChoices-804693302
+kijiji.ca##.gqNGFh
+kijiji.ca##.jOwRwk
+kijiji.ca##.leaderboard-1322657443
+kijiji.ca##.ofGHb
+kijiji.ca##.vipAdsList-3883764342
+kijiji.ca##[data-testid="adsense-container"]
+kijiji.ca##div[class^="sponsored-"]
+! latimes.com
+latimes.com##.revcontent
+||activate.latimes.com/pc/caltimes/?pulse2001=
+! thehackernews.com
+thehackernews.com##div.rocking
+thehackernews.com##.dog_two
+thehackernews.com##.sadbar2
+thehackernews.com##.sadfix
+! u.today
+u.today##.something
+! forexlive.com
+forexlive.com##.banner__wrapper
+! barrons.com
+barrons.com##.adWrapperTopLead
+barrons.com##.standard__AdWrapper-sc-14sjre0-6
+barrons.com,wsj.com##.uds-ad-container
+barrons.com##.RenderBlock__AdWrapper-sc-1vrmc5r-0
+barrons.com##.AdWrapper-sc-9rx3gf-0
+! notateslaapp.com
+notateslaapp.com##.mod-sponsors
+notateslaapp.com##.vtwjhpktrbfmw
+! technologyreview.com
+technologyreview.com##div[class^="headerTemplate__leaderboardRow-"]
+! accuweather.com
+accuweather.com###top
+! pch.com
+pch.com###div-pch-gpt-placement-bottom
+pch.com###div-pch-gpt-placement-multiple
+pch.com###div-pch-gpt-placement-top
+pch.com##.placement-content
+pch.com##.wide_banner
+! eurosport.com
+eurosport.com##.reform-top-container
+! weather.com
+.privacydatanotice.
+||weather.com/*.medalliasurvey.
+! stuff.co.nz
+/fusion/lucid/data/*
+||stuff.co.nz/static/adnostic/
+||stuff.co.nz/static/stuff-adfliction/
+thepress.co.nz,waikatotimes.co.nz,stuff.co.nz##.header-ads-block
+! cnn.com
+cnn.com##.ad-feedback__modal
+cnn.com###js-outbrain-rightrail-ads-module
+cnn.com###partner-zone
+cnn.com###sponsored-outbrain-1
+cnn.com##.ad-slot-dynamic
+cnn.com##.ad-slot__ad-wrapper
+cnn.com##.stack__ads
+cnn.com##.zone__ads
+cnn.com##[data-zone-label="Paid Partner Content"]
+!  pointmall.rakuten.co.jp
+pointmall.rakuten.co.jp##.side-ad
+pointmall.rakuten.co.jp##style + div.side-box:has(> ul > li > a[href^="https://ac.ebis.ne.jp/tr_set.php"][target="_blank"][rel="noopener noreferrer"])
+pointmall.rakuten.co.jp##.mypage-ads
+pointmall.rakuten.co.jp##.side-mypage-ad-wrap
+pointmall.rakuten.co.jp##.gamelist-ads
+! cnnespanol.cnn.com
+cnnespanol.cnn.com##.banner--sticky
+cnnespanol.cnn.com##.banner
+||cnn.com/wmuc/cnn_user_consent.min.js
+! stripes.com
+stripes.com###FeatureAd
+stripes.com###MidPageAd
+! Port scanning Fingerprinting Trackers (Privacy and CPU abuse)
+! https://nullsweep.com/why-is-this-website-port-scanning-me/
+/^https?:\/\/fdts\.ebay-kleinanzeigen\.de\/[a-z0-9]{13,18}\.js\?/$script,domain=kleinanzeigen.de
+/^https?:\/\/pov\.spectrum\.net\/[a-zA-Z0-9]{14,}\.js/$script,domain=spectrum.net
+/^https?:\/\/tjmaxx\.tjx\.com\/libraries\/[a-z0-9]{20,}/$script,xmlhttprequest,domain=tjx.com
+/^https?:\/\/tmx\.(td|tdbank)\.com\/[a-z0-9]{14,18}\.js.*/$script,domain=mbna.ca|td.com|tdbank.com
+/^https?:\/\/www\.ebay-kleinanzeigen\.de\/[a-z0-9]{8}\-[0-9a-f]{4}\-/$script,domain=kleinanzeigen.de
+/^https?:\/\/www\.kroger\.com\/content\/{20,}/$script,xmlhttprequest,domain=kroger.com
+||cfa.fidelity.com^
+||citi.com^*/fp.js
+||citibank.com.ph/JSO/js/fp.js
+||citibank.com.ph/tmx/js/
+||citibank.com.sg/jso/js/fp.js
+||citibank.com.sg/tmx/
+||clear.wallapop.com^
+||content22.bmo.com^
+||content22.citi.eu^$script
+||content22.citibank.com.au^
+||content22.citibank.com.sg^$script
+||content22.citibankonline.com^
+||content22.online.citi.com^
+||customer.homedepot.com^$script
+||drfdisvc.walmart.com^
+||ebay.com/nkfytkqtoxtljvzbxhr.js$script,domain=ebay.com
+||ebaystatic.com/rs/v/10341xh50yz21mhhydueu4m5wad.js
+||ebaystatic.com/rs/v/dxtuvtkk2q3hpkc1xveeo13iaek.js
+||ebaystatic.com/rs/v/klminxoj1uyzvo0p0qu4nhpg0qo.js
+||ebaystatic.com/rs/v/s0hteylevy4bpkd12dvkd4yi5ms.js
+||event.evtm.53.com^
+||idstatus.sky.com^
+||imgs.signifyd.com^
+||olacontent.schwab.com^$script
+||qfp.intuit.com^
+||rba-screen.healthsafe-id.com^
+||rsx.afterpay.com^
+||src.ebay-us.com/*=usllpic$script,domain=ebay.com
+||svc2.sc.com^
+||tm-eps.neutrino.nu^
+||tmetrix.my.chick-fil-a.com^
+||tmx.bestbuy.com^
+||tmx.td.com^
+||u47.pnc.com^
+||w-profiling.cibc.com^$script
+||w-profiling.simplii.com^
+! Consent/GDPR tracking
+://a02342.
+||cb-mms.carbuyer.co.uk^
+||cmp.courrierinternational.com^
+||cmp.finn.no^
+||cmp.huffingtonpost.fr^
+||cmp.lavie.fr^
+||cmp.lemonde.fr^
+||cmp.lepoint.fr^
+||cmp.netzwelt.de^
+||cmp.nouvelobs.com^
+||cmp.tech426.com^
+||cmp.tek.no^
+||cmp.telerama.fr^
+||d.sourcepoint.capitalfm.com^
+||fuse.forbes.com^
+||sourcepoint-mms.aetv.com^
+||sourcepoint-mms.history.com^
+||sourcepoint-mms.mylifetime.com^
+||trustarc.mgr.consensu.org/get?
+||vg247-p2.vg247.com^
+||vg247-uk.vg247.com^
+! Fingerprint
+||bankofamerica.com/cookie-id.js
+||bup.bankofamerica.com^
+||cdn1.skrill.com^
+||d276.ourmidland.com^
+||d810.mysanantonio.com^
+||dii.bankaust.com.au^
+||eventbus.intuit.com^
+||f775.thehour.com^
+||h353.ncadvertiser.com^
+||h559.stamfordadvocate.com^
+||halifax-online.co.uk/scripts/16c9d93d/
+||j198.registercitizen.com^
+||l936.expressnews.com^
+||o398.trumbulltimes.com^
+||pf.intuit.com^
+||q777.sfchronicle.com^
+||rail.bankofamerica.com^$script,~third-party,xmlhttprequest
+||sofa.bankofamerica.com^
+||t570.wiltonbulletin.com^
+||tilt.bankofamerica.com^
+||u652.myplainview.com^
+||u927.sfgate.com^
+||w740.newstimes.com^
+||y738.nhregister.com^
+||y820.darientimes.com^
+||y900.greenwichtime.com^
+||z211.yourconroenews.com^
+||z492.ctinsider.com^
+||z680.beaumontenterprise.com^
+||zion.qbo.intuit.com^
+! PerimeterX
+||anthropologie.com/XgWM9nuH/init.js
+||apartmenttherapy.com/jAYekY18/init.js
+||arcteryx.com/943r4Fb8/init.js
+||asda.com/px/PX1UGLZTko/init.js
+||ashleyfurniture.com/ouqLB4fq/init.js
+||auctionzip.com/eKtvxkQ2/init.js
+||b.px-cdn.net/api/v1/PXrf8vapwA/
+||bathandbodyworks.com/lsXlyYa5/init.js
+||belk.com/0iiey9LM/init.js
+||bhphotovideo.com/3D8mkYG1/init.js
+||bloomberg.com/8FCGYgk4/init.js
+||bm.paypal.com/spd3TxHV/init.js
+||booking.com/87sduif98q3rijax
+||booktopia.com.au/Ns7aBMIv/init.js
+||brownsshoes.com/IZ/2tcS0qiG/init.js
+||build.com/2Ztkihy4/init.js
+||calm.com/api/12Xk43jk/init.js
+||calvinklein.us/n8ANl15k/init.js
+||carbon38.com/A44kxi5a/init.js
+||careermatch.com/oGckki0e/init.js
+||carolsdaughter.com/IZ/uaPO0cuk/init.js
+||carters.com/0F3091f3/init.js
+||couchsurfing.com/bEcn7fQX/init.js
+||crunchbase.com/rw7M6iAV/init.js
+||discount.hk-hotel.com/QUkd4lO9/init.js
+||drupal.org/VnPBBfwe/init.js
+||expressnews.com/413gkwMT/init.js
+||fiverr.com/px/client/PXK3bezZfO/main.min.js
+||flixcart.com/px/gNtTli3A/init.js
+||flooranddecor.com/v1HqbVho/init.js
+||foodora.fi/lJuB4eTB/init.js
+||foodora.se/lJuB4eTB/init.js
+||foodpanda.bg/lJuB4eTB/init.js
+||foodpanda.co.th/lJuB4eTB/init.js
+||foodpanda.com.bd/lJuB4eTB/init.js
+||foodpanda.com.kh/lJuB4eTB/init.js
+||foodpanda.com.mm/lJuB4eTB/init.js
+||foodpanda.com.tw/lJuB4eTB/init.js
+||foodpanda.hk/lJuB4eTB/init.js
+||foodpanda.la/lJuB4eTB/init.js
+||foodpanda.my/lJuB4eTB/init.js
+||foodpanda.ph/lJuB4eTB/init.js
+||foodpanda.pk/lJuB4eTB/init.js
+||foodpanda.ro/lJuB4eTB/init.js
+||foodpanda.sg/lJuB4eTB/init.js
+||freepeople.com/tN88Q85M/init.js
+||hotpads.com/xOR1K5b6/init.js
+||houstonchronicle.com/413gkwMT/init.js
+||iherb.com/VtidNbtC/init.js
+||internships.com/oGckki0e/init.js
+||jimmyjohns.com/Abo2Yc8X/init.js
+||joann.com/qXTWmr91/init.js
+||kerastase-usa.com/IZ/PXXiuO7QTJ/init.js
+||kget.com/CvbtpUrj/init.js
+||kickstarter.com/Uy3R669N/init.js
+||kiehls.com/IZ/PXG8ATFja1/init.js
+||kiva.org/r3pNVz1F/init.js
+||ktla.com/CvbtpUrj/init.js
+||lancome-usa.com/IZ/PXq99AlOxk/init.js
+||madlan.co.il/o4wPDYYd/init.js
+||mysanantonio.com/413gkwMT/init.js
+||newsnationnow.com/yZuPxxW0/init.js
+||nyxcosmetics.com/IZ/PXLZNv2dn4/init.js
+||octopart.com/kdRQnL15/init.js
+||oshkosh.com/0F3091f3/init.js
+||priceline.com/9aTjSd0n/init.js
+||ralphlauren.com^*/init.js
+||realtor.com/rdc_user_check/init.js
+||sams.com.mx/px/PX87wpO5aK/init.js
+||samsclub.com/px/PXsLC3j22K/init.js
+||seattlepi.com/413gkwMT/init.js
+||seekingalpha.com/xgCxM9By/init.js
+||sensor.grubhub.com/O97ybH4J/init.js
+||sfchronicle.com/413gkwMT/init.js
+||sfgate.com/413gkwMT/init.js
+||shiekh.com/iJ55yhVs/init.js
+||shoebacca.com/YaRJwC0q/init.js
+||simon.com/46SCNLxs/init.js
+||skechers.com/dL6GOSf9/init.js
+||skiphop.com/0F3091f3/init.js
+||skyscanner.*/rf8vapwA/init.js
+||snipesusa.com/6XNN2xkk/init.js
+||spirit.com/kp4CLSb5/init.js
+||ssense.com/58Asv359/init.js
+||stockx.com/16uD0kOF/init.js
+||streeteasy.com/cZdhF737/init.js
+||studeersnel.nl/27m703Hm/init.js
+||studocu.com/27m703Hm/init.js
+||sweetwater.com/p2TBVNJZ/init.js
+||thehill.com/6zcfGH4h/init.js
+||thekitchn.com/jAYekY18/init.js
+||therealreal.com/ev56mY37/init.js
+||timesunion.com/413gkwMT/init.js
+||tumi.com/4i06uv8M/init.js
+||walmart.ca/px/PXnp9B16Cq/init.js
+||walmart.com/px/PXu6b0qd2S/init.js
+||walmartcanada.ca/px/PXcfrcFEfA/init.js
+||walmartcareerswithamission.com/px/PXcfrcFEfA/init.js
+||walmartethics.com/px/PXcfrcFEfA/init.js
+||walmartpetrx.com/1Ct9c6G3/init.js
+||walmartrealty.com/px/PXcfrcFEfA/init.js
+||wfla.com/CvbtpUrj/init.js
+||wgno.com/CvbtpUrj/init.js
+||whois.com/js/gtmDataLayer.js
+||wine-searcher.com/K6S8okp3/init.js
+||worthpoint.com/lIUjcOwl/init.js
+||www.digikey.*/lO2Z493J/init.js
+||www.mouser.*/4UAZUiaI/init.js
+||zazzle.ca/botdefender/init.js
+||zazzle.ca/svc/px
+||zazzle.co.nz/botdefender/init.js
+||zazzle.co.nz/svc/px
+||zazzle.co.uk/botdefender/init.js
+||zazzle.co.uk/svc/px
+||zazzle.com.au/botdefender/init.js
+||zazzle.com.au/svc/px
+||zazzle.com/botdefender/init.js
+||zazzle.com/svc/px
+||zazzle.de/botdefender/init.js
+||zazzle.de/svc/px
+||zazzle.es/botdefender/init.js
+||zazzle.es/svc/px
+||zazzle.fr/botdefender/init.js
+||zazzle.fr/svc/px
+||zillow.com/HYx10rg3/init.js
+||zoominfo.com/osx7m0dx/init.js
+! WEBCOMPAT FIX https://github.com/brave/brave-browser/issues/39282
+shop.ketoneaid.com##.product-form__option-selector > .select-wrapper
+shop.ketoneaid.com##html:style(overflow: auto !important; position: initial !important;)

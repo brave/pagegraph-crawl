@@ -43,10 +43,13 @@ parser.add_argument('-e', '--existing-profile', {
 })
 parser.add_argument('-p', '--persist-profile', {
   help: 'If provided, the user profile will be saved at this path. Cannot ' +
-        'be used with "--existing-profile"'
+        'be used with "--existing-profile"',
+  default: false,
+  action: 'store_true'
 })
 parser.add_argument('--extensions-path', {
-  help: 'If provided, the browser starts with the provided extensions installed.'
+  help: 'If provided, start browser with the provided extensions installed.',
+  default: undefined
 })
 parser.add_argument('-s', '--shields', {
   help: 'Whether to measure with shields up or down. Ignored when using ' +
