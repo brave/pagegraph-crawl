@@ -3,10 +3,12 @@ import * as pathLib from 'path'
 import fsExtraLib from 'fs-extra'
 import tmpLib from 'tmp'
 import puppeteerLib from 'puppeteer-core'
+import type { LaunchOptions, Process } from 'puppeteer-core'
 
 import { getLogger } from './debug.js'
 
-export const TimeoutError = puppeteerLib.errors.TimeoutError
+type LaunchOptionsType = typeof LaunchOptions
+type ProcessType = typeof Process
 
 const disabledBraveFeatures = [
   'BraveSync',
@@ -27,17 +29,22 @@ const disabledBraveFeatures = [
   'InlineContentAds',
   'PromotedContentAds',
   'TextClassification',
-  'SiteVisit'
+  'SiteVisit',
 ]
 
-const profilePathForArgs = (args: CrawlArgs): { path: FilePath, shouldClean: boolean } => {
+interface ProfilePath {
+  profilePath: FilePath
+  shouldClean: boolean
+}
+
+const profilePathForArgs = (args: CrawlArgs): ProfilePath => {
   const logger = getLogger(args)
 
   // The easiest case is if we've been told to use an existing profile.
   // In this case, just return the given path.
   if (args.existingProfilePath !== undefined) {
-    logger.debug(`Crawling with profile at ${args.existingProfilePath}.`)
-    return { path: args.existingProfilePath, shouldClean: false }
+    logger.verbose(`Crawling with profile at ${args.existingProfilePath}.`)
+    return { profilePath: args.existingProfilePath, shouldClean: false }
   }
 
   // Next, figure out which existing profile we're going to use as the
@@ -56,56 +63,63 @@ const profilePathForArgs = (args: CrawlArgs): { path: FilePath, shouldClean: boo
   const shouldClean = args.persistProfilePath === undefined
 
   fsExtraLib.copySync(templateProfile, destProfilePath)
-  logger.debug(`Crawling with profile at ${String(destProfilePath)}.`)
-  return { path: destProfilePath, shouldClean }
+  logger.verbose(`Crawling with profile at ${String(destProfilePath)}.`)
+  return { profilePath: destProfilePath, shouldClean }
 }
 
-export const puppeteerConfigForArgs = (args: CrawlArgs): any => {
-  const { path: pathForProfile, shouldClean } = profilePathForArgs(args)
+export const puppeteerConfigForArgs = (args: CrawlArgs): PuppeteerConfig => {
+  const { profilePath, shouldClean } = profilePathForArgs(args)
 
   process.env.PAGEGRAPH_OUT_DIR = args.outputPath
 
+  const chromeArgs = [
+    '--disable-brave-update',
+    '--user-data-dir=' + profilePath,
+    '--disable-site-isolation-trials',
+    '--disable-component-update',
+    '--deny-permission-prompts',
+    '--enable-features=PageGraph',
+    '--disable-features=' + disabledBraveFeatures.join(','),
+  ]
+
   const puppeteerArgs = {
     defaultViewport: null,
-    args: [
-      '--disable-brave-update',
-      '--user-data-dir=' + pathForProfile,
-      '--disable-site-isolation-trials',
-      '--disable-component-update',
-      '--deny-permission-prompts',
-      '--enable-features=PageGraph',
-      '--disable-features=' + disabledBraveFeatures.join(',')
-    ],
+    args: chromeArgs,
     executablePath: args.executablePath,
     ignoreDefaultArgs: [
-      '--disable-sync'
+      '--disable-sync',
     ],
     dumpio: args.debugLevel === 'verbose',
-    headless: false
+    headless: false,
   }
 
   if (args.debugLevel === 'verbose') {
-    puppeteerArgs.args.push('--enable-logging=stderr')
-    puppeteerArgs.args.push('--vmodule=page_graph*=2')
+    chromeArgs.push('--enable-logging=stderr')
+    chromeArgs.push('--vmodule=page_graph*=2')
   }
 
   if (args.extensionsPath !== undefined) {
-    puppeteerArgs.args.push('--disable-extensions-except=' + args.extensionsPath)
-    puppeteerArgs.args.push('--load-extension=' + args.extensionsPath)
+    chromeArgs.push('--disable-extensions-except=' + args.extensionsPath)
+    chromeArgs.push('--load-extension=' + args.extensionsPath)
   }
 
   if (args.proxyServer != null) {
-    puppeteerArgs.args.push(`--proxy-server=${args.proxyServer.toString()}`)
+    chromeArgs.push(`--proxy-server=${args.proxyServer.toString()}`)
     if (args.proxyServer.protocol === 'socks5') {
-      puppeteerArgs.args.push(`--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE ${args.proxyServer.hostname}`)
+      const socksProxyRule = '--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE ' + args.proxyServer.hostname
+      chromeArgs.push(socksProxyRule)
     }
   }
 
   if (args.extraArgs != null) {
-    puppeteerArgs.args.push(...args.extraArgs)
+    chromeArgs.push(...args.extraArgs)
   }
 
-  return { puppeteerArgs, pathForProfile, shouldClean }
+  return {
+    launchOptions: puppeteerArgs,
+    profilePath,
+    shouldClean,
+  }
 }
 
 const asyncSleep = async (millis: number): Promise<void> => {
@@ -116,27 +130,36 @@ const defaultComputeTimeout = (tryIndex: number): number => {
   return Math.pow(2, tryIndex - 1) * 1000
 }
 
-export const launchWithRetry = async (puppeteerArgs: any, logger: Logger, retryOptions?: LaunchRetryOptions): Promise<any> /* puppeteer Browser */ => {
-  // default to 3 retries with a base-2 exponential-backoff delay between each retry (1s, 2s, 4s, ...)
-  const retries: number = retryOptions === undefined ? 3 : +retryOptions.retries
+/* eslint-disable max-len */
+export const launchWithRetry = async (launchOptions: LaunchOptionsType,
+                                      logger: Logger,
+                                      retryOptions?: LaunchRetryOptions): Promise<ProcessType> => {
+/* eslint-enable max-len */
+  // default to 3 retries with a base-2 exponential-backoff delay
+  // between each retry (1s, 2s, 4s, ...)
+  const retries: number = retryOptions === undefined
+    ? 3
+    : +retryOptions.retries
   const computeTimeout = retryOptions !== undefined
     ? retryOptions.computeTimeout
     : defaultComputeTimeout
 
   try {
-    return puppeteerLib.launch(puppeteerArgs)
-  } catch (err) {
-    logger.debug(`Failed to launch browser (${String(err)}): ${retries} left...`)
+    return puppeteerLib.launch(launchOptions)
+  }
+  catch (err) {
+    logger.debug('Failed to launch: ', err, '. ', retries, ' left…')
   }
 
   for (let i = 1; i <= retries; ++i) {
     await asyncSleep(computeTimeout(i))
     try {
-      return puppeteerLib.launch(puppeteerArgs)
-    } catch (err) {
-      logger.debug(`Failed to launch browser (${String(err)}): ${retries - i} left...`)
+      return puppeteerLib.launch(launchOptions)
+    }
+    catch (err) {
+      logger.debug('Failed to launch: ', err, '. ', (retries - i), ' left…')
     }
   }
 
-  throw new Error(`Unable to launch browser after ${retries} retries!`)
+  throw new Error(`Unable to launch after ${retries} retries!`)
 }

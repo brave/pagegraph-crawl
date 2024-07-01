@@ -1,15 +1,12 @@
 {
+    "extends": "@tsconfig/node20/tsconfig.json",
     "compilerOptions": {
+        "target": "es2020",
         "outDir": "./built",
-        "allowJs": true,
-        "target": "es6",
-        "noImplicitAny": true,
-        "strictNullChecks": true,
-        "alwaysStrict": true,
-        "moduleResolution": "nodenext",
-        "module": "NodeNext"
+        "esModuleInterop": true
     },
     "include": [
+        "./src/declarations.d.ts",
         "./src/**/*"
     ]
 }
