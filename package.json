@@ -6,7 +6,6 @@
     "lint": "npx eslint src/**/*.ts src/*.ts",
     "lint:fix": "npx eslint --fix src/**/*.ts src/*.ts",
     "build": "npx tsc",
-    "postinstall": "npm run build",
     "crawl": "node ./built/run.js",
     "clean": "rm -Rf built/*",
     "test": "npm run build && mocha test/test.js --timeout 60000"

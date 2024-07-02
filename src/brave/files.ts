@@ -29,9 +29,10 @@ export const writeGraphML = async (args: CrawlArgs, url: URL,
   try {
     const outputFilename = createGraphMLPath(args, url)
     await writeFile(outputFilename, response.data)
+    logger.debug('Writing PageGraph file to: ', outputFilename)
   }
   catch (err) {
-    logger.error('ERROR saving Page.generatePageGraph output: ', String(err))
+    logger.error('saving Page.generatePageGraph output: ', String(err))
   }
 }
 

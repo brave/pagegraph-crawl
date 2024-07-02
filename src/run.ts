@@ -108,5 +108,5 @@ if (!isValid) {
 
 const crawlArgs = errorOrArgs as CrawlArgs
 await (async () => {
-  await doCrawl(crawlArgs)
+  await doCrawl(crawlArgs, [])
 })()
