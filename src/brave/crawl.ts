@@ -1,14 +1,20 @@
-'use strict'
-
 import * as osLib from 'os'
 
-import fsExtraLib from 'fs-extra'
-import pathLib from 'path'
 import Xvbf from 'xvfb'
+import type { CDPSession, HTTPRequest, Page } from 'puppeteer-core'
 
+import { isTopLevelPageNavigation, isTimeoutError } from './checks.js'
+import { asHTTPUrl } from './checks.js'
+import { createScreenshotPath, writeGraphML, deleteAtPath } from './files.js'
 import { getLogger } from './debug.js'
-import { puppeteerConfigForArgs, launchWithRetry, TimeoutError } from './puppeteer.js'
-import { isDir } from './validate.js'
+import { makeNavigationTracker } from './navigation_tracker.js'
+import { selectRandomChildUrl } from './page.js'
+import { puppeteerConfigForArgs, launchWithRetry } from './puppeteer.js'
+
+type CDPSessionType = typeof CDPSession
+type HTTPRequestType = typeof HTTPRequest
+type PageType = typeof Page
+type XvbfType = typeof Xvbf
 
 const xvfbPlatforms = new Set(['linux', 'openbsd'])
 
@@ -16,207 +22,231 @@ const setupEnv = (args: CrawlArgs): EnvHandle => {
   const logger = getLogger(args)
   const platformName = osLib.platform()
 
-  let closeFunc
-
-  if (args.interactive) {
-    logger.debug('Interactive mode, skipping Xvfb')
-    closeFunc = () => { }
-  } else if (xvfbPlatforms.has(platformName)) {
-    logger.debug(`Running on ${platformName}, starting Xvfb`)
-    const xvfbHandle = new Xvbf({
-      // ensure 24-bit color depth or rendering might choke
-      xvfb_args: ['-screen', '0', '1024x768x24']
-    })
-    xvfbHandle.startSync()
-    closeFunc = () => {
+  let xvfbHandle: XvbfType | undefined
+  const closeFunc = () => {
+    if (xvfbHandle !== undefined) {
       logger.debug('Tearing down Xvfb')
       xvfbHandle.stopSync()
     }
-  } else {
+  }
+
+  if (args.interactive) {
+    logger.debug('Interactive mode, skipping Xvfb')
+  }
+  else if (xvfbPlatforms.has(platformName)) {
+    logger.debug(`Running on ${platformName}, starting Xvfb`)
+    xvfbHandle = new Xvbf({
+      // ensure 24-bit color depth or rendering might choke
+      xvfb_args: ['-screen', '0', '1024x768x24'],
+    })
+    xvfbHandle.startSync()
+  }
+  else {
     logger.debug(`Running on ${platformName}, Xvfb not supported`)
-    closeFunc = () => {}
   }
 
   return {
-    close: closeFunc
+    close: closeFunc,
   }
 }
 
-async function generatePageGraph (seconds: number, page: any, client: any, logger: Logger) {
-  const waitTimeMs = seconds * 1000
-  logger.debug(`Waiting for ${waitTimeMs}ms`)
-  await page.waitFor(waitTimeMs)
-  logger.debug('calling generatePageGraph')
-  const response = await client.send('Page.generatePageGraph')
-  logger.debug(`generatePageGraph { size: ${response.data.length} }`)
-  return response
-}
-
-function createFilename (url: Url): FilePath {
-  return `page_graph_${url?.replace(/[^\w]/g, '_')}_${Math.floor(Date.now() / 1000)}.graphml`
-}
-
-function createGraphMLPath (args: CrawlArgs, url: Url): FilePath {
-  return isDir(args.outputPath)
-    ? pathLib.join(args.outputPath, createFilename(url))
-    : args.outputPath
-}
-
-function createScreenshotPath (args: CrawlArgs, url: Url): FilePath {
-  const outputPath = createGraphMLPath(args, url)
-  const pathParts = pathLib.parse(outputPath)
-  return pathParts.dir + '/' + pathParts.name + '.png'
-}
-
-function writeGraphML (args: CrawlArgs, url: Url, response: any, logger: Logger) {
-  const outputFilename = createGraphMLPath(args, url)
-  fsExtraLib.writeFile(outputFilename, response.data).catch((err: Error) => {
-    logger.debug('ERROR saving Page.generatePageGraph output:', err)
+// Returns true if returned be of the func, and false if returned by timeout
+const waitUntilUnless = (secs: number,
+                         unlessFunc: () => boolean,
+                         intervalMs = 500): Promise<boolean> => {
+  const totalMs = secs * 1000
+  const endTime = Date.now() + totalMs
+  return new Promise((resolve) => {
+    const timerId = setInterval(() => {
+      const hasTimePassed = Date.now() > endTime
+      const unlessFuncRs = unlessFunc()
+      const shouldEnd = hasTimePassed === true || unlessFuncRs === true
+      if (shouldEnd === true) {
+        clearTimeout(timerId)
+        const returnedBcTimeout = hasTimePassed === true
+        resolve(returnedBcTimeout)
+      }
+    }, intervalMs)
   })
 }
 
-export const doCrawl = async (args: CrawlArgs, redirectChain: Url[] = []): Promise<void> => {
+const generatePageGraph = async (
+  seconds: number,
+  page: PageType,
+  client: CDPSessionType,
+  waitFunc: () => boolean,
+  logger: Logger): Promise<FinalPageGraphEvent> => {
+  logger.debug(`Waiting for ${seconds}s`)
+  await waitUntilUnless(seconds, waitFunc)
+  logger.debug('calling generatePageGraph')
+  const response = await client.send('Page.generatePageGraph')
+  const responseLen = response.data.length
+  logger.debug('generatePageGraph { size: ', responseLen, ' }')
+  return response
+}
+
+export const doCrawl = async (args: CrawlArgs,
+                              previouslySeenUrls: URL[]): Promise<void> => {
   const logger = getLogger(args)
-  const url: Url = args.urls[0]
-  const depth = args.recursiveDepth || 1
-  let randomChildUrl: Url = null
-  let redirectedUrl: Url = null
-  redirectChain = url && !redirectChain.includes(url) ? [...redirectChain, new URL(url)?.pathname === '/' && !url.endsWith('/') ? url + '/' : url] : redirectChain
+  const urlToCrawl = asHTTPUrl(args.url) as URL
+  logger.debug([
+    'Starting crawl with URL: ', urlToCrawl,
+    ' and with previously seen urls: [', previouslySeenUrls, ']',
+  ])
 
-  const { puppeteerArgs, pathForProfile, shouldClean } = puppeteerConfigForArgs(args)
+  const navTracker = makeNavigationTracker(urlToCrawl, previouslySeenUrls)
+  const depth = Math.max(args.recursiveDepth, 1)
+  let randomChildUrl: URL | undefined
+  let shouldRedirectToUrl: URL | undefined
 
+  const puppeteerConfig = puppeteerConfigForArgs(args)
+  const { launchOptions } = puppeteerConfig
   const envHandle = setupEnv(args)
 
+  let shouldStopWaitingFlag = false
+  const shouldStopWaitingFunc = () => {
+    return shouldStopWaitingFlag
+  }
+
   try {
-    logger.debug('Launching puppeteer with args: ', puppeteerArgs)
-    const browser = await launchWithRetry(puppeteerArgs, logger)
+    logger.verbose('Launching puppeteer with args: ', JSON.stringify(launchOptions))
+    const browser = await launchWithRetry(launchOptions, logger)
 
     const pages = await browser.pages()
     if (pages.length > 0) {
-      logger.debug(`Closing the ${pages.length} pages that are already open.`)
+      logger.debug('Closing ', pages.length, ' pages that are already open.')
       for (const aPage of pages) {
-        logger.debug(`  - closing tab with url ${aPage.url}`)
+        logger.debug('  - closing tab with url ', aPage.url())
         await aPage.close()
       }
     }
 
     try {
-      // create new page, update UA if needed, navigate to target URL, and wait for idle time
+      // create new page, update UA if needed, navigate to target URL,
+      // and wait for idle time.
       const page = await browser.newPage()
       const client = await page.target().createCDPSession()
       client.on('Target.targetCrashed', (event: TargetCrashedEvent) => {
-        logger.debug(`ERROR Target.targetCrashed { targetId: ${event.targetId}, status: "${event.status}", errorCode: ${event.errorCode} }`)
+        const logMsg = {
+          targetId: event.targetId,
+          status: event.status,
+          errorCode: event.errorCode,
+        }
+        logger.error(`Target.targetCrashed ${JSON.stringify(logMsg)}`)
         throw new Error(event.status)
       })
 
-      if (args.userAgent) {
+      if (args.userAgent !== undefined) {
         await page.setUserAgent(args.userAgent)
       }
 
       await page.setRequestInterception(true)
       // First load is not a navigation redirect, so we need to skip it.
-      let firstLoad: boolean = true
-      page.on('request', async (request: any) => {
-        // Only capture parent frame navigation requests.
-        logger.verbose(`Request intercepted: ${request.url()}, first load: ${firstLoad}`)
-        if (!firstLoad && request.isNavigationRequest() && request.frame() !== null && request.frame().parentFrame() === null) {
-          logger.debug('Page is redirecting...')
+      page.on('request', async (request: HTTPRequestType) => {
+        // We know the given URL will be a valid URL, bc of the puppeteer API
+        const requestedUrl = asHTTPUrl(request.url()) as URL
 
-          if (args.crawlDuplicates || !redirectChain.includes(request.url())) {
-            redirectedUrl = request.url()
-            // Add the redirected URL to the redirection chain
-            redirectChain.push(redirectedUrl)
-          }
-          // Stop page load
-          logger.debug(`Stopping page load of ${url}`)
-          await page._client.send('Page.stopLoading')
+        // Only capture parent frame navigation requests.
+        if (isTopLevelPageNavigation(request) === false) {
+          logger.verbose('Ignoring request to ', request.url(), ', not ',
+                         'a top level navigation.')
+          return
         }
-        firstLoad = false
+
+        const hasUrlBeenSeen = navTracker.isInHistory(requestedUrl)
+        const isCurrentNavUrl = navTracker.isCurrentUrl(requestedUrl)
+        if (isCurrentNavUrl === true) {
+          logger.debug('Loading ', requestedUrl,
+                       ' bc it is the first top frame page load')
+          request.continue()
+          return
+        }
+
+        if (hasUrlBeenSeen === false) {
+          logger.debug('Detected redirect to ', requestedUrl,
+                       ' so stopping page load and moving on')
+          shouldRedirectToUrl = requestedUrl
+          shouldStopWaitingFlag = true
+          await page._client.send('Page.stopLoading')
+          request.continue()
+          return
+        }
+
+        if (args.crawlDuplicates === true) {
+          logger.debug('Loading ', requestedUrl,
+                       ' bc was instructed to crawl duplicates')
+          request.continue()
+          return
+        }
+
+        // Otherwise, we're in a redirect loop, so cancel request and continue.
+        logger.error('Quitting bc we\'re in a redirect loop')
+        shouldStopWaitingFlag = true
+        await page._client.send('Page.stopLoading')
         request.continue()
+        return
       })
 
-      logger.debug(`Navigating to ${url}`)
+      logger.debug('Navigating to ', urlToCrawl)
       try {
-        await page.goto(url, { waitUntil: 'domcontentloaded' })
-      } catch (e) {
-        if (e instanceof TimeoutError || (e.name && e.name === 'TimeoutError')) {
+        await page.goto(urlToCrawl, { waitUntil: 'domcontentloaded' })
+      }
+      catch (e: unknown) {
+        if (isTimeoutError(e) === true) {
           logger.debug('Navigation timeout exceeded.')
-        } else {
+        }
+        else {
           throw e
         }
       }
-      logger.debug(`Loaded ${url}`)
-      const response = await generatePageGraph(args.seconds, page, client, logger)
-      writeGraphML(args, url, response, logger)
+
+      logger.debug('Loaded ', String(urlToCrawl))
+      const response = await generatePageGraph(args.seconds, page, client,
+                                               shouldStopWaitingFunc, logger)
+      await writeGraphML(args, urlToCrawl, response, logger)
       if (depth > 1) {
-        randomChildUrl = await getRandomLinkFromPage(page, logger)
+        randomChildUrl = await selectRandomChildUrl(page, logger)
       }
       logger.debug('Closing page')
 
       if (args.screenshot) {
-        const screenshotPath = createScreenshotPath(args, url)
+        const screenshotPath = createScreenshotPath(args, urlToCrawl)
         logger.debug(`About to write screenshot to ${screenshotPath}`)
         await page.screenshot({ type: 'png', path: screenshotPath })
         logger.debug('Screenshot recorded')
       }
       await page.close()
-    } catch (err) {
+    }
+    catch (err) {
       logger.debug('ERROR runtime fiasco from browser/page:', err)
-    } finally {
+    }
+    finally {
       logger.debug('Closing the browser')
       await browser.close()
     }
-  } catch (err) {
+  }
+  catch (err) {
     logger.debug('ERROR runtime fiasco from infrastructure:', err)
-  } finally {
+  }
+  finally {
     envHandle.close()
-    if (shouldClean) {
-      fsExtraLib.remove(pathForProfile)
+    if (puppeteerConfig.shouldClean === true) {
+      await deleteAtPath(puppeteerConfig.profilePath)
     }
   }
-  if (redirectedUrl) {
-    const newArgs = { ...args }
-    newArgs.urls = [redirectedUrl]
-    logger.debug(`Doing new crawl with redirected URL: ${redirectedUrl}`)
-    await doCrawl(newArgs, redirectChain)
-  }
-  if (randomChildUrl) {
-    const newArgs = { ...args }
-    newArgs.urls = [randomChildUrl]
-    newArgs.recursiveDepth = depth - 1
-    await doCrawl(newArgs, redirectChain)
-  }
-}
 
-const getRandomLinkFromPage = async (page: any, logger: Logger): Promise<Url> /* puppeteer Page */ => {
-  let rawLinks
-  try {
-    rawLinks = await page.$$('a[href]')
-  } catch (e) {
-    logger.debug(`Unable to look for child links, page closed: ${e.toString()}`)
-    return null
+  if (shouldRedirectToUrl !== undefined) {
+    const newArgs = { ...args }
+    newArgs.url = shouldRedirectToUrl
+    logger.debug('Doing new crawl with redirected URL: ', shouldRedirectToUrl)
+    await doCrawl(newArgs, navTracker.toHistory())
+    return
   }
-  const links = []
-  for (const link of rawLinks) {
-    const hrefHandle = await link.getProperty('href')
-    const hrefValue = await hrefHandle.jsonValue()
-    try {
-      const hrefUrl = new URL(hrefValue.trim())
-      hrefUrl.hash = ''
-      hrefUrl.search = ''
-      if (hrefUrl.protocol !== 'http:' && hrefUrl.protocol !== 'https:') {
-        continue
-      }
-      const childUrlString = hrefUrl.toString()
-      if (!childUrlString || childUrlString.length === 0) {
-        continue
-      }
-      links.push(childUrlString)
-    } catch (_) {
-      continue
-    }
+
+  if (randomChildUrl !== undefined) {
+    const newArgs = { ...args }
+    newArgs.url = randomChildUrl
+    newArgs.recursiveDepth = depth - 1
+    await doCrawl(newArgs, navTracker.toHistory())
   }
-  // https://stackoverflow.com/a/4550514
-  const randomLink = links[Math.floor(Math.random() * links.length)]
-  return randomLink
 }

@@ -1,11 +1,8 @@
 declare module 'argparse'
-declare module 'fs-extra'
-declare module 'path'
 declare module 'puppeteer-core'
 declare module 'tmp'
 declare module 'xvfb'
 
-type Url = string | null
 type FilePath = string
 type ErrorMsg = string
 type DebugLevel = 'none' | 'debug' | 'verbose'
@@ -13,7 +10,7 @@ type DebugLevel = 'none' | 'debug' | 'verbose'
 interface CrawlArgs {
   executablePath: FilePath
   outputPath: FilePath
-  urls: Url[]
+  url: URL
   recursiveDepth: number
   withShieldsUp: boolean
   debugLevel: DebugLevel
@@ -31,9 +28,10 @@ interface CrawlArgs {
 
 type ValidationResult = [boolean, CrawlArgs | ErrorMsg]
 
-type LoggerFunc = (message?: string, ...optional: any[]) => void
+type LoggerFunc = (...message: any[]) => void
 
 interface Logger {
+  error: LoggerFunc
   debug: LoggerFunc
   verbose: LoggerFunc
 }
@@ -58,4 +56,10 @@ interface TargetCrashedEvent {
 interface FinalPageGraphEvent {
   frameId: string
   data: string
+}
+
+interface PuppeteerConfig {
+  launchOptions: LaunchOptions
+  profilePath: FilePath
+  shouldClean: boolean
 }

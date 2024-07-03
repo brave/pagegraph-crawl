@@ -41,6 +41,7 @@ describe('PageGraph Crawl CLI', () => {
   // Setup and teardown for the test suite.
   let server
   beforeEach('Create output directory', () => {
+    rmSync(outputDir, { recursive: true, force: true })
     mkdirSync(outputDir, { recursive: true })
   })
   afterEach('Clean up output directory', () => {

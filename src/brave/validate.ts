@@ -1,55 +1,22 @@
 import * as fsLib from 'fs'
 import * as osLib from 'os'
 import * as pathLib from 'path'
-import * as urlLib from 'url'
 
 import * as hasBinLib from 'hasbin'
 
+import { asHTTPUrl, isDir, isExecFile } from './checks.js'
 import { getLoggerForLevel } from './debug.js'
 
-const isUrl = (possibleUrl: string): boolean => {
-  try {
-    (new urlLib.URL(possibleUrl))  // eslint-disable-line
-    return true
-  } catch (_) {
-    return false
-  }
-}
-
-export const isExecFile = (path: string): boolean => {
-  try {
-    return !!(fsLib.statSync(path).mode & fsLib.constants.S_IXUSR)
-  } catch (_) {
-    return false
-  }
-}
-
-export const isDir = (path: string): boolean => {
-  if (!fsLib.existsSync(path)) {
-    return false
-  }
-
-  const pathStats = fsLib.lstatSync(path)
-  if (pathStats.isDirectory()) {
-    return true
-  }
-
-  if (pathStats.isSymbolicLink()) {
-    return isDir(pathLib.join(path, pathLib.sep))
-  }
-
-  return false
-}
+const possibleBraveBinaryPaths = [
+  '/Applications/Brave Browser Nightly.app/Contents/MacOS/Brave Browser Nightly',
+  '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
+]
 
 const guessBinary = (): string | boolean => {
   // If we're on MacOS, first see if there is a version of Brave
   // we can use in the typical locations.  Prefer Brave nightly, and then Brave
   // stable.
   if (osLib.type() === 'Darwin') {
-    const possibleBraveBinaryPaths = [
-      '/Applications/Brave Browser Nightly.app/Contents/MacOS/Brave Browser Nightly',
-      '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
-    ]
     for (const aPossibleBinaryPath of possibleBraveBinaryPaths) {
       if (isExecFile(aPossibleBinaryPath)) {
         return aPossibleBinaryPath
@@ -58,8 +25,12 @@ const guessBinary = (): string | boolean => {
   }
 
   // Otherwise, see if we can find a Brave binary in the path
-  const possibleBraveBinaryNames = ['brave-browser-nightly',
-    'brave-browser-beta', 'brave-browser-stable', 'brave-browser']
+  const possibleBraveBinaryNames = [
+    'brave-browser-nightly',
+    'brave-browser-beta',
+    'brave-browser-stable',
+    'brave-browser',
+  ]
   const firstBraveBinary = hasBinLib.first.sync(possibleBraveBinaryNames)
   if (firstBraveBinary === false) {
     return false
@@ -67,7 +38,7 @@ const guessBinary = (): string | boolean => {
   return firstBraveBinary
 }
 
-export const validate = (rawArgs: any): ValidationResult => {
+export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable-line
   const logger = getLoggerForLevel(rawArgs.debug)
   logger.debug('Received arguments: ', rawArgs)
 
@@ -79,9 +50,10 @@ export const validate = (rawArgs: any): ValidationResult => {
       return [false, 'No binary specified, and could not guess one']
     }
     executablePath = possibleBinary as FilePath
-  } else {
+  }
+  else {
     if (!isExecFile(rawArgs.binary)) {
-      return [false, `Invalid path to Brave binary: ${rawArgs.binary}`]
+      return [false, `Invalid path to Brave binary: ${String(rawArgs.binary)}`]
     }
     executablePath = rawArgs.binary
   }
@@ -92,20 +64,26 @@ export const validate = (rawArgs: any): ValidationResult => {
     const outputPathParts = pathLib.parse(rawArgs.output)
     if (!isDir(outputPathParts.dir)) {
       try {
-        console.log(`Output path ${rawArgs.output} does not exist. Creating directory.`)
+        const logMsg = [
+          'Output path: ',
+          rawArgs.output,
+          ' does not exist. Creating directory.',
+        ]
+        logger.debug(logMsg)
         fsLib.mkdirSync(rawArgs.output)
-      } catch (e) {
-        return [false, `Invalid path to write results to and unable to create the directory:\n${e}`]
+      }
+      catch (e) {
+        return [false, 'Invalid path to write results to and unable to create the directory:\n' + String(e)]
       }
     }
   }
   const outputPath: FilePath = rawArgs.output
 
-  const passedUrlArgs: string[] = rawArgs.url
-  if (!passedUrlArgs.every(isUrl)) {
-    return [false, `Found invalid URL: ${passedUrlArgs.join(', ')}`]
+  const passedUrl = asHTTPUrl(rawArgs.url)
+  if (passedUrl === undefined) {
+    return [false, `Found invalid URL: ${String(passedUrl)}`]
   }
-  const urls: Url[] = passedUrlArgs
+  const url: URL = passedUrl
   const secs: number = rawArgs.secs
   const recursiveDepth: number = rawArgs.recursive_depth
   const interactive: boolean = rawArgs.interactive
@@ -115,7 +93,7 @@ export const validate = (rawArgs: any): ValidationResult => {
   const validatedArgs: CrawlArgs = {
     executablePath: String(executablePath),
     outputPath,
-    urls,
+    url,
     recursiveDepth,
     seconds: secs,
     withShieldsUp: (rawArgs.shields === 'up'),
@@ -126,54 +104,61 @@ export const validate = (rawArgs: any): ValidationResult => {
     interactive,
     userAgent,
     crawlDuplicates,
-    screenshot
+    screenshot,
   }
 
-  if (rawArgs.proxy_server) {
+  if (rawArgs.proxy_server !== undefined) {
     try {
       validatedArgs.proxyServer = new URL(rawArgs.proxy_server)
-    } catch (err) {
-      return [false, `invalid proxy-server: ${err.toString()}`]
+    }
+    catch (err) {
+      return [false, `invalid proxy-server: ${String(err)}`]
     }
   }
 
-  if (rawArgs.extra_args) {
+  if (rawArgs.extra_args !== undefined) {
     try {
       validatedArgs.extraArgs = JSON.parse(rawArgs.extra_args)
-    } catch (err) {
-      return [false, `invalid JSON array of extra-args: ${err.toString()}`]
+    }
+    catch (err) {
+      return [false, `invalid JSON array of extra-args: ${String(err)}`]
     }
   }
 
-  if (rawArgs.existing_profile && rawArgs.persist_profile) {
-    return [false, 'Cannot specify both that you want to use an existing ' +
-                   'profile, and that you want to persist a new profile.']
+  const isPersistProfile = rawArgs.persist_profile === true
+  if (rawArgs.existing_profile === undefined && isPersistProfile) {
+    return [
+      false,
+      'Cannot specify both that you want to use an existing profile, and that you want to persist a new profile.',
+    ]
   }
 
-  if (rawArgs.existing_profile) {
+  if (rawArgs.existing_profile !== undefined) {
     if (!isDir(rawArgs.existing_profile)) {
-      return [false, 'Provided existing profile path is not a directory: ' +
-                     `${rawArgs.existing_profile}.`]
+      return [
+        false,
+        'Provided existing profile path is not a directory: ' + String(rawArgs.existing_profile),
+      ]
     }
     validatedArgs.existingProfilePath = rawArgs.existing_profile
   }
 
   if (rawArgs.persist_profile === true) {
     if (isDir(rawArgs.persist_profile) || isExecFile(rawArgs.persist_profile)) {
-      return [false, 'File already exists at path for persisting a ' +
-                     `profile: ${rawArgs.persist_profile}.`]
+      return [false, 'File already exists at path for persisting a '
+        + `profile: ${String(rawArgs.persist_profile)}.`]
     }
     validatedArgs.persistProfilePath = rawArgs.persist_profile
   }
 
   if (rawArgs.extensions_path !== undefined) {
     if (!isDir(rawArgs.extensions_path)) {
-      return [false, 'Provided extensions path is not a directory: ' +
-                     `${String(rawArgs.extensions_path)}.`]
+      return [false, 'Provided extensions path is not a directory: '
+        + `${String(rawArgs.extensions_path)}.`]
     }
     validatedArgs.extensionsPath = rawArgs.extensions_path
   }
 
-  logger.debug('Running with settings: ', validatedArgs)
+  logger.debug('Running with settings: ', JSON.stringify(validatedArgs))
   return [true, Object.freeze(validatedArgs)]
 }

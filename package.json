@@ -2,49 +2,44 @@
   "name": "pagegraph-crawl",
   "version": "1.0.0",
   "description": "CLI for crawling with PageGraph.",
-  "main": "built/crawl.js",
   "scripts": {
-    "lint": "npx ts-standard src/**/*.ts src/*.ts",
-    "lint:fix": "npx ts-standard --fix src/**/*.ts src/*.ts",
-    "build": "tsc",
-    "postinstall": "npm run build",
+    "lint": "npx eslint src/**/*.ts src/*.ts",
+    "lint:fix": "npx eslint --fix src/**/*.ts src/*.ts",
+    "build": "npx tsc",
     "crawl": "node ./built/run.js",
+    "clean": "rm -Rf built/*",
     "test": "npm run build && mocha test/test.js --timeout 60000"
   },
   "type": "module",
   "author": "",
+  "main": "./built/run.js",
+  "types": "./src/declarations.d.ts",
   "license": "MPL-2.0",
   "dependencies": {
     "@supercharge/promise-pool": "^3.0.0",
-    "@typescript-eslint/typescript-estree": "^7.6.0",
     "argparse": "^2.0.0",
     "fs-extra": "^11.0.0",
     "hasbin": "^1.2.3",
     "node-fs-extra": "^0.8.2",
     "puppeteer-core": "^3.3.0",
     "tmp": "^0.2.1",
-    "ts-standard": "^12.0.2",
-    "typescript": "^5.4.4",
     "xvfb": "^0.4.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.6.0",
+    "@stylistic/eslint-plugin": "^2.3.0",
+    "@tsconfig/node20": "^20.1.4",
+    "@types/argparse": "^2.0.16",
+    "@types/eslint__js": "^8.42.3",
+    "@types/fs-extra": "^11.0.4",
     "@types/hasbin": "1.2.2",
-    "@typescript-eslint/eslint-plugin": "6.21.0",
-    "@typescript-eslint/parser": "6.21.0",
+    "@types/tmp": "^0.2.6",
+    "@typescript-eslint/parser": "^7.14.1",
     "chai": "4.4.1",
+    "eslint": "^8.57.0",
     "express": "4.19.2",
-    "mocha": "10.4.0"
-  },
-  "eslintConfig": {
-    "rules": {
-      "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": "error"
-    }
-  },
-  "standardx": {
-    "parser": "@typescript-eslint/parser",
-    "plugins": [
-      "@typescript-eslint/eslint-plugin"
-    ]
+    "mocha": "10.4.0",
+    "typescript": "^5.5.2",
+    "typescript-eslint": "^7.14.1"
   }
 }
