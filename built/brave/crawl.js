@@ -53,7 +53,9 @@ const waitUntilUnless = (secs, unlessFunc, intervalMs = 500) => {
         }, intervalMs);
     });
 };
-const generatePageGraph = async (seconds, page, client, waitFunc, logger) => {
+const generatePageGraph = async (seconds, page, client, waitFunc, 
+// eslint-disable-next-line max-len
+logger) => {
     logger.debug(`Waiting for ${seconds}s`);
     await waitUntilUnless(seconds, waitFunc);
     logger.debug('calling generatePageGraph');
@@ -81,7 +83,10 @@ export const doCrawl = async (args, previouslySeenUrls) => {
         return shouldStopWaitingFlag;
     };
     try {
-        logger.verbose('Launching puppeteer with args: ', JSON.stringify(launchOptions));
+        logger.verbose([
+            'Launching puppeteer with args: ',
+            JSON.stringify(launchOptions),
+        ]);
         const browser = await launchWithRetry(launchOptions, logger);
         const pages = await browser.pages();
         if (pages.length > 0) {

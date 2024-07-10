@@ -70,16 +70,18 @@ const waitUntilUnless = (secs: number,
   })
 }
 
-const generatePageGraph = async (
-  seconds: number,
-  page: PageType,
-  client: CDPSessionType,
-  waitFunc: () => boolean,
-  logger: Logger): Promise<FinalPageGraphEvent> => {
+const generatePageGraph = async (seconds: number,
+                                 page: PageType,
+                                 client: CDPSessionType,
+                                 waitFunc: () => boolean,
+                                 // eslint-disable-next-line max-len
+                                 logger: Logger): Promise<FinalPageGraphEvent> => {
   logger.debug(`Waiting for ${seconds}s`)
   await waitUntilUnless(seconds, waitFunc)
+
   logger.debug('calling generatePageGraph')
   const response = await client.send('Page.generatePageGraph')
+
   const responseLen = response.data.length
   logger.debug('generatePageGraph { size: ', responseLen, ' }')
   return response
@@ -109,7 +111,10 @@ export const doCrawl = async (args: CrawlArgs,
   }
 
   try {
-    logger.verbose('Launching puppeteer with args: ', JSON.stringify(launchOptions))
+    logger.verbose([
+      'Launching puppeteer with args: ',
+      JSON.stringify(launchOptions),
+    ])
     const browser = await launchWithRetry(launchOptions, logger)
 
     const pages = await browser.pages()

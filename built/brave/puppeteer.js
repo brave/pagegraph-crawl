@@ -4,7 +4,6 @@ import tmpLib from 'tmp';
 import puppeteerLib from 'puppeteer-core';
 import { getLogger } from './debug.js';
 const disabledBraveFeatures = [
-    'BraveSync',
     'Speedreader',
     'Playlist',
     'BraveVPN',
@@ -58,15 +57,20 @@ export const puppeteerConfigForArgs = (args) => {
         '--disable-component-update',
         '--deny-permission-prompts',
         '--enable-features=PageGraph',
+        '--disable-sync',
+        '--no-first-run',
+        '--disable-renderer-backgrounding',
+        '--disable-breakpad',
+        '--disable-component-extensions-with-background-pages',
+        '--disable-ipc-flooding-protection',
+        '--disable-notifications',
+        '--mute-audio',
         '--disable-features=' + disabledBraveFeatures.join(','),
     ];
     const puppeteerArgs = {
         defaultViewport: null,
         args: chromeArgs,
         executablePath: args.executablePath,
-        ignoreDefaultArgs: [
-            '--disable-sync',
-        ],
         dumpio: args.debugLevel === 'verbose',
         headless: false,
     };
@@ -100,9 +104,9 @@ const asyncSleep = async (millis) => {
 const defaultComputeTimeout = (tryIndex) => {
     return Math.pow(2, tryIndex - 1) * 1000;
 };
-/* eslint-disable max-len */
-export const launchWithRetry = async (launchOptions, logger, retryOptions) => {
-    /* eslint-enable max-len */
+export const launchWithRetry = async (launchOptions, logger, 
+// eslint-disable-next-line max-len
+retryOptions) => {
     // default to 3 retries with a base-2 exponential-backoff delay
     // between each retry (1s, 2s, 4s, ...)
     const retries = retryOptions === undefined
