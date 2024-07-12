@@ -5,7 +5,7 @@ import * as pathLib from 'path'
 import * as hasBinLib from 'hasbin'
 
 import { asHTTPUrl, isDir, isExecFile } from './checks.js'
-import { getLoggerForLevel } from './debug.js'
+import { getLoggerForLevel } from './logging.js'
 
 const possibleBraveBinaryPaths = [
   '/Applications/Brave Browser Nightly.app/Contents/MacOS/Brave Browser Nightly',
@@ -39,8 +39,8 @@ const guessBinary = (): string | boolean => {
 }
 
 export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable-line
-  const logger = getLoggerForLevel(rawArgs.debug)
-  logger.debug('Received arguments: ', rawArgs)
+  const logger = getLoggerForLevel(rawArgs.logging)
+  logger.info('Received arguments: ', rawArgs)
 
   let executablePath: FilePath | undefined
 
@@ -69,7 +69,7 @@ export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable
           rawArgs.output,
           ' does not exist. Creating directory.',
         ]
-        logger.debug(logMsg)
+        logger.info(logMsg)
         fsLib.mkdirSync(rawArgs.output)
       }
       catch (e) {
@@ -97,10 +97,11 @@ export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable
     recursiveDepth,
     seconds: secs,
     withShieldsUp: (rawArgs.shields === 'up'),
-    debugLevel: rawArgs.debug,
+    loggingLevel: rawArgs.logging,
     existingProfilePath: undefined,
     persistProfilePath: undefined,
     extensionsPath: undefined,
+    stealth: false,
     interactive,
     userAgent,
     crawlDuplicates,
@@ -159,6 +160,6 @@ export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable
     validatedArgs.extensionsPath = rawArgs.extensions_path
   }
 
-  logger.debug('Running with settings: ', JSON.stringify(validatedArgs))
+  logger.info('Running with settings: ', JSON.stringify(validatedArgs))
   return [true, Object.freeze(validatedArgs)]
 }

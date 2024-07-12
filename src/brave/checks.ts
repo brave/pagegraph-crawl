@@ -33,7 +33,7 @@ export const asHTTPUrl = (possibleUrl: string | URL,
 
 export const isExecFile = (path: string): boolean => {
   const fileStats = statSync(path, { throwIfNoEntry: false })
-  if (fileStats === null) {
+  if (fileStats === null || fileStats == undefined) {
     return false
   }
 

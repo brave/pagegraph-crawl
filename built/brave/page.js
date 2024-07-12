@@ -6,7 +6,7 @@ const selectRandomChildUrl = async (page, logger) => {
         rawLinks = await page.$$('a[href]');
     }
     catch (e) {
-        logger.debug('Unable to look for child links, page closed: ', String(e));
+        logger.info('Unable to look for child links, page closed: ', String(e));
         return undefined;
     }
     const links = [];

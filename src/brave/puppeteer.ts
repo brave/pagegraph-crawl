@@ -3,15 +3,16 @@ import * as pathLib from 'path'
 import fsExtraLib from 'fs-extra'
 import tmpLib from 'tmp'
 import puppeteerLib from 'puppeteer-core'
+// import { PuppeteerExtra, VanillaPuppeteer } from 'puppeteer-extra'
+// import stealthPluginLib from 'puppeteer-extra-plugin-stealth'
 import type { LaunchOptions, Process } from 'puppeteer-core'
 
-import { getLogger } from './debug.js'
+import { getLogger } from './logging.js'
 
 type LaunchOptionsType = typeof LaunchOptions
 type ProcessType = typeof Process
 
 const disabledBraveFeatures = [
-  'BraveSync',
   'Speedreader',
   'Playlist',
   'BraveVPN',
@@ -73,27 +74,33 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): PuppeteerConfig => {
   process.env.PAGEGRAPH_OUT_DIR = args.outputPath
 
   const chromeArgs = [
-    '--disable-brave-update',
-    '--user-data-dir=' + profilePath,
-    '--disable-site-isolation-trials',
-    '--disable-component-update',
     '--deny-permission-prompts',
-    '--enable-features=PageGraph',
+    '--disable-brave-update',
+    '--disable-breakpad',
+    '--disable-component-extensions-with-background-pages',
+    '--disable-component-update',
     '--disable-features=' + disabledBraveFeatures.join(','),
+    '--disable-infobars',
+    '--disable-ipc-flooding-protection',
+    '--disable-notifications',
+    '--disable-renderer-backgrounding',
+    '--disable-site-isolation-trials',
+    '--disable-sync',
+    '--enable-features=PageGraph',
+    '--mute-audio',
+    '--no-first-run',
+    '--user-data-dir=' + profilePath,
   ]
 
   const puppeteerArgs = {
     defaultViewport: null,
     args: chromeArgs,
     executablePath: args.executablePath,
-    ignoreDefaultArgs: [
-      '--disable-sync',
-    ],
-    dumpio: args.debugLevel === 'verbose',
+    dumpio: args.loggingLevel === 'verbose',
     headless: false,
   }
 
-  if (args.debugLevel === 'verbose') {
+  if (args.loggingLevel === 'verbose') {
     chromeArgs.push('--enable-logging=stderr')
     chromeArgs.push('--vmodule=page_graph*=2')
   }
@@ -117,6 +124,7 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): PuppeteerConfig => {
 
   return {
     launchOptions: puppeteerArgs,
+    shouldStealthMode: args.stealth,
     profilePath,
     shouldClean,
   }
@@ -130,11 +138,22 @@ const defaultComputeTimeout = (tryIndex: number): number => {
   return Math.pow(2, tryIndex - 1) * 1000
 }
 
-/* eslint-disable max-len */
+// const makeLaunchPuppeteerFunc = (shouldStealth: boolean,
+//                                  logger: Logger): VanillaPuppeteer => {
+//   if (shouldStealth === true) {
+//     logger.info('Running with puppeteer-extra-plugin-stealth')
+//     const puppeteerExtra = new PuppeteerExtra(puppeteerLib, undefined)
+//     puppeteerExtra.use(stealthPluginLib())
+//     return puppeteerExtra
+//   }
+//   return puppeteerLib
+// }
+
 export const launchWithRetry = async (launchOptions: LaunchOptionsType,
+                                      stealthMode: boolean,
                                       logger: Logger,
+                                      // eslint-disable-next-line max-len
                                       retryOptions?: LaunchRetryOptions): Promise<ProcessType> => {
-/* eslint-enable max-len */
   // default to 3 retries with a base-2 exponential-backoff delay
   // between each retry (1s, 2s, 4s, ...)
   const retries: number = retryOptions === undefined
@@ -144,11 +163,13 @@ export const launchWithRetry = async (launchOptions: LaunchOptionsType,
     ? retryOptions.computeTimeout
     : defaultComputeTimeout
 
+  // const puppeteerLib = makeLaunchPuppeteerFunc(stealthMode, logger)
+
   try {
     return puppeteerLib.launch(launchOptions)
   }
   catch (err) {
-    logger.debug('Failed to launch: ', err, '. ', retries, ' left…')
+    logger.info('Failed to launch: ', err, '. ', retries, ' left…')
   }
 
   for (let i = 1; i <= retries; ++i) {
@@ -157,7 +178,7 @@ export const launchWithRetry = async (launchOptions: LaunchOptionsType,
       return puppeteerLib.launch(launchOptions)
     }
     catch (err) {
-      logger.debug('Failed to launch: ', err, '. ', (retries - i), ' left…')
+      logger.info('Failed to launch: ', err, '. ', (retries - i), ' left…')
     }
   }
 

@@ -7,7 +7,7 @@ import { validate } from './brave/validate.js'
 
 const defaultCrawlSecs = 30
 const defaultShieldsSetting = 'down'
-const defaultDebugSetting = 'none'
+const defaultLoggingSetting = 'info'
 
 const parser = new ArgumentParser({
   add_help: true,
@@ -61,10 +61,10 @@ parser.add_argument('-t', '--secs', {
   type: 'int',
   default: defaultCrawlSecs,
 })
-parser.add_argument('--debug', {
-  help: `Print debugging information. Default: ${defaultDebugSetting}.`,
-  choices: ['none', 'debug', 'verbose'],
-  default: defaultDebugSetting,
+parser.add_argument('--logging', {
+  help: `Logging level. Default: ${defaultLoggingSetting}.`,
+  choices: ['none', 'info', 'verbose'],
+  default: defaultLoggingSetting,
 })
 parser.add_argument('-i', '--interactive', {
   help: 'Suppress use of Xvfb to allow interaction with spawned '
@@ -97,6 +97,11 @@ parser.add_argument('--screenshot', {
   dest: 'screenshot',
   default: false,
 })
+// parser.add_argument('--no-stealth', {
+//   help: 'Do not enable the "puppeteer-extra-plugin-stealth" extension.',
+//   default: false,
+//   action: 'store_true',
+// })
 
 const rawArgs = parser.parse_args()
 const [isValid, errorOrArgs] = validate(rawArgs)

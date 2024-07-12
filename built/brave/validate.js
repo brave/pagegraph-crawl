@@ -3,7 +3,7 @@ import * as osLib from 'os';
 import * as pathLib from 'path';
 import * as hasBinLib from 'hasbin';
 import { asHTTPUrl, isDir, isExecFile } from './checks.js';
-import { getLoggerForLevel } from './debug.js';
+import { getLoggerForLevel } from './logging.js';
 const possibleBraveBinaryPaths = [
     '/Applications/Brave Browser Nightly.app/Contents/MacOS/Brave Browser Nightly',
     '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
@@ -33,8 +33,8 @@ const guessBinary = () => {
     return firstBraveBinary;
 };
 export const validate = (rawArgs) => {
-    const logger = getLoggerForLevel(rawArgs.debug);
-    logger.debug('Received arguments: ', rawArgs);
+    const logger = getLoggerForLevel(rawArgs.logging);
+    logger.info('Received arguments: ', rawArgs);
     let executablePath;
     if (rawArgs.binary === null || rawArgs.binary === undefined) {
         const possibleBinary = guessBinary();
@@ -60,7 +60,7 @@ export const validate = (rawArgs) => {
                     rawArgs.output,
                     ' does not exist. Creating directory.',
                 ];
-                logger.debug(logMsg);
+                logger.info(logMsg);
                 fsLib.mkdirSync(rawArgs.output);
             }
             catch (e) {
@@ -87,10 +87,11 @@ export const validate = (rawArgs) => {
         recursiveDepth,
         seconds: secs,
         withShieldsUp: (rawArgs.shields === 'up'),
-        debugLevel: rawArgs.debug,
+        loggingLevel: rawArgs.logging,
         existingProfilePath: undefined,
         persistProfilePath: undefined,
         extensionsPath: undefined,
+        stealth: false,
         interactive,
         userAgent,
         crawlDuplicates,
@@ -142,6 +143,6 @@ export const validate = (rawArgs) => {
         }
         validatedArgs.extensionsPath = rawArgs.extensions_path;
     }
-    logger.debug('Running with settings: ', JSON.stringify(validatedArgs));
+    logger.info('Running with settings: ', JSON.stringify(validatedArgs));
     return [true, Object.freeze(validatedArgs)];
 };
