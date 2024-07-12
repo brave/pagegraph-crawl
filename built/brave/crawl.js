@@ -3,7 +3,7 @@ import Xvbf from 'xvfb';
 import { isTopLevelPageNavigation, isTimeoutError } from './checks.js';
 import { asHTTPUrl } from './checks.js';
 import { createScreenshotPath, writeGraphML, deleteAtPath } from './files.js';
-import { getLogger } from './debug.js';
+import { getLogger } from './logging.js';
 import { makeNavigationTracker } from './navigation_tracker.js';
 import { selectRandomChildUrl } from './page.js';
 import { puppeteerConfigForArgs, launchWithRetry } from './puppeteer.js';
@@ -14,15 +14,15 @@ const setupEnv = (args) => {
     let xvfbHandle;
     const closeFunc = () => {
         if (xvfbHandle !== undefined) {
-            logger.debug('Tearing down Xvfb');
+            logger.info('Tearing down Xvfb');
             xvfbHandle.stopSync();
         }
     };
     if (args.interactive) {
-        logger.debug('Interactive mode, skipping Xvfb');
+        logger.info('Interactive mode, skipping Xvfb');
     }
     else if (xvfbPlatforms.has(platformName)) {
-        logger.debug(`Running on ${platformName}, starting Xvfb`);
+        logger.info(`Running on ${platformName}, starting Xvfb`);
         xvfbHandle = new Xvbf({
             // ensure 24-bit color depth or rendering might choke
             xvfb_args: ['-screen', '0', '1024x768x24'],
@@ -30,7 +30,7 @@ const setupEnv = (args) => {
         xvfbHandle.startSync();
     }
     else {
-        logger.debug(`Running on ${platformName}, Xvfb not supported`);
+        logger.info(`Running on ${platformName}, Xvfb not supported`);
     }
     return {
         close: closeFunc,
@@ -56,18 +56,18 @@ const waitUntilUnless = (secs, unlessFunc, intervalMs = 500) => {
 const generatePageGraph = async (seconds, page, client, waitFunc, 
 // eslint-disable-next-line max-len
 logger) => {
-    logger.debug(`Waiting for ${seconds}s`);
+    logger.info(`Waiting for ${seconds}s`);
     await waitUntilUnless(seconds, waitFunc);
-    logger.debug('calling generatePageGraph');
+    logger.info('calling generatePageGraph');
     const response = await client.send('Page.generatePageGraph');
     const responseLen = response.data.length;
-    logger.debug('generatePageGraph { size: ', responseLen, ' }');
+    logger.info('generatePageGraph { size: ', responseLen, ' }');
     return response;
 };
 export const doCrawl = async (args, previouslySeenUrls) => {
     const logger = getLogger(args);
     const urlToCrawl = asHTTPUrl(args.url);
-    logger.debug([
+    logger.info([
         'Starting crawl with URL: ', urlToCrawl,
         ' and with previously seen urls: [', previouslySeenUrls, ']',
     ]);
@@ -87,12 +87,12 @@ export const doCrawl = async (args, previouslySeenUrls) => {
             'Launching puppeteer with args: ',
             JSON.stringify(launchOptions),
         ]);
-        const browser = await launchWithRetry(launchOptions, logger);
+        const browser = await launchWithRetry(launchOptions, puppeteerConfig.shouldStealthMode, logger);
         const pages = await browser.pages();
         if (pages.length > 0) {
-            logger.debug('Closing ', pages.length, ' pages that are already open.');
+            logger.info('Closing ', pages.length, ' pages that are already open.');
             for (const aPage of pages) {
-                logger.debug('  - closing tab with url ', aPage.url());
+                logger.info('  - closing tab with url ', aPage.url());
                 await aPage.close();
             }
         }
@@ -120,18 +120,19 @@ export const doCrawl = async (args, previouslySeenUrls) => {
                 const requestedUrl = asHTTPUrl(request.url());
                 // Only capture parent frame navigation requests.
                 if (isTopLevelPageNavigation(request) === false) {
-                    logger.verbose('Ignoring request to ', request.url(), ', not ', 'a top level navigation.');
+                    logger.verbose('Allowing request to ', request.url(), ', not ', 'a top level navigation.');
+                    request.continue();
                     return;
                 }
                 const hasUrlBeenSeen = navTracker.isInHistory(requestedUrl);
                 const isCurrentNavUrl = navTracker.isCurrentUrl(requestedUrl);
                 if (isCurrentNavUrl === true) {
-                    logger.debug('Loading ', requestedUrl, ' bc it is the first top frame page load');
+                    logger.info('Loading ', requestedUrl, ' bc it is the first top frame page load');
                     request.continue();
                     return;
                 }
                 if (hasUrlBeenSeen === false) {
-                    logger.debug('Detected redirect to ', requestedUrl, ' so stopping page load and moving on');
+                    logger.info('Detected redirect to ', requestedUrl, ' so stopping page load and moving on');
                     shouldRedirectToUrl = requestedUrl;
                     shouldStopWaitingFlag = true;
                     await page._client.send('Page.stopLoading');
@@ -139,54 +140,55 @@ export const doCrawl = async (args, previouslySeenUrls) => {
                     return;
                 }
                 if (args.crawlDuplicates === true) {
-                    logger.debug('Loading ', requestedUrl, ' bc was instructed to crawl duplicates');
+                    logger.info('Loading ', requestedUrl, ' bc was instructed to crawl duplicates');
                     request.continue();
                     return;
                 }
-                // Otherwise, we're in a redirect loop, so cancel request and continue.
+                // Otherwise, we're in a redirect loop, so stop recording
+                // the pagegraph, but continue.
                 logger.error('Quitting bc we\'re in a redirect loop');
                 shouldStopWaitingFlag = true;
                 await page._client.send('Page.stopLoading');
                 request.continue();
                 return;
             });
-            logger.debug('Navigating to ', urlToCrawl);
+            logger.info('Navigating to ', urlToCrawl);
             try {
                 await page.goto(urlToCrawl, { waitUntil: 'domcontentloaded' });
             }
             catch (e) {
                 if (isTimeoutError(e) === true) {
-                    logger.debug('Navigation timeout exceeded.');
+                    logger.info('Navigation timeout exceeded.');
                 }
                 else {
                     throw e;
                 }
             }
-            logger.debug('Loaded ', String(urlToCrawl));
+            logger.info('Loaded ', String(urlToCrawl));
             const response = await generatePageGraph(args.seconds, page, client, shouldStopWaitingFunc, logger);
             await writeGraphML(args, urlToCrawl, response, logger);
             if (depth > 1) {
                 randomChildUrl = await selectRandomChildUrl(page, logger);
             }
-            logger.debug('Closing page');
+            logger.info('Closing page');
             if (args.screenshot) {
                 const screenshotPath = createScreenshotPath(args, urlToCrawl);
-                logger.debug(`About to write screenshot to ${screenshotPath}`);
+                logger.info(`About to write screenshot to ${screenshotPath}`);
                 await page.screenshot({ type: 'png', path: screenshotPath });
-                logger.debug('Screenshot recorded');
+                logger.info('Screenshot recorded');
             }
             await page.close();
         }
         catch (err) {
-            logger.debug('ERROR runtime fiasco from browser/page:', err);
+            logger.info('ERROR runtime fiasco from browser/page:', err);
         }
         finally {
-            logger.debug('Closing the browser');
+            logger.info('Closing the browser');
             await browser.close();
         }
     }
     catch (err) {
-        logger.debug('ERROR runtime fiasco from infrastructure:', err);
+        logger.info('ERROR runtime fiasco from infrastructure:', err);
     }
     finally {
         envHandle.close();
@@ -197,7 +199,7 @@ export const doCrawl = async (args, previouslySeenUrls) => {
     if (shouldRedirectToUrl !== undefined) {
         const newArgs = { ...args };
         newArgs.url = shouldRedirectToUrl;
-        logger.debug('Doing new crawl with redirected URL: ', shouldRedirectToUrl);
+        logger.info('Doing new crawl with redirected URL: ', shouldRedirectToUrl);
         await doCrawl(newArgs, navTracker.toHistory());
         return;
     }

@@ -23,7 +23,7 @@ export const asHTTPUrl = (possibleUrl, baseUrl) => {
 };
 export const isExecFile = (path) => {
     const fileStats = statSync(path, { throwIfNoEntry: false });
-    if (fileStats === null) {
+    if (fileStats === null || fileStats == undefined) {
         return false;
     }
     return !!(fileStats.mode & constants.S_IXUSR); // eslint-disable-line

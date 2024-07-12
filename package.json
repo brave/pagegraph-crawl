@@ -1,6 +1,6 @@
 {
   "name": "pagegraph-crawl",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "CLI for crawling with PageGraph.",
   "scripts": {
     "lint": "npx eslint src/**/*.ts src/*.ts",
@@ -11,7 +11,7 @@
     "test": "npm run build && mocha test/test.js --timeout 60000"
   },
   "type": "module",
-  "author": "",
+  "author": "Peter Snyder <pes@brave.com>",
   "main": "./built/run.js",
   "types": "./src/declarations.d.ts",
   "license": "MPL-2.0",

@@ -5,7 +5,7 @@ declare module 'xvfb'
 
 type FilePath = string
 type ErrorMsg = string
-type DebugLevel = 'none' | 'debug' | 'verbose'
+type LoggingLevel = 'none' | 'info' | 'verbose'
 
 interface CrawlArgs {
   executablePath: FilePath
@@ -13,7 +13,7 @@ interface CrawlArgs {
   url: URL
   recursiveDepth: number
   withShieldsUp: boolean
-  debugLevel: DebugLevel
+  loggingLevel: LoggingLevel
   seconds: number
   existingProfilePath?: FilePath
   persistProfilePath?: FilePath
@@ -24,6 +24,7 @@ interface CrawlArgs {
   extraArgs?: string[]
   crawlDuplicates: boolean
   screenshot: boolean
+  stealth: boolean
 }
 
 type ValidationResult = [boolean, CrawlArgs | ErrorMsg]
@@ -32,7 +33,7 @@ type LoggerFunc = (...message: any[]) => void
 
 interface Logger {
   error: LoggerFunc
-  debug: LoggerFunc
+  info: LoggerFunc
   verbose: LoggerFunc
 }
 
@@ -62,4 +63,7 @@ interface PuppeteerConfig {
   launchOptions: LaunchOptions
   profilePath: FilePath
   shouldClean: boolean
+  shouldStealthMode: boolean
 }
+
+type RunPuppeteerFunc = (options: LaunchOptionsType) => Promise<ProcessType>

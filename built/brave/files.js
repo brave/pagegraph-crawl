@@ -21,7 +21,7 @@ export const writeGraphML = async (args, url, response, logger) => {
     try {
         const outputFilename = createGraphMLPath(args, url);
         await writeFile(outputFilename, response.data);
-        logger.debug('Writing PageGraph file to: ', outputFilename);
+        logger.info('Writing PageGraph file to: ', outputFilename);
     }
     catch (err) {
         logger.error('saving Page.generatePageGraph output: ', String(err));

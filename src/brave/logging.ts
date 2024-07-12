@@ -28,37 +28,37 @@ const baseLogFunction = (prefix: string, isError: boolean,
 }
 
 const verboseFunc = baseLogFunction.bind(undefined, 'VERBOSE:', false)
-const debugFunc = baseLogFunction.bind(undefined, 'DEBUG:', false)
+const infoFunc = baseLogFunction.bind(undefined, 'DEBUG:', false)
 const errorFunc = baseLogFunction.bind(undefined, 'ERROR:', true)
 
 const nullLogger = Object.freeze({
-  debug: nullLogFunc,
+  info: nullLogFunc,
   verbose: nullLogFunc,
   error: errorFunc,
 })
 
-const debugLogger = Object.freeze({
-  debug: debugFunc,
+const infoLogger = Object.freeze({
+  info: infoFunc,
   verbose: nullLogFunc,
   error: errorFunc,
 })
 
 const verboseLogger = Object.freeze({
-  debug: debugFunc,
+  info: infoFunc,
   verbose: verboseFunc,
   error: errorFunc,
 })
 
 const logLevelToLoggerMap = {
   none: nullLogger,
-  debug: debugLogger,
+  info: infoLogger,
   verbose: verboseLogger,
 }
 
-export const getLoggerForLevel = (level: DebugLevel): Logger => {
+export const getLoggerForLevel = (level: LoggingLevel): Logger => {
   return logLevelToLoggerMap[level]
 }
 
 export const getLogger = (args: CrawlArgs): Logger => {
-  return getLoggerForLevel(args.debugLevel)
+  return getLoggerForLevel(args.loggingLevel)
 }
