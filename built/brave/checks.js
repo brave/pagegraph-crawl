@@ -2,8 +2,6 @@
 // easier to read and maintain.
 import { existsSync, lstatSync, statSync, constants } from 'node:fs';
 import { join, sep } from 'node:path';
-import puppeteerLib from 'puppeteer-core';
-const TimeoutError = puppeteerLib.errors.TimeoutError;
 export const asHTTPUrl = (possibleUrl, baseUrl) => {
     try {
         const url = (typeof possibleUrl === 'string')
@@ -17,7 +15,7 @@ export const asHTTPUrl = (possibleUrl, baseUrl) => {
         }
         return url;
     }
-    catch (e) {
+    catch (ignore) {
         return undefined;
     }
 };
@@ -56,9 +54,6 @@ export const isTopLevelPageNavigation = (request) => {
     return true;
 };
 export const isTimeoutError = (error) => {
-    if (error instanceof TimeoutError) {
-        return true;
-    }
     if (typeof error.name !== 'string') {
         return false;
     }
