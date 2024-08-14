@@ -28,7 +28,7 @@ const selectRandomChildUrl = async (page: PageType,
       }
       links.push(hrefUrl)
     }
-    catch (_) {
+    catch (ignore) {
       continue
     }
   }

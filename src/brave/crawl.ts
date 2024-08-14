@@ -175,7 +175,8 @@ export const doCrawl = async (args: CrawlArgs,
                       ' so stopping page load and moving on')
           shouldRedirectToUrl = requestedUrl
           shouldStopWaitingFlag = true
-          await page._client.send('Page.stopLoading')
+          const client = await page.createCDPSession()
+          await client.send('Page.stopLoading')
           request.continue()
           return
         }
@@ -191,7 +192,8 @@ export const doCrawl = async (args: CrawlArgs,
         // the pagegraph, but continue.
         logger.error('Quitting bc we\'re in a redirect loop')
         shouldStopWaitingFlag = true
-        await page._client.send('Page.stopLoading')
+        const client = await page.createCDPSession()
+        await client.send('Page.stopLoading')
         request.continue()
         return
       })
