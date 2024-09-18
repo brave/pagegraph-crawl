@@ -33,6 +33,12 @@ const disabledBraveFeatures = [
   'SiteVisit',
 ]
 
+const disabledChromeFeatures = [
+  'IPH_SidePanelGenericMenuFeature',
+]
+
+const disabledFeatures = disabledBraveFeatures.concat(disabledChromeFeatures)
+
 interface ProfilePath {
   profilePath: FilePath
   shouldClean: boolean
@@ -74,12 +80,14 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): PuppeteerConfig => {
   process.env.PAGEGRAPH_OUT_DIR = args.outputPath
 
   const chromeArgs = [
+    '--ash-no-nudges',
     '--deny-permission-prompts',
     '--disable-brave-update',
     '--disable-breakpad',
     '--disable-component-extensions-with-background-pages',
     '--disable-component-update',
-    '--disable-features=' + disabledBraveFeatures.join(','),
+    '--disable-features=' + disabledFeatures.join(','),
+    '--disable-first-run-ui',
     '--disable-infobars',
     '--disable-ipc-flooding-protection',
     '--disable-notifications',

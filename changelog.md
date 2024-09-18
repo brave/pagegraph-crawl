@@ -1,3 +1,12 @@
+Version 1.1.0
+---
+
+Also pass `--disable-first-run-ui`, to suppress some additional, unneeded and
+unwanted browser UI, and disable the Chrome `IPH_SidePanelGenericMenuFeature`
+for the same reason.
+
+Remove some no longer needed dependencies.
+
 Version 1.0.2
 ---
 

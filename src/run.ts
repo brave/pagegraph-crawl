@@ -19,17 +19,17 @@ parser.add_argument('-v', '--version', {
 })
 parser.add_argument('-b', '--binary', {
   help: 'Path to the PageGraph enabled build of Brave. If not provided, '
-  + 'try to guess where the binary is, or if its in $PATH',
+    + 'try to guess where the binary is, or if its in $PATH',
 })
 parser.add_argument('-r', '--recursive-depth', {
   default: 1,
   help: 'If provided, choose a link at random on page and do another crawl '
-  + 'to this depth. Default: 1 (no recursion).',
+    + 'to this depth. Default: 1 (no recursion).',
 })
 parser.add_argument('-o', '--output', {
   help: 'Path to write to. If a directory is provided, then results are '
-  + 'written to a file in that directory. If a full path is given, '
-  + 'then results are written to that path.',
+    + 'written to a file in that directory. If a full path is given, '
+    + 'then results are written to that path.',
   required: true,
 })
 parser.add_argument('-u', '--url', {
@@ -38,11 +38,11 @@ parser.add_argument('-u', '--url', {
 })
 parser.add_argument('-e', '--existing-profile', {
   help: 'The chromium profile to use when crawling. Cannot '
-  + 'be used with "--persist-profile"',
+    + 'be used with "--persist-profile"',
 })
 parser.add_argument('-p', '--persist-profile', {
   help: 'If provided, the user profile will be saved at this path. Cannot '
-  + 'be used with "--existing-profile"',
+    + 'be used with "--existing-profile"',
   default: false,
   action: 'store_true',
 })
@@ -52,7 +52,7 @@ parser.add_argument('--extensions-path', {
 })
 parser.add_argument('-s', '--shields', {
   help: 'Whether to measure with shields up or down. Ignored when using '
-  + `"--existing-profile".  Default: ${defaultShieldsSetting}`,
+    + `"--existing-profile".  Default: ${defaultShieldsSetting}`,
   choices: ['up', 'down'],
   default: defaultShieldsSetting,
 })
@@ -68,7 +68,7 @@ parser.add_argument('--logging', {
 })
 parser.add_argument('-i', '--interactive', {
   help: 'Suppress use of Xvfb to allow interaction with spawned '
-  + 'browser instance',
+    + 'browser instance',
   action: 'store_true',
   default: false,
 })
@@ -82,12 +82,12 @@ parser.add_argument('--proxy-server', {
 })
 parser.add_argument('-x', '--extra-args', {
   help: 'Pass JSON_ARRAY as extra CLI argument to the browser '
-  + 'instance launched.',
+    + 'instance launched.',
   metavar: 'JSON_ARRAY',
 })
 parser.add_argument('-c', '--crawl-duplicates', {
   help: 'Enable crawls for redirected URLs that are already present in '
-  + 'the redirection chain.',
+    + 'the redirection chain.',
   action: 'store_true',
   default: false,
 })
