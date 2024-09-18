@@ -1,6 +1,6 @@
 {
   "name": "pagegraph-crawl",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "CLI for crawling with PageGraph.",
   "scripts": {
     "lint": "npx eslint src/**/*.ts src/*.ts",
@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.10.0",
-    "@stylistic/eslint-plugin": "2.7.2",
+    "@stylistic/eslint-plugin": "^2.8.0",
     "@tsconfig/node20": "20.1.4",
     "@types/argparse": "2.0.16",
     "@types/eslint__js": "8.42.3",
