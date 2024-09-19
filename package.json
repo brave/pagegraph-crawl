@@ -22,11 +22,9 @@
   "types": "./src/declarations.d.ts",
   "license": "MPL-2.0",
   "dependencies": {
-    "@supercharge/promise-pool": "^3.0.0",
     "argparse": "^2.0.0",
     "fs-extra": "^11.0.0",
     "hasbin": "^1.2.3",
-    "node-fs-extra": "^0.8.2",
     "puppeteer-core": "^23.1.0",
     "tmp": "^0.2.1",
     "xvfb": "^0.4.0"
