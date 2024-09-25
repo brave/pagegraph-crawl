@@ -1,6 +1,6 @@
 {
   "name": "pagegraph-crawl",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "CLI for crawling with PageGraph.",
   "scripts": {
     "lint": "npx eslint src/**/*.ts src/*.ts",
@@ -25,25 +25,25 @@
     "argparse": "^2.0.0",
     "fs-extra": "^11.0.0",
     "hasbin": "^1.2.3",
+    "mocha": "^10.7.3",
     "puppeteer-core": "^23.1.0",
     "tmp": "^0.2.1",
     "xvfb": "^0.4.0"
   },
   "devDependencies": {
     "@eslint/js": "9.10.0",
-    "@stylistic/eslint-plugin": "^2.8.0",
+    "@stylistic/eslint-plugin": "2.8.0",
     "@tsconfig/node20": "20.1.4",
     "@types/argparse": "2.0.16",
     "@types/eslint__js": "8.42.3",
     "@types/fs-extra": "11.0.4",
     "@types/hasbin": "1.2.2",
     "@types/tmp": "0.2.6",
-    "@typescript-eslint/parser": "8.4.0",
+    "@typescript-eslint/parser": "8.6.0",
     "chai": "5.1.1",
     "eslint": "9.10.0",
-    "express": "^4.21.0",
-    "mocha": "10.7.3",
+    "express": "4.21.0",
     "typescript": "5.6.2",
-    "typescript-eslint": "^8.5.0"
+    "typescript-eslint": "8.5.0"
   }
 }
