@@ -24,7 +24,12 @@ Usage
 Since [PageGraph](https://github.com/brave/brave-browser/wiki/PageGraph) is built as part of Brave Nightly, you can simply point the binary path to be your local installation.
 
 ```bash
-npm run crawl -- -b /Applications/Brave\ Browser\ Nightly.app/Contents/MacOS/Brave\ Browser\ Nightly -u https://brave.com -t 5 -o output/ --debug debug
+npm run crawl -- \
+    -b /Applications/Brave\ Browser\ Nightly.app/Contents/MacOS/Brave\ Browser\ Nightly \
+    -u https://brave.com \
+    -t 5 \
+    -o output/ \
+    --debug debug
 ```
 
 The `-t` specifies how many seconds to crawl the URL provided in `-u` using the PageGraph binary in `-b`. 
