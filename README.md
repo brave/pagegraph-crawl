@@ -5,7 +5,7 @@ Command line tool for crawling web pages with PageGraph.
 
 Install
 ---
-For building/installing the tool, you need to have `tsc` (TypeScript Compiler) package installed.
+For building the tool, you need to have `tsc` (TypeScript Compiler) package installed.
 
 ```bash
 npm install
