@@ -1,6 +1,6 @@
 {
   "name": "pagegraph-crawl",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "CLI for crawling with PageGraph.",
   "scripts": {
     "lint": "npx eslint src/**/*.ts src/*.ts",
@@ -39,11 +39,11 @@
     "@types/fs-extra": "11.0.4",
     "@types/hasbin": "1.2.2",
     "@types/tmp": "0.2.6",
-    "@typescript-eslint/parser": "8.10.0",
+    "@typescript-eslint/parser": "^8.11.0",
     "chai": "5.1.1",
     "eslint": "9.13.0",
     "express": "4.21.1",
     "typescript": "5.6.3",
-    "typescript-eslint": "8.10.0"
+    "typescript-eslint": "^8.11.0"
   }
 }

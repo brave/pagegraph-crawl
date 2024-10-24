@@ -1,3 +1,16 @@
+Version 1.1.2
+---
+
+Update eslint to 8.11.0, which resolves a non-useful warning when linting.
+
+Minor version bumps in other depenencies.
+
+
+Version 1.1.1
+---
+
+Minor version bumps in depenencies.
+
 Version 1.1.0
 ---
 
