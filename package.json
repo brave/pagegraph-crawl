@@ -31,7 +31,7 @@
     "xvfb": "^0.4.0"
   },
   "devDependencies": {
-    "@eslint/js": "9.13.0",
+    "@eslint/js": "9.14.0",
     "@stylistic/eslint-plugin": "2.9.0",
     "@tsconfig/node20": "20.1.4",
     "@types/argparse": "2.0.17",
@@ -41,7 +41,7 @@
     "@types/tmp": "0.2.6",
     "@typescript-eslint/parser": "8.11.0",
     "chai": "5.1.2",
-    "eslint": "9.13.0",
+    "eslint": "9.14.0",
     "express": "4.21.1",
     "typescript": "5.6.3",
     "typescript-eslint": "8.11.0"
