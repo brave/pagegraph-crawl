@@ -17,6 +17,12 @@ const createGraphMLPath = (args: CrawlArgs, url: URL): FilePath => {
     : args.outputPath
 }
 
+const createHARPath = (args: CrawlArgs, url: URL): FilePath => {
+  const outputPath = createGraphMLPath(args, url)
+  const pathParts = parse(outputPath)
+  return pathParts.dir + '/' + pathParts.name + '.har'
+}
+
 export const createScreenshotPath = (args: CrawlArgs, url: URL): FilePath => {
   const outputPath = createGraphMLPath(args, url)
   const pathParts = parse(outputPath)
@@ -33,6 +39,18 @@ export const writeGraphML = async (args: CrawlArgs, url: URL,
   }
   catch (err) {
     logger.error('saving Page.generatePageGraph output: ', String(err))
+  }
+}
+
+export const writeHAR = async (args: CrawlArgs, url: URL, har: any,
+                                logger: Logger): Promise<undefined> => {
+  try {
+    const outputFilename = createHARPath(args, url)
+    await writeFile(outputFilename, JSON.stringify(har, null, 4))
+    logger.info('Writing HAR file to: ', outputFilename)
+  }
+  catch (err) {
+    logger.error('saving HAR file: ', String(err))
   }
 }
 

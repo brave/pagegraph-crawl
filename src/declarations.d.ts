@@ -2,6 +2,7 @@ declare module 'argparse'
 declare module 'puppeteer-core'
 declare module 'tmp'
 declare module 'xvfb'
+declare module 'chrome-har'
 
 type FilePath = string
 type ErrorMsg = string
@@ -25,6 +26,8 @@ interface CrawlArgs {
   crawlDuplicates: boolean
   screenshot: boolean
   stealth: boolean
+  store_har: boolean
+  store_har_body: boolean
 }
 
 type ValidationResult = [boolean, CrawlArgs | ErrorMsg]
