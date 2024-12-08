@@ -5,11 +5,47 @@ import type { CDPSession, HTTPRequest, Page } from 'puppeteer-core'
 
 import { isTopLevelPageNavigation, isTimeoutError } from './checks.js'
 import { asHTTPUrl } from './checks.js'
-import { createScreenshotPath, writeGraphML, deleteAtPath } from './files.js'
+import { createScreenshotPath, writeGraphML, writeHAR, deleteAtPath } from './files.js'
 import { getLogger } from './logging.js'
 import { makeNavigationTracker } from './navigation_tracker.js'
 import { selectRandomChildUrl } from './page.js'
 import { puppeteerConfigForArgs, launchWithRetry } from './puppeteer.js'
+
+import type { Protocol } from 'devtools-protocol';
+import { harFromMessages } from 'chrome-har';
+
+interface ExtendedResponse extends Protocol.Network.Response {
+  body?: string;
+}
+
+interface ExtendedResponseReceivedEvent extends Protocol.Network.ResponseReceivedEvent {
+  response: ExtendedResponse;
+}
+
+interface Event<TMethod, TParams> {
+  method: TMethod;
+  params: TParams;
+}
+
+type NetworkEventParams = 
+  | Protocol.Network.RequestWillBeSentEvent
+  | Protocol.Network.RequestServedFromCacheEvent
+  | Protocol.Network.DataReceivedEvent
+  | Protocol.Network.ResponseReceivedEvent
+  | Protocol.Network.ResourceChangedPriorityEvent
+  | Protocol.Network.LoadingFinishedEvent
+  | Protocol.Network.LoadingFailedEvent;
+
+type NetworkEvent = Event<string, NetworkEventParams>;
+
+type PageEventParams =
+  | Protocol.Page.LoadEventFiredEvent
+  | Protocol.Page.DomContentEventFiredEvent
+  | Protocol.Page.FrameStartedLoadingEvent
+  | Protocol.Page.FrameAttachedEvent
+  | Protocol.Page.FrameScheduledNavigationEvent;
+
+type PageEvent = Event<string, PageEventParams>;
 
 type CDPSessionType = typeof CDPSession
 type HTTPRequestType = typeof HTTPRequest
@@ -68,6 +104,58 @@ const waitUntilUnless = (secs: number,
       }
     }, intervalMs)
   })
+}
+
+const prepareHARGenerator = async ( client: CDPSessionType,
+                                    network_events: NetworkEvent[],
+                                    page_events: PageEvent[],
+                                    store_har_body: boolean,
+                                    response_bodies: Map<string, Protocol.Network.GetResponseBodyResponse>,
+                                    logger: Logger) => {  
+  await client.send('Page.enable');
+  await client.send('Network.enable');
+
+  const network_methods = [
+    'Network.requestWillBeSent',
+    'Network.requestServedFromCache',
+    'Network.dataReceived',
+    'Network.responseReceived',
+    'Network.resourceChangedPriority',
+    'Network.loadingFinished',
+    'Network.loadingFailed',
+  ];
+
+  const page_methods = [
+    'Page.loadEventFired',
+    'Page.domContentEventFired',
+    'Page.frameStartedLoading',
+    'Page.frameAttached',
+    'Page.frameScheduledNavigation',
+  ];
+
+  network_methods.forEach(method => {
+    client.on(method, (params: NetworkEventParams) => {
+      network_events.push({ method, params });
+      if (store_har_body && method == 'Network.loadingFinished') {
+        const responseReceivedParams = params as ExtendedResponseReceivedEvent;
+        const requestId = responseReceivedParams.requestId;
+        client.send('Network.getResponseBody', { requestId: requestId })
+          .then((responseBody: Protocol.Network.GetResponseBodyResponse) => {
+            response_bodies.set(requestId.toString(), responseBody);
+      }, (reason: any) => {
+        logger.error("LoadingFinishedError: " + reason)
+      });
+      }
+            
+    });
+  });
+
+  page_methods.forEach(method => {
+    client.on(method, (params: PageEventParams) => {
+        page_events.push({ method, params });
+    });
+  });
+
 }
 
 const generatePageGraph = async (seconds: number,
@@ -133,6 +221,21 @@ export const doCrawl = async (args: CrawlArgs,
       // and wait for idle time.
       const page = await browser.newPage()
       const client = await page.target().createCDPSession()
+
+      let network_events: NetworkEvent[] = new Array();
+      let page_events: PageEvent[] = new Array();
+      let response_bodies: Map<any, any> = new Map();
+      if (args.store_har) {
+        await prepareHARGenerator(
+          client,
+          network_events,
+          page_events,
+          args.store_har_body,
+          response_bodies,
+          logger
+        )
+      }
+
       client.on('Target.targetCrashed', (event: TargetCrashedEvent) => {
         const logMsg = {
           targetId: event.targetId,
@@ -215,6 +318,33 @@ export const doCrawl = async (args: CrawlArgs,
       const response = await generatePageGraph(args.seconds, page, client,
                                                shouldStopWaitingFunc, logger)
       await writeGraphML(args, urlToCrawl, response, logger)
+
+      // Store HAR      
+      if (args.store_har) {
+        // ensure that all bodies are loaded
+        await Promise.all(response_bodies);
+
+        // merge responses and bodies
+        network_events.forEach(event => {
+          if (args.store_har_body && event.method == 'Network.responseReceived') {
+            let requestId = event.params.requestId;
+            let responseBody = response_bodies.get(requestId.toString())
+            const responseReceivedParams = event.params as ExtendedResponseReceivedEvent;
+            responseReceivedParams.response.body = Buffer.from(
+              responseBody.body,
+              responseBody.base64Encoded ? 'base64' : undefined,
+            ).toString();
+          }
+        });
+
+        const all_events = (page_events as (PageEvent | NetworkEvent)[]).concat(network_events);
+        const har = harFromMessages(
+          all_events,
+          {includeTextFromResponseBody: args.store_har_body}
+        );
+        await writeHAR(args, urlToCrawl, har, logger);
+      }
+
       if (depth > 1) {
         randomChildUrl = await selectRandomChildUrl(page, logger)
       }

@@ -90,6 +90,8 @@ export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable
   const userAgent: string | undefined = rawArgs.user_agent
   const crawlDuplicates: boolean = rawArgs.crawl_duplicates
   const screenshot: boolean = rawArgs.screenshot
+  const store_har: boolean = rawArgs.store_har
+  const store_har_body: boolean = rawArgs.store_har_body
   const validatedArgs: CrawlArgs = {
     executablePath: String(executablePath),
     outputPath,
@@ -106,6 +108,8 @@ export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable
     userAgent,
     crawlDuplicates,
     screenshot,
+    store_har,
+    store_har_body
   }
 
   if (rawArgs.proxy_server !== undefined) {
