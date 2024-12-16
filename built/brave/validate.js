@@ -1,7 +1,7 @@
 import * as fsLib from 'fs';
 import * as osLib from 'os';
 import * as pathLib from 'path';
-import * as hasBinLib from 'hasbin';
+import hasBinLib from 'hasbin';
 import { asHTTPUrl, isDir, isExecFile } from './checks.js';
 import { getLoggerForLevel } from './logging.js';
 const possibleBraveBinaryPaths = [
