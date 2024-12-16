@@ -190,7 +190,7 @@ export const doCrawl = async (args: CrawlArgs,
   let randomChildUrl: URL | undefined
   let shouldRedirectToUrl: URL | undefined
 
-  const puppeteerConfig = puppeteerConfigForArgs(args)
+  const puppeteerConfig = await puppeteerConfigForArgs(args)
   const { launchOptions } = puppeteerConfig
   const envHandle = setupEnv(args)
 

@@ -7,6 +7,8 @@ import puppeteerLib from 'puppeteer-core'
 // import stealthPluginLib from 'puppeteer-extra-plugin-stealth'
 import type { LaunchOptions, Process } from 'puppeteer-core'
 
+import { isDir } from './checks.js'
+import { deleteAtPath } from './files.js'
 import { getLogger } from './logging.js'
 
 type LaunchOptionsType = typeof LaunchOptions
@@ -44,7 +46,7 @@ interface ProfilePath {
   shouldClean: boolean
 }
 
-const profilePathForArgs = (args: CrawlArgs): ProfilePath => {
+const profilePathForArgs = async (args: CrawlArgs): Promise<ProfilePath> => {
   const logger = getLogger(args)
 
   // The easiest case is if we've been told to use an existing profile.
@@ -69,15 +71,20 @@ const profilePathForArgs = (args: CrawlArgs): ProfilePath => {
 
   const shouldClean = args.persistProfilePath === undefined
 
-  cp(templateProfile, destProfilePath, {
+  if (isDir(destProfilePath)) {
+    logger.info(`Profile exists at ${String(destProfilePath)}, so deleting.`)
+    await deleteAtPath(destProfilePath)
+  }
+
+  await cp(templateProfile, destProfilePath, {
     recursive: true,
   })
   logger.verbose(`Crawling with profile at ${String(destProfilePath)}.`)
   return { profilePath: destProfilePath, shouldClean }
 }
 
-export const puppeteerConfigForArgs = (args: CrawlArgs): PuppeteerConfig => {
-  const { profilePath, shouldClean } = profilePathForArgs(args)
+const makePuppeteerConf = async (args: CrawlArgs): Promise<PuppeteerConfig> => {
+  const { profilePath, shouldClean } = await profilePathForArgs(args)
 
   process.env.PAGEGRAPH_OUT_DIR = args.outputPath
 
@@ -139,6 +146,7 @@ export const puppeteerConfigForArgs = (args: CrawlArgs): PuppeteerConfig => {
     shouldClean,
   }
 }
+export const puppeteerConfigForArgs = makePuppeteerConf
 
 const asyncSleep = async (millis: number): Promise<void> => {
   return await new Promise(resolve => setTimeout(resolve, millis))
@@ -147,17 +155,6 @@ const asyncSleep = async (millis: number): Promise<void> => {
 const defaultComputeTimeout = (tryIndex: number): number => {
   return Math.pow(2, tryIndex - 1) * 1000
 }
-
-// const makeLaunchPuppeteerFunc = (shouldStealth: boolean,
-//                                  logger: Logger): VanillaPuppeteer => {
-//   if (shouldStealth === true) {
-//     logger.info('Running with puppeteer-extra-plugin-stealth')
-//     const puppeteerExtra = new PuppeteerExtra(puppeteerLib, undefined)
-//     puppeteerExtra.use(stealthPluginLib())
-//     return puppeteerExtra
-//   }
-//   return puppeteerLib
-// }
 
 export const launchWithRetry = async (launchOptions: LaunchOptionsType,
                                       stealthMode: boolean,

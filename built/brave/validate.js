@@ -1,7 +1,7 @@
 import * as fsLib from 'fs';
 import * as osLib from 'os';
 import * as pathLib from 'path';
-import hasBinLib from 'hasbin';
+import which from 'which';
 import { asHTTPUrl, isDir, isExecFile } from './checks.js';
 import { getLoggerForLevel } from './logging.js';
 const possibleBraveBinaryPaths = [
@@ -26,11 +26,13 @@ const guessBinary = () => {
         'brave-browser-stable',
         'brave-browser',
     ];
-    const firstBraveBinary = hasBinLib.first.sync(possibleBraveBinaryNames);
-    if (firstBraveBinary === false) {
-        return false;
+    for (const aBinaryName of possibleBraveBinaryNames) {
+        const binaryPath = which.sync(aBinaryName, { nothrow: true });
+        if (binaryPath) {
+            return binaryPath;
+        }
     }
-    return firstBraveBinary;
+    return false;
 };
 export const validate = (rawArgs) => {
     const logger = getLoggerForLevel(rawArgs.logging);

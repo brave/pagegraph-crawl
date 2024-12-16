@@ -3,3 +3,4 @@ node_modules/
 .swp
 .vscode/
 test/debug_output/
+test/output/

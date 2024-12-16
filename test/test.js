@@ -86,15 +86,7 @@ describe('PageGraph Crawl CLI', () => {
     }
 
     const crawlProcess = spawn('npm', crawlCommand, {
-      stdio: 'pipe'
-    })
-    if (DEBUG) {
-      crawlProcess.stdout.on('data', data => {
-        console.log(data.toString('utf8'))
-      })
-    }
-    crawlProcess.stderr.on('data', data => {
-      console.error(data.toString('utf8'))
+      stdio: DEBUG ? 'inherit' : 'ignore'
     })
 
     return new Promise(resolve => {

@@ -1,4 +1,4 @@
-import { writeFile, rm } from 'node:fs/promises';
+import { rm, writeFile } from 'node:fs/promises';
 import { join, parse } from 'node:path';
 import { isDir } from './checks.js';
 const createFilename = (url) => {

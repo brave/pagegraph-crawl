@@ -116,7 +116,7 @@ export const doCrawl = async (args, previouslySeenUrls) => {
     const depth = Math.max(args.recursiveDepth, 1);
     let randomChildUrl;
     let shouldRedirectToUrl;
-    const puppeteerConfig = puppeteerConfigForArgs(args);
+    const puppeteerConfig = await puppeteerConfigForArgs(args);
     const { launchOptions } = puppeteerConfig;
     const envHandle = setupEnv(args);
     let shouldStopWaitingFlag = false;
