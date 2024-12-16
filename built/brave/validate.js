@@ -80,6 +80,8 @@ export const validate = (rawArgs) => {
     const userAgent = rawArgs.user_agent;
     const crawlDuplicates = rawArgs.crawl_duplicates;
     const screenshot = rawArgs.screenshot;
+    const storeHar = rawArgs.store_har;
+    const storeHarBody = rawArgs.store_har_body;
     const validatedArgs = {
         executablePath: String(executablePath),
         outputPath,
@@ -96,6 +98,8 @@ export const validate = (rawArgs) => {
         userAgent,
         crawlDuplicates,
         screenshot,
+        storeHar,
+        storeHarBody,
     };
     if (rawArgs.proxy_server !== undefined) {
         try {

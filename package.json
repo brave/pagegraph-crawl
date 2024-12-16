@@ -1,7 +1,10 @@
 {
   "name": "pagegraph-crawl",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "CLI for crawling with PageGraph.",
+  "engines" : {
+    "node" : ">=20.0.0"
+  },
   "scripts": {
     "lint": "npx eslint src/**/*.ts src/*.ts",
     "lint:fix": "npx eslint --fix src/**/*.ts src/*.ts",
@@ -11,7 +14,11 @@
     "test": "npm run build && mocha test/test.js --timeout 60000"
   },
   "type": "module",
-  "author": "Peter Snyder <pes@brave.com>",
+  "author": {
+    "email": "pes@brave.com",
+    "name": "Peter Snyder",
+    "url": "https://www.peteresnyder.com"
+  },
   "contributors": [
     {
       "name": "Shivan Kaul Sahib",

@@ -1,5 +1,5 @@
+import { cp } from 'node:fs/promises';
 import * as pathLib from 'path';
-import fsExtraLib from 'fs-extra';
 import tmpLib from 'tmp';
 import puppeteerLib from 'puppeteer-core';
 import { getLogger } from './logging.js';
@@ -47,7 +47,9 @@ const profilePathForArgs = (args) => {
         ? args.persistProfilePath
         : tmpLib.dirSync({ prefix: 'pagegraph-profile-' }).name;
     const shouldClean = args.persistProfilePath === undefined;
-    fsExtraLib.copySync(templateProfile, destProfilePath);
+    cp(templateProfile, destProfilePath, {
+        recursive: true,
+    });
     logger.verbose(`Crawling with profile at ${String(destProfilePath)}.`);
     return { profilePath: destProfilePath, shouldClean };
 };

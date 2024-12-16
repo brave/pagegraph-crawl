@@ -26,8 +26,8 @@ interface CrawlArgs {
   crawlDuplicates: boolean
   screenshot: boolean
   stealth: boolean
-  store_har: boolean
-  store_har_body: boolean
+  storeHar: boolean
+  storeHarBody: boolean
 }
 
 type ValidationResult = [boolean, CrawlArgs | ErrorMsg]

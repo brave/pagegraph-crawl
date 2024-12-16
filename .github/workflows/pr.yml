@@ -27,7 +27,5 @@ jobs:
         run: |
           shopt -s inherit_errexit
           set -xeEo pipefail
-
-          sed -i 's,pagegraph:.*,pagegraph: "/opt/brave.com/brave-nightly/brave-browser-nightly",' test/config.js
           npm install
-          npm run test
+          PAGEGRAPH_CRAWL_TEST_BINARY_PATH=/opt/brave.com/brave-nightly/brave-browser-nightly npm run test

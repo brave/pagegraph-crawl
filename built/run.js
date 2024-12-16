@@ -93,6 +93,18 @@ parser.add_argument('--screenshot', {
     dest: 'screenshot',
     default: false,
 });
+parser.add_argument('--har', {
+    help: 'Generate a HAR file at the end of the crawl.',
+    action: 'store_true',
+    dest: 'store_har',
+    default: false,
+});
+parser.add_argument('--har-body', {
+    help: 'Store the response bodies in the HAR file. Only works in combination with --har.',
+    action: 'store_true',
+    dest: 'store_har_body',
+    default: false,
+});
 // parser.add_argument('--no-stealth', {
 //   help: 'Do not enable the "puppeteer-extra-plugin-stealth" extension.',
 //   default: false,

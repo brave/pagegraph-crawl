@@ -1,12 +1,10 @@
+import { spawn } from 'node:child_process'
+import { mkdirSync, rmSync, existsSync, readFileSync, readdirSync, cpSync } from 'node:fs'
+import { resolve, join } from 'node:path'
 
-import { mkdirSync, rmSync, existsSync, readFileSync, readdirSync, cpSync } from 'fs'
 import { expect } from 'chai'
-import { resolve, join } from 'path'
-import { config } from './config.js'
 import app from './test_server.js'
-import util from 'util' // Import the server instance
-import { exec } from 'child_process'
-const execPromise = util.promisify(exec)
+
 // Check filename with .startsWith()
 const getExpectedFilename = (url) => {
   return `page_graph_${url?.replace(/[^\w]/g, '_')}`
@@ -14,28 +12,24 @@ const getExpectedFilename = (url) => {
 // Check filename with .endsWith()
 const graphMlExtension = '.graphml'
 
-const DEBUG = process.env.DEBUG || config.debug
-const port = process.env.PORT || config.port
-const pagegraphBinaryPath = process.env.PAGEGRAPH || config.pagegraph
-DEBUG && console.log(`pagegraphBinaryPath: ${pagegraphBinaryPath}`)
-// Check if pagegraph binary is set
-if (!pagegraphBinaryPath) {
-  throw new Error('PAGEGRAPH BINARY PATH environment variable not set')
-}
-const baseUrl = `${process.env.BASE_URL || config.baseUrl}:${port}`
+const DEBUG = process.env.DEBUG
+const port = process.env.PAGEGRAPH_CRAWL_TEST_PORT || 3000
+const baseUrl = process.env.PAGEGRAPH_CRAWL_TEST_BASE_URL || 'http://localhost'
+const pageGraphBinaryPath = process.env.PAGEGRAPH_CRAWL_TEST_BINARY_PATH
 
-const simpleUrl = `${baseUrl}/simple.html`
+const testBaseUrl = `${baseUrl}:${port}`
+const simpleUrl = `${testBaseUrl}/simple.html`
 const expectedFilenameSimple = getExpectedFilename(simpleUrl)
-
-// This gets passed to the pagegraph crawl script as --debug
-const debugArg = DEBUG ? '--debug debug' : ''
 
 const outputDir = resolve(join('test', 'output'))
 const debugOutputDir = resolve(join('test', 'debug_output'))
-DEBUG && console.log(`outputDir: ${outputDir}`)
-DEBUG && console.log(`debugOutputDir: ${debugOutputDir}`)
-DEBUG && console.log(`simpleUrl: ${simpleUrl}`)
-DEBUG && console.log(`expectedFilenameSimple: ${expectedFilenameSimple}`)
+
+if (DEBUG) {
+  console.log(`outputDir: ${outputDir}`)
+  console.log(`debugOutputDir: ${debugOutputDir}`)
+  console.log(`simpleUrl: ${simpleUrl}`)
+  console.log(`expectedFilenameSimple: ${expectedFilenameSimple}`)
+}
 
 describe('PageGraph Crawl CLI', () => {
   // Setup and teardown for the test suite.
@@ -64,14 +58,50 @@ describe('PageGraph Crawl CLI', () => {
     DEBUG && console.log('Test server has closed')
   })
 
-  const doCrawl = (url) => {
-    const crawlPromise = execPromise(
-      `npm run crawl -- -b ${pagegraphBinaryPath} -u ${url} -t 5 -o ${outputDir} ${debugArg}`
-    )
-    DEBUG && crawlPromise.child.stdout.on('data', function (data) {
-      console.log(data)
+  const doCrawl = (url, args) => {
+    const crawlCommand = ['run', 'crawl', '--']
+    const crawlFlags = {
+      '-u': url,
+      '-t': 5,
+      '-o': outputDir,
+    }
+
+    if (DEBUG) {
+      crawlFlags['--logging'] = 'info'
+    }
+
+    if (args !== undefined) {
+      for (const [key, value] of Object.entries(args)) {
+        crawlFlags[key] = value
+      }
+    }
+
+    for (const [cmdKey, cmdValue] of Object.entries(crawlFlags)) {
+      crawlCommand.push(cmdKey)
+      crawlCommand.push(cmdValue)
+    }
+
+    if (DEBUG) {
+      console.log('Launching crawl child process: npm ' + crawlCommand.join(' '))
+    }
+
+    const crawlProcess = spawn('npm', crawlCommand, {
+      stdio: 'pipe'
     })
-    return crawlPromise
+    if (DEBUG) {
+      crawlProcess.stdout.on('data', data => {
+        console.log(data.toString('utf8'))
+      })
+    }
+    crawlProcess.stderr.on('data', data => {
+      console.error(data.toString('utf8'))
+    })
+
+    return new Promise(resolve => {
+      crawlProcess.on('exit', code => {
+        resolve(code)
+      })
+    })
   }
 
   it('works for simple case', async () => {
@@ -91,7 +121,7 @@ describe('PageGraph Crawl CLI', () => {
 
   it('works for redirect case (same-site)', async () => {
     // Crawl with one redirect, same-site.
-    const initialUrl = `${baseUrl}/redirect-js-same-site.html`
+    const initialUrl = `${testBaseUrl}/redirect-js-same-site.html`
     const expectedFilenameInitial = getExpectedFilename(initialUrl)
     DEBUG && console.log(`initialUrl: ${initialUrl}`)
     DEBUG && console.log(`expectedFilenameInitial: ${expectedFilenameInitial}`)
@@ -117,8 +147,8 @@ describe('PageGraph Crawl CLI', () => {
 
   it('works for multiple redirect case', async () => {
     // Crawl with multiple redirects, same-site.
-    const initialUrl = `${baseUrl}/multiple-redirects-js-same-site.html`
-    const secondUrl = `${baseUrl}/redirect-js-same-site.html`
+    const initialUrl = `${testBaseUrl}/multiple-redirects-js-same-site.html`
+    const secondUrl = `${testBaseUrl}/redirect-js-same-site.html`
     const expectedFilenameInitial = getExpectedFilename(initialUrl)
     const expectedFilenameSecond = getExpectedFilename(secondUrl)
     DEBUG && console.log(`initialUrl: ${initialUrl}`)
@@ -153,7 +183,7 @@ describe('PageGraph Crawl CLI', () => {
 
   it('works for redirect case (cross-site)', async () => {
     // Crawl with one redirect, cross-site.
-    const initialUrl = `${baseUrl}/redirect-js-cross-site.html`
+    const initialUrl = `${testBaseUrl}/redirect-js-cross-site.html`
     // This has to be hard-coded because it's being set in redirect-js-cross-site.html
     const finalUrl = 'http://127.0.0.1:3000/simple.html'
     const expectedFilenameInitial = getExpectedFilename(initialUrl)
@@ -183,7 +213,7 @@ describe('PageGraph Crawl CLI', () => {
 
   it('works for redirect chain case (A->B->A)', async () => {
     // Crawl with recursive redirects, cross-site.
-    const initialUrl = `${baseUrl}/redirect-chain-A.html`
+    const initialUrl = `${testBaseUrl}/redirect-chain-A.html`
     // This has to be hard-coded because it's being set in redirect-chain-A.html
     const finalUrl = 'http://127.0.0.1:3000/redirect-chain-B.html'
     const expectedFilenameInitial = getExpectedFilename(initialUrl)

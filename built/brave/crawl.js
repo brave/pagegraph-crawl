@@ -2,11 +2,12 @@ import * as osLib from 'os';
 import Xvbf from 'xvfb';
 import { isTopLevelPageNavigation, isTimeoutError } from './checks.js';
 import { asHTTPUrl } from './checks.js';
-import { createScreenshotPath, writeGraphML, deleteAtPath } from './files.js';
+import { createScreenshotPath, writeGraphML, writeHAR, deleteAtPath } from './files.js';
 import { getLogger } from './logging.js';
 import { makeNavigationTracker } from './navigation_tracker.js';
 import { selectRandomChildUrl } from './page.js';
 import { puppeteerConfigForArgs, launchWithRetry } from './puppeteer.js';
+import { harFromMessages } from 'chrome-har';
 const xvfbPlatforms = new Set(['linux', 'openbsd']);
 const setupEnv = (args) => {
     const logger = getLogger(args);
@@ -51,6 +52,46 @@ const waitUntilUnless = (secs, unlessFunc, intervalMs = 500) => {
                 resolve(returnedBcTimeout);
             }
         }, intervalMs);
+    });
+};
+const prepareHARGenerator = async (client, networkEvents, pageEvents, storeHarBody, responseBodies, logger) => {
+    await client.send('Page.enable');
+    await client.send('Network.enable');
+    const networkMethods = [
+        'Network.requestWillBeSent',
+        'Network.requestServedFromCache',
+        'Network.dataReceived',
+        'Network.responseReceived',
+        'Network.resourceChangedPriority',
+        'Network.loadingFinished',
+        'Network.loadingFailed',
+    ];
+    const pageMethods = [
+        'Page.loadEventFired',
+        'Page.domContentEventFired',
+        'Page.frameStartedLoading',
+        'Page.frameAttached',
+        'Page.frameScheduledNavigation',
+    ];
+    networkMethods.forEach((method) => {
+        client.on(method, (params) => {
+            networkEvents.push({ method, params });
+            if (storeHarBody && method == 'Network.loadingFinished') {
+                const responseParams = params;
+                const requestId = responseParams.requestId;
+                client.send('Network.getResponseBody', { requestId: requestId })
+                    .then((responseBody) => {
+                    responseBodies.set(requestId.toString(), responseBody);
+                }, (reason) => {
+                    logger.error('LoadingFinishedError: ' + reason);
+                });
+            }
+        });
+    });
+    pageMethods.forEach((method) => {
+        client.on(method, (params) => {
+            pageEvents.push({ method, params });
+        });
     });
 };
 const generatePageGraph = async (seconds, page, client, waitFunc, 
@@ -101,6 +142,12 @@ export const doCrawl = async (args, previouslySeenUrls) => {
             // and wait for idle time.
             const page = await browser.newPage();
             const client = await page.target().createCDPSession();
+            const networkEvents = [];
+            const pageEvents = [];
+            const responseBodies = new Map();
+            if (args.storeHar) {
+                await prepareHARGenerator(client, networkEvents, pageEvents, args.storeHarBody, responseBodies, logger);
+            }
             client.on('Target.targetCrashed', (event) => {
                 const logMsg = {
                     targetId: event.targetId,
@@ -147,7 +194,7 @@ export const doCrawl = async (args, previouslySeenUrls) => {
                 }
                 // Otherwise, we're in a redirect loop, so stop recording
                 // the pagegraph, but continue.
-                logger.error('Quitting bc we\'re in a redirect loop');
+                logger.info('Quitting bc we\'re in a redirect loop');
                 shouldStopWaitingFlag = true;
                 const client = await page.createCDPSession();
                 await client.send('Page.stopLoading');
@@ -169,6 +216,26 @@ export const doCrawl = async (args, previouslySeenUrls) => {
             logger.info('Loaded ', String(urlToCrawl));
             const response = await generatePageGraph(args.seconds, page, client, shouldStopWaitingFunc, logger);
             await writeGraphML(args, urlToCrawl, response, logger);
+            // Store HAR
+            if (args.storeHar) {
+                // ensure that all bodies are loaded
+                await Promise.all(responseBodies);
+                // merge responses and bodies
+                networkEvents.forEach((event) => {
+                    if (args.storeHarBody && event.method == 'Network.responseReceived') {
+                        const requestId = event.params.requestId;
+                        const responseBody = responseBodies.get(requestId.toString());
+                        const responseParams = event.params;
+                        responseParams.response.body = Buffer.from(responseBody.body, responseBody.base64Encoded ? 'base64' : undefined).toString();
+                    }
+                });
+                const allEvents = pageEvents
+                    .concat(networkEvents);
+                const har = harFromMessages(allEvents, {
+                    includeTextFromResponseBody: args.storeHarBody,
+                });
+                await writeHAR(args, urlToCrawl, har, logger);
+            }
             if (depth > 1) {
                 randomChildUrl = await selectRandomChildUrl(page, logger);
             }

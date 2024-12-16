@@ -1,7 +1,5 @@
-import { writeFile } from 'node:fs/promises'
+import { writeFile, rm } from 'node:fs/promises'
 import { join, parse } from 'node:path'
-
-import { remove } from 'fs-extra'
 
 import { isDir } from './checks.js'
 
@@ -43,7 +41,7 @@ export const writeGraphML = async (args: CrawlArgs, url: URL,
 }
 
 export const writeHAR = async (args: CrawlArgs, url: URL, har: any,
-                                logger: Logger): Promise<undefined> => {
+                               logger: Logger): Promise<undefined> => {
   try {
     const outputFilename = createHARPath(args, url)
     await writeFile(outputFilename, JSON.stringify(har, null, 4))
@@ -55,5 +53,8 @@ export const writeHAR = async (args: CrawlArgs, url: URL, har: any,
 }
 
 export const deleteAtPath = async (path: FilePath): Promise<undefined> => {
-  await remove(path)
+  await rm(path, {
+    recursive: true,
+    force: true,
+  })
 }

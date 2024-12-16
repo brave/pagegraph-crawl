@@ -5,7 +5,7 @@ Command line tool for crawling web pages with PageGraph.
 
 Install
 ---
-For building the tool, you need to have `tsc` (TypeScript Compiler) package installed.
+Requires a recent version of node (current testing is done on `v23.4.0`).
 
 ```bash
 npm install
@@ -32,11 +32,11 @@ npm run crawl -- \
     --debug debug
 ```
 
-The `-t` specifies how many seconds to crawl the URL provided in `-u` using the PageGraph binary in `-b`. 
+The `-t` specifies how many seconds to crawl the URL provided in `-u` using the PageGraph binary in `-b`.
 
 You can see all supported options:
 ```bash
 npm run crawl -- -h
 ```
 
-**NOTE:** PageGraph currently does not track puppeteer / automation scripts, and so modifying or interacting with the document through [devtools/puppeteer](https://pptr.dev/) while recording a PageGraph file will fail.
+**NOTE:** PageGraph currently does not track puppeteer / automation scripts, and so modifying or interacting with the document through [devtools/puppeteer](https://pptr.dev/) while recording a PageGraph file will likely fail.
