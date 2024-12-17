@@ -78,7 +78,9 @@ describe('PageGraph Crawl CLI', () => {
 
     for (const [cmdKey, cmdValue] of Object.entries(crawlFlags)) {
       crawlCommand.push(cmdKey)
-      crawlCommand.push(cmdValue)
+      if (cmdValue) {
+        crawlCommand.push(cmdValue)
+      }
     }
 
     if (DEBUG) {
@@ -96,6 +98,7 @@ describe('PageGraph Crawl CLI', () => {
     })
   }
 
+  // === SIMPLE TESTS ===
   it('works for simple case', async () => {
     await doCrawl(simpleUrl)
     // Check output/
@@ -111,6 +114,7 @@ describe('PageGraph Crawl CLI', () => {
     expect(graphml).to.contain('hJc9ZK1sGr')
   })
 
+  // === REDIRECT TESTS ===
   it('works for redirect case (same-site)', async () => {
     // Crawl with one redirect, same-site.
     const initialUrl = `${testBaseUrl}/redirect-js-same-site.html`
@@ -231,5 +235,112 @@ describe('PageGraph Crawl CLI', () => {
         expect(graphml).to.not.contain('Jro8qF9KOg')
       }
     })
+  })
+
+  // === HAR TESTS ===
+  const validateHAR = (har) => {
+      let parsedHAR
+      try {
+        parsedHAR = JSON.parse(har)
+      } catch (err) {
+          throw new Error(`Invalid JSON in file: ${harFile}`)
+      }
+
+      expect(parsedHAR).to.be.an('object')
+      expect(parsedHAR.log).to.have.property('pages')
+      expect(parsedHAR.log).to.have.property('entries')
+
+      const entries = parsedHAR.log.entries
+      expect(entries).to.be.an('array')
+      expect(entries).to.have.length.greaterThan(0)
+      
+      entries.forEach(entry => {
+        expect(entry).to.have.property('request')
+        expect(entry).to.have.property('response')
+        expect(entry).to.have.property('timings')
+
+        // Request Checks
+        const request = entry.request;
+        expect(request).to.have.property('method')
+        expect(request).to.have.property('url')
+        expect(request).to.have.property('headers')
+        expect(request.headers).to.be.an('array')
+        expect(request.headers).to.have.length.greaterThan(0)
+
+        // Response Checks
+        const response = entry.response;
+        expect(response).to.have.property('status')
+        expect(response.status).to.be.a('number')
+        expect(response).to.have.property('content')
+        expect(response.content).to.have.property('mimeType')
+        expect(response.content).to.have.property('size')
+
+        // Timing Checks
+        const timings = entry.timings;
+        expect(timings).to.have.property('blocked')
+        expect(timings).to.have.property('dns')
+        expect(timings).to.have.property('connect')
+        expect(timings).to.have.property('send')
+        expect(timings).to.have.property('wait')
+        expect(timings).to.have.property('receive')
+      })
+
+      return parsedHAR;
+  }
+
+  it('HAR works for simple case', async () => {
+    await doCrawl(simpleUrl, {"--har": null})
+    // Check output/
+    expect(existsSync(outputDir)).to.be.true
+    // Check output/page_graph_simple_html.graphml
+    const files = readdirSync(outputDir)
+    expect(files.length).to.equal(2)
+    const harFile = files.find(file => file.endsWith('.har'));
+    expect(harFile).to.not.be.undefined;
+    // Check contents.
+    const har = readFileSync(join(outputDir, harFile), 'UTF-8')
+    expect(har).to.not.contain('hJc9ZK1sGr')    
+    const parsedHAR = validateHAR(har)
+    // Check number of requests. Should have intial and favicon
+    expect(parsedHAR.log.entries.length).to.equal(2)
+  })
+
+  it('HAR body works for simple case', async () => {
+    await doCrawl(simpleUrl, {"--har": null, "--har-body": null})
+    // Check output/
+    expect(existsSync(outputDir)).to.be.true
+    // Check output/page_graph_simple_html.graphml
+    const files = readdirSync(outputDir)
+    expect(files.length).to.equal(2)
+    const harFile = files.find(file => file.endsWith('.har'));
+    expect(harFile).to.not.be.undefined;
+    // Check contents.
+    const har = readFileSync(join(outputDir, harFile), 'UTF-8')
+    expect(har).to.contain('hJc9ZK1sGr')      
+    const parsedHAR = validateHAR(har)
+    // Check number of requests. Should have intial and favicon
+    expect(parsedHAR.log.entries.length).to.equal(2)
+  })
+
+  it('HAR body works for resources case', async () => {
+    const resourcesUrl = `${testBaseUrl}/resources.html`
+    await doCrawl(resourcesUrl, {"--har": null, "--har-body": null})
+    // Check output/
+    expect(existsSync(outputDir)).to.be.true
+    // Check output/page_graph_simple_html.graphml
+    const files = readdirSync(outputDir)
+    expect(files.length).to.equal(2)
+    const harFile = files.find(file => file.endsWith('.har'));
+    expect(harFile).to.not.be.undefined;
+    // Check contents.
+    const har = readFileSync(join(outputDir, harFile), 'UTF-8')   
+    const parsedHAR = validateHAR(har)
+    expect(parsedHAR.log.entries.length).to.equal(5)
+    expect(parsedHAR.log.entries[1].request.url).to.contain('resources-example.js')
+    expect(parsedHAR.log.entries[1].response.status).to.equal(200)
+    expect(parsedHAR.log.entries[2].request.url).to.contain('g7823rbhifgu12.org')
+    expect(parsedHAR.log.entries[2].response.status).to.equal(404)
+    expect(parsedHAR.log.entries[3].request.url).to.contain('resources-example.svg')
+    expect(parsedHAR.log.entries[3].response.content.text).to.contain('<circle')
   })
 })
