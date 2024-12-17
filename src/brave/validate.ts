@@ -2,7 +2,7 @@ import * as fsLib from 'fs'
 import * as osLib from 'os'
 import * as pathLib from 'path'
 
-import * as hasBinLib from 'hasbin'
+import which from 'which'
 
 import { asHTTPUrl, isDir, isExecFile } from './checks.js'
 import { getLoggerForLevel } from './logging.js'
@@ -31,11 +31,13 @@ const guessBinary = (): string | boolean => {
     'brave-browser-stable',
     'brave-browser',
   ]
-  const firstBraveBinary = hasBinLib.first.sync(possibleBraveBinaryNames)
-  if (firstBraveBinary === false) {
-    return false
+  for (const aBinaryName of possibleBraveBinaryNames) {
+    const binaryPath = which.sync(aBinaryName, { nothrow: true })
+    if (binaryPath) {
+      return binaryPath
+    }
   }
-  return firstBraveBinary
+  return false
 }
 
 export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable-line
@@ -90,6 +92,8 @@ export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable
   const userAgent: string | undefined = rawArgs.user_agent
   const crawlDuplicates: boolean = rawArgs.crawl_duplicates
   const screenshot: boolean = rawArgs.screenshot
+  const storeHar: boolean = rawArgs.store_har
+  const storeHarBody: boolean = rawArgs.store_har_body
   const validatedArgs: CrawlArgs = {
     executablePath: String(executablePath),
     outputPath,
@@ -106,6 +110,8 @@ export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable
     userAgent,
     crawlDuplicates,
     screenshot,
+    storeHar,
+    storeHarBody,
   }
 
   if (rawArgs.proxy_server !== undefined) {

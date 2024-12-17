@@ -18,6 +18,9 @@ export default tseslint.config(
       '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/no-unused-vars': ['error', {
         "caughtErrorsIgnorePattern": "ignore"
+      }],
+      'camelcase': ['error', {
+        'properties': 'never'
       }]
     }
   },

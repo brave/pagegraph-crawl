@@ -1,6 +1,5 @@
-import { writeFile } from 'node:fs/promises';
+import { rm, writeFile } from 'node:fs/promises';
 import { join, parse } from 'node:path';
-import { remove } from 'fs-extra';
 import { isDir } from './checks.js';
 const createFilename = (url) => {
     const fileSafeUrl = String(url).replace(/[^\w]/g, '_');
@@ -11,6 +10,11 @@ const createGraphMLPath = (args, url) => {
     return (isDir(args.outputPath) === true)
         ? join(args.outputPath, createFilename(url))
         : args.outputPath;
+};
+const createHARPath = (args, url) => {
+    const outputPath = createGraphMLPath(args, url);
+    const pathParts = parse(outputPath);
+    return pathParts.dir + '/' + pathParts.name + '.har';
 };
 export const createScreenshotPath = (args, url) => {
     const outputPath = createGraphMLPath(args, url);
@@ -27,6 +31,19 @@ export const writeGraphML = async (args, url, response, logger) => {
         logger.error('saving Page.generatePageGraph output: ', String(err));
     }
 };
+export const writeHAR = async (args, url, har, logger) => {
+    try {
+        const outputFilename = createHARPath(args, url);
+        await writeFile(outputFilename, JSON.stringify(har, null, 4));
+        logger.info('Writing HAR file to: ', outputFilename);
+    }
+    catch (err) {
+        logger.error('saving HAR file: ', String(err));
+    }
+};
 export const deleteAtPath = async (path) => {
-    await remove(path);
+    await rm(path, {
+        recursive: true,
+        force: true,
+    });
 };

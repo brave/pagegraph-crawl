@@ -2,3 +2,5 @@ node_modules/
 .DS_Store
 .swp
 .vscode/
+test/debug_output/
+test/output/
