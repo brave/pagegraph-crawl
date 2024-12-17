@@ -4,12 +4,17 @@
 Add ability to record a HAR of the crawled page
 (PR [#180](https://github.com/brave/pagegraph-crawl/pull/180)).
 
-Removed `fs-extras` dependency.
+Removed `fs-extras` and `chai` dependencies, in favor for standard library
+approaches.
 
 Specify and enforce a minimum node version, v20.0.0.
 
 Clean up and reworking of test runner, including removing the hardcoded
 config file for the tests.
+
+Added [standardjs](https://standardjs.com/) linting for test code.
+
+Fixed race in tests that cause random-seeming failures.
 
 
 1.1.2

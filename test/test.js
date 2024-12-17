@@ -1,8 +1,11 @@
-import { spawn } from 'node:child_process'
-import { mkdirSync, rmSync, existsSync, readFileSync, readdirSync, cpSync } from 'node:fs'
-import { resolve, join } from 'node:path'
+/* eslint-env mocha */
 
-import { expect } from 'chai'
+import assert from 'node:assert'
+import { spawn } from 'node:child_process'
+import { tmpdir } from 'node:os'
+import { rmSync, existsSync, readFileSync, readdirSync, mkdtempSync } from 'node:fs'
+import { join } from 'node:path'
+
 import app from './test_server.js'
 
 // Check filename with .startsWith()
@@ -15,39 +18,93 @@ const graphMlExtension = '.graphml'
 const DEBUG = process.env.DEBUG
 const port = process.env.PAGEGRAPH_CRAWL_TEST_PORT || 3000
 const baseUrl = process.env.PAGEGRAPH_CRAWL_TEST_BASE_URL || 'http://localhost'
-const pageGraphBinaryPath = process.env.PAGEGRAPH_CRAWL_TEST_BINARY_PATH
 
 const testBaseUrl = `${baseUrl}:${port}`
 const simpleUrl = `${testBaseUrl}/simple.html`
 const expectedFilenameSimple = getExpectedFilename(simpleUrl)
 
-const outputDir = resolve(join('test', 'output'))
-const debugOutputDir = resolve(join('test', 'debug_output'))
-
 if (DEBUG) {
-  console.log(`outputDir: ${outputDir}`)
-  console.log(`debugOutputDir: ${debugOutputDir}`)
   console.log(`simpleUrl: ${simpleUrl}`)
   console.log(`expectedFilenameSimple: ${expectedFilenameSimple}`)
+}
+
+const createTempOutputDir = () => {
+  const tempDirPath = mkdtempSync(join(tmpdir(), 'pagegraph-crawl-test-'))
+  if (DEBUG) {
+    console.log(`Created temporary directory: ${tempDirPath}`)
+  }
+  return tempDirPath
+}
+
+const cleanupTempOutputDir = (outputPath) => {
+  if (DEBUG) {
+    console.log(`Removing temporary directory: ${outputPath}`)
+  }
+  if (existsSync(outputPath)) {
+    rmSync(outputPath, { recursive: true, force: true })
+  }
+}
+
+const readCrawlResults = (outputPath) => {
+  if (!DEBUG) {
+    return
+  }
+  const files = readdirSync(outputPath)
+  console.log('readCrawlResults:')
+  console.log(`Contents of ${outputPath}: ${JSON.stringify(files)}`)
+  return files
+}
+
+const validateHAR = (har) => {
+  let parsedHAR
+  try {
+    parsedHAR = JSON.parse(har)
+  } catch (err) {
+    throw new Error(`Invalid JSON in file: ${har}`)
+  }
+
+  assert.equal(typeof parsedHAR, 'object')
+  assert.ok(parsedHAR.log.pages !== undefined)
+  assert.ok(parsedHAR.log.entries !== undefined)
+
+  const entries = parsedHAR.log.entries
+  assert.ok(Array.isArray(entries))
+  assert.ok(entries.length > 0)
+
+  for (const entry of entries) {
+    assert.ok(entry.request !== undefined)
+    assert.ok(entry.response !== undefined)
+    assert.ok(entry.timings !== undefined)
+
+    const request = entry.request
+    assert.ok(request.method !== undefined)
+    assert.ok(request.url !== undefined)
+    assert.ok(request.headers !== undefined)
+    assert.ok(Array.isArray(request.headers))
+    assert.ok(request.headers.length > 0)
+
+    const response = entry.response
+    assert.ok(response.status !== undefined)
+    assert.equal(typeof response.status, 'number')
+    assert.ok(response.content !== undefined)
+    assert.ok(response.content.mimeType !== undefined)
+    assert.ok(response.content.size !== undefined)
+
+    const timings = entry.timings
+    assert.ok(timings.blocked !== undefined)
+    assert.ok(timings.dns !== undefined)
+    assert.ok(timings.connect !== undefined)
+    assert.ok(timings.send !== undefined)
+    assert.ok(timings.wait !== undefined)
+    assert.ok(timings.receive !== undefined)
+  }
+
+  return parsedHAR
 }
 
 describe('PageGraph Crawl CLI', () => {
   // Setup and teardown for the test suite.
   let server
-  beforeEach('Create output directory', () => {
-    rmSync(outputDir, { recursive: true, force: true })
-    mkdirSync(outputDir, { recursive: true })
-  })
-  afterEach('Clean up output directory', () => {
-    if (DEBUG) {
-      // Copy over test files to debug output directory for manual inspection.
-      if (!existsSync(debugOutputDir)) {
-        mkdirSync(debugOutputDir, { recursive: true })
-      }
-      cpSync(outputDir, debugOutputDir, {recursive: true});
-    }
-    rmSync(outputDir, { recursive: true, force: true })
-  })
   before((done) => {
     server = app.listen(port, () => {
       done()
@@ -55,15 +112,21 @@ describe('PageGraph Crawl CLI', () => {
   })
   after((done) => {
     server.close(done)
-    DEBUG && console.log('Test server has closed')
+    if (DEBUG) {
+      console.log('Test server has closed')
+    }
   })
 
-  const doCrawl = (url, args) => {
+  const doCrawl = (url, outputDir, args) => {
     const crawlCommand = ['run', 'crawl', '--']
     const crawlFlags = {
       '-u': url,
       '-t': 5,
-      '-o': outputDir,
+      '-o': outputDir
+    }
+
+    if (process.env.PAGEGRAPH_CRAWL_TEST_BINARY_PATH) {
+      crawlFlags['--binary'] = process.env.PAGEGRAPH_CRAWL_TEST_BINARY_PATH
     }
 
     if (DEBUG) {
@@ -100,81 +163,99 @@ describe('PageGraph Crawl CLI', () => {
 
   // === SIMPLE TESTS ===
   it('works for simple case', async () => {
-    await doCrawl(simpleUrl)
-    // Check output/
-    expect(existsSync(outputDir)).to.be.true
-    // Check output/page_graph_simple_html.graphml
-    const files = readdirSync(outputDir)
-    expect(files.length).to.equal(1)
-    const file = files[0]
-    expect(file.startsWith(expectedFilenameSimple)).to.be.true
-    expect(file.endsWith(graphMlExtension)).to.be.true
-    // Check contents.
-    const graphml = readFileSync(join(outputDir, file), 'UTF-8')
-    expect(graphml).to.contain('hJc9ZK1sGr')
+    const testDir = createTempOutputDir()
+    try {
+      await doCrawl(simpleUrl, testDir)
+      const files = readCrawlResults(testDir)
+      assert.equal(files.length, 1)
+
+      const file = files[0]
+      assert.ok(file.startsWith(expectedFilenameSimple))
+      assert.ok(file.endsWith(graphMlExtension))
+
+      const graphml = readFileSync(join(testDir, file), 'UTF-8')
+      assert.ok(graphml.includes('hJc9ZK1sGr'))
+    } finally {
+      cleanupTempOutputDir(testDir)
+    }
   })
 
   // === REDIRECT TESTS ===
   it('works for redirect case (same-site)', async () => {
-    // Crawl with one redirect, same-site.
     const initialUrl = `${testBaseUrl}/redirect-js-same-site.html`
     const expectedFilenameInitial = getExpectedFilename(initialUrl)
-    DEBUG && console.log(`initialUrl: ${initialUrl}`)
-    DEBUG && console.log(`expectedFilenameInitial: ${expectedFilenameInitial}`)
+    if (DEBUG) {
+      console.log(`initialUrl: ${initialUrl}`)
+      console.log(`expectedFilenameInitial: ${expectedFilenameInitial}`)
+    }
 
-    await doCrawl(initialUrl)
-    // Check output/
-    expect(existsSync(outputDir)).to.be.true
-    const files = readdirSync(outputDir)
-    expect(files.length).to.equal(2)
-    files.forEach((file) => {
-      expect(file.endsWith(graphMlExtension)).to.be.true
-      expect(file.startsWith(expectedFilenameSimple) || file.startsWith(expectedFilenameInitial)).to.be.true
-      const graphml = readFileSync(join(outputDir, file), 'UTF-8')
-      if (file.startsWith(expectedFilenameSimple)) {
-        expect(graphml).to.contain('hJc9ZK1sGr')
-        expect(graphml).to.not.contain('W0XNNnar')
-      } else {
-        expect(graphml).to.contain('W0XNNnar')
-        expect(graphml).to.not.contain('hJc9ZK1sGr')
+    const testDir = createTempOutputDir()
+    try {
+      await doCrawl(initialUrl, testDir)
+      const files = readCrawlResults(testDir)
+      assert.equal(files.length, 2)
+
+      for (const file of files) {
+        assert.ok(file.endsWith(graphMlExtension))
+        assert.ok(file.startsWith(expectedFilenameSimple) ||
+          file.startsWith(expectedFilenameInitial))
+
+        const graphml = readFileSync(join(testDir, file), 'UTF-8')
+        if (file.startsWith(expectedFilenameSimple)) {
+          assert.ok(graphml.includes('hJc9ZK1sGr'))
+          assert.ok(graphml.includes('W0XNNnar') === false)
+        } else {
+          assert.ok(graphml.includes('W0XNNnar'))
+          assert.ok(graphml.includes('hJc9ZK1sGr') === false)
+        }
       }
-    })
+    } finally {
+      cleanupTempOutputDir(testDir)
+    }
   })
 
   it('works for multiple redirect case', async () => {
-    // Crawl with multiple redirects, same-site.
     const initialUrl = `${testBaseUrl}/multiple-redirects-js-same-site.html`
     const secondUrl = `${testBaseUrl}/redirect-js-same-site.html`
     const expectedFilenameInitial = getExpectedFilename(initialUrl)
     const expectedFilenameSecond = getExpectedFilename(secondUrl)
-    DEBUG && console.log(`initialUrl: ${initialUrl}`)
-    DEBUG && console.log(`expectedFilenameInitial: ${expectedFilenameInitial}`)
-    DEBUG && console.log(`secondUrl: ${secondUrl}`)
-    DEBUG && console.log(`expectedFilenameSecond: ${expectedFilenameSecond}`)
+    if (DEBUG) {
+      console.log(`initialUrl: ${initialUrl}`)
+      console.log(`expectedFilenameInitial: ${expectedFilenameInitial}`)
+      console.log(`secondUrl: ${secondUrl}`)
+      console.log(`expectedFilenameSecond: ${expectedFilenameSecond}`)
+    }
 
-    await doCrawl(initialUrl)
-    // Check output/
-    expect(existsSync(outputDir)).to.be.true
-    const files = readdirSync(outputDir)
-    expect(files.length).to.equal(3)
-    files.forEach((file) => {
-      expect(file.endsWith(graphMlExtension)).to.be.true
-      expect(file.startsWith(expectedFilenameSimple) || file.startsWith(expectedFilenameInitial) || file.startsWith(expectedFilenameSecond)).to.be.true
-      const graphml = readFileSync(join(outputDir, file), 'UTF-8')
-      if (file.startsWith(expectedFilenameSimple)) {
-        expect(graphml).to.contain('hJc9ZK1sGr')
-        expect(graphml).to.not.contain('W0XNNnar')
-        expect(graphml).to.not.contain('NsybZB0LO4')
-      } else if (file.startsWith(expectedFilenameInitial)) {
-        expect(graphml).to.contain('NsybZB0LO4')
-        expect(graphml).to.not.contain('W0XNNnar')
-        expect(graphml).to.not.contain('hJc9ZK1sGr')
-      } else if (file.startsWith(expectedFilenameSecond)) {
-        expect(graphml).to.contain('W0XNNnar')
-        expect(graphml).to.not.contain('NsybZB0LO4')
-        expect(graphml).to.not.contain('hJc9ZK1sGr')
+    const testDir = createTempOutputDir()
+    try {
+      await doCrawl(initialUrl, testDir)
+      const files = readCrawlResults(testDir)
+      assert.equal(files.length, 3)
+
+      for (const file of files) {
+        assert.ok(file.endsWith(graphMlExtension))
+        assert.ok(file.startsWith(expectedFilenameSimple) ||
+          file.startsWith(expectedFilenameInitial) ||
+          file.startsWith(expectedFilenameSecond))
+
+        const graphml = readFileSync(join(testDir, file), 'UTF-8')
+        if (file.startsWith(expectedFilenameSimple)) {
+          assert.ok(graphml.includes('hJc9ZK1sGr'))
+          assert.ok(graphml.includes('W0XNNnar') === false)
+          assert.ok(graphml.includes('NsybZB0LO4') === false)
+        } else if (file.startsWith(expectedFilenameInitial)) {
+          assert.ok(graphml.includes('NsybZB0LO4'))
+          assert.ok(graphml.includes('W0XNNnar') === false)
+          assert.ok(graphml.includes('hJc9ZK1sGr') === false)
+        } else if (file.startsWith(expectedFilenameSecond)) {
+          assert.ok(graphml.includes('W0XNNnar'))
+          assert.ok(graphml.includes('NsybZB0LO4') === false)
+          assert.ok(graphml.includes('hJc9ZK1sGr') === false)
+        }
       }
-    })
+    } finally {
+      cleanupTempOutputDir(testDir)
+    }
   })
 
   it('works for redirect case (cross-site)', async () => {
@@ -184,27 +265,33 @@ describe('PageGraph Crawl CLI', () => {
     const finalUrl = 'http://127.0.0.1:3000/simple.html'
     const expectedFilenameInitial = getExpectedFilename(initialUrl)
     const expectedFilenameFinal = getExpectedFilename(finalUrl)
-    DEBUG && console.log(`initialUrl: ${initialUrl}`)
-    DEBUG && console.log(`expectedFilenameInitial: ${expectedFilenameInitial}`)
+    if (DEBUG) {
+      console.log(`initialUrl: ${initialUrl}`)
+      console.log(`expectedFilenameInitial: ${expectedFilenameInitial}`)
+    }
 
-    await doCrawl(initialUrl)
+    const testDir = createTempOutputDir()
+    try {
+      await doCrawl(initialUrl, testDir)
+      const files = readCrawlResults(testDir)
+      assert.equal(files.length, 2)
 
-    // Check output/
-    expect(existsSync(outputDir)).to.be.true
-    const files = readdirSync(outputDir)
-    expect(files.length).to.equal(2)
-    files.forEach((file) => {
-      expect(file.endsWith(graphMlExtension)).to.be.true
-      expect(file.startsWith(expectedFilenameFinal) || file.startsWith(expectedFilenameInitial)).to.be.true
-      const graphml = readFileSync(join(outputDir, file), 'UTF-8')
-      if (file.startsWith(expectedFilenameInitial)) {
-        expect(graphml).to.contain('Zym8MZp')
-        expect(graphml).to.not.contain('hJc9ZK1sGr')
-      } else {
-        expect(graphml).to.contain('hJc9ZK1sGr')
-        expect(graphml).to.not.contain('Zym8MZp')
+      for (const file of files) {
+        assert.ok(file.endsWith(graphMlExtension))
+        assert.ok(file.startsWith(expectedFilenameFinal) ||
+          file.startsWith(expectedFilenameInitial))
+        const graphml = readFileSync(join(testDir, file), 'UTF-8')
+        if (file.startsWith(expectedFilenameInitial)) {
+          assert.ok(graphml.includes('Zym8MZp'))
+          assert.ok(graphml.includes('hJc9ZK1sGr') === false)
+        } else {
+          assert.ok(graphml.includes('hJc9ZK1sGr'))
+          assert.ok(graphml.includes('Zym8MZp') === false)
+        }
       }
-    })
+    } finally {
+      cleanupTempOutputDir(testDir)
+    }
   })
 
   it('works for redirect chain case (A->B->A)', async () => {
@@ -214,133 +301,108 @@ describe('PageGraph Crawl CLI', () => {
     const finalUrl = 'http://127.0.0.1:3000/redirect-chain-B.html'
     const expectedFilenameInitial = getExpectedFilename(initialUrl)
     const expectedFilenameFinal = getExpectedFilename(finalUrl)
-    DEBUG && console.log(`initialUrl: ${initialUrl}`)
-    DEBUG && console.log(`expectedFilenameInitial: ${expectedFilenameInitial}`)
+    if (DEBUG) {
+      console.log(`initialUrl: ${initialUrl}`)
+      console.log(`expectedFilenameInitial: ${expectedFilenameInitial}`)
+    }
 
-    await doCrawl(initialUrl)
+    const testDir = createTempOutputDir()
+    try {
+      await doCrawl(initialUrl, testDir)
+      const files = readCrawlResults(testDir)
+      assert.equal(files.length, 2)
 
-    // Check output/
-    expect(existsSync(outputDir)).to.be.true
-    const files = readdirSync(outputDir)
-    expect(files.length).to.equal(2)
-    files.forEach((file) => {
-      expect(file.endsWith(graphMlExtension)).to.be.true
-      expect(file.startsWith(expectedFilenameFinal) || file.startsWith(expectedFilenameInitial)).to.be.true
-      const graphml = readFileSync(join(outputDir, file), 'UTF-8')
-      if (file.startsWith(expectedFilenameInitial)) {
-        expect(graphml).to.contain('Jro8qF9KOg')
-        expect(graphml).to.not.contain('Ec9Z5dlgA5')
-      } else {
-        expect(graphml).to.contain('Ec9Z5dlgA5')
-        expect(graphml).to.not.contain('Jro8qF9KOg')
-      }
-    })
+      files.forEach((file) => {
+        assert.ok(file.endsWith(graphMlExtension))
+        assert.ok(file.startsWith(expectedFilenameFinal) ||
+          file.startsWith(expectedFilenameInitial))
+        const graphml = readFileSync(join(testDir, file), 'UTF-8')
+        if (file.startsWith(expectedFilenameInitial)) {
+          assert.ok(graphml.includes('Jro8qF9KOg'))
+          assert.ok(graphml.includes('Ec9Z5dlgA5') === false)
+        } else {
+          assert.ok(graphml.includes('Ec9Z5dlgA5'))
+          assert.ok(graphml.includes('Jro8qF9KOg') === false)
+        }
+      })
+    } finally {
+      cleanupTempOutputDir(testDir)
+    }
   })
 
-  // === HAR TESTS ===
-  const validateHAR = (har) => {
-      let parsedHAR
-      try {
-        parsedHAR = JSON.parse(har)
-      } catch (err) {
-          throw new Error(`Invalid JSON in file: ${harFile}`)
-      }
-
-      expect(parsedHAR).to.be.an('object')
-      expect(parsedHAR.log).to.have.property('pages')
-      expect(parsedHAR.log).to.have.property('entries')
-
-      const entries = parsedHAR.log.entries
-      expect(entries).to.be.an('array')
-      expect(entries).to.have.length.greaterThan(0)
-      
-      entries.forEach(entry => {
-        expect(entry).to.have.property('request')
-        expect(entry).to.have.property('response')
-        expect(entry).to.have.property('timings')
-
-        // Request Checks
-        const request = entry.request;
-        expect(request).to.have.property('method')
-        expect(request).to.have.property('url')
-        expect(request).to.have.property('headers')
-        expect(request.headers).to.be.an('array')
-        expect(request.headers).to.have.length.greaterThan(0)
-
-        // Response Checks
-        const response = entry.response;
-        expect(response).to.have.property('status')
-        expect(response.status).to.be.a('number')
-        expect(response).to.have.property('content')
-        expect(response.content).to.have.property('mimeType')
-        expect(response.content).to.have.property('size')
-
-        // Timing Checks
-        const timings = entry.timings;
-        expect(timings).to.have.property('blocked')
-        expect(timings).to.have.property('dns')
-        expect(timings).to.have.property('connect')
-        expect(timings).to.have.property('send')
-        expect(timings).to.have.property('wait')
-        expect(timings).to.have.property('receive')
-      })
-
-      return parsedHAR;
-  }
-
   it('HAR works for simple case', async () => {
-    await doCrawl(simpleUrl, {"--har": null})
-    // Check output/
-    expect(existsSync(outputDir)).to.be.true
-    // Check output/page_graph_simple_html.graphml
-    const files = readdirSync(outputDir)
-    expect(files.length).to.equal(2)
-    const harFile = files.find(file => file.endsWith('.har'));
-    expect(harFile).to.not.be.undefined;
-    // Check contents.
-    const har = readFileSync(join(outputDir, harFile), 'UTF-8')
-    expect(har).to.not.contain('hJc9ZK1sGr')    
-    const parsedHAR = validateHAR(har)
-    // Check number of requests. Should have intial and favicon
-    expect(parsedHAR.log.entries.length).to.equal(2)
+    const testDir = createTempOutputDir()
+    try {
+      await doCrawl(simpleUrl, testDir, { '--har': null })
+      const files = readCrawlResults(testDir)
+      assert.equal(files.length, 2)
+
+      const harFile = files.find(file => file.endsWith('.har'))
+      assert.ok(harFile !== undefined)
+
+      const har = readFileSync(join(testDir, harFile), 'UTF-8')
+      assert.ok(har.includes('hJc9ZK1sGr') === false)
+      const parsedHAR = validateHAR(har)
+
+      assert.equal(parsedHAR.log.entries.length, 2)
+    } finally {
+      cleanupTempOutputDir(testDir)
+    }
   })
 
   it('HAR body works for simple case', async () => {
-    await doCrawl(simpleUrl, {"--har": null, "--har-body": null})
-    // Check output/
-    expect(existsSync(outputDir)).to.be.true
-    // Check output/page_graph_simple_html.graphml
-    const files = readdirSync(outputDir)
-    expect(files.length).to.equal(2)
-    const harFile = files.find(file => file.endsWith('.har'));
-    expect(harFile).to.not.be.undefined;
-    // Check contents.
-    const har = readFileSync(join(outputDir, harFile), 'UTF-8')
-    expect(har).to.contain('hJc9ZK1sGr')      
-    const parsedHAR = validateHAR(har)
-    // Check number of requests. Should have intial and favicon
-    expect(parsedHAR.log.entries.length).to.equal(2)
+    const testDir = createTempOutputDir()
+    try {
+      await doCrawl(simpleUrl, testDir, { '--har': null, '--har-body': null })
+      const files = readCrawlResults(testDir)
+      assert.equal(files.length, 2)
+
+      const harFile = files.find(file => file.endsWith('.har'))
+      assert.ok(harFile !== undefined)
+
+      const har = readFileSync(join(testDir, harFile), 'UTF-8')
+      assert.ok(har.includes('hJc9ZK1sGr'))
+      const parsedHAR = validateHAR(har)
+
+      assert.equal(parsedHAR.log.entries.length, 2)
+    } finally {
+      cleanupTempOutputDir(testDir)
+    }
   })
 
   it('HAR body works for resources case', async () => {
     const resourcesUrl = `${testBaseUrl}/resources.html`
-    await doCrawl(resourcesUrl, {"--har": null, "--har-body": null})
-    // Check output/
-    expect(existsSync(outputDir)).to.be.true
-    // Check output/page_graph_simple_html.graphml
-    const files = readdirSync(outputDir)
-    expect(files.length).to.equal(2)
-    const harFile = files.find(file => file.endsWith('.har'));
-    expect(harFile).to.not.be.undefined;
-    // Check contents.
-    const har = readFileSync(join(outputDir, harFile), 'UTF-8')   
-    const parsedHAR = validateHAR(har)
-    expect(parsedHAR.log.entries.length).to.equal(5)
-    expect(parsedHAR.log.entries[1].request.url).to.contain('resources-example.js')
-    expect(parsedHAR.log.entries[1].response.status).to.equal(200)
-    expect(parsedHAR.log.entries[2].request.url).to.contain('g7823rbhifgu12.org')
-    expect(parsedHAR.log.entries[2].response.status).to.equal(404)
-    expect(parsedHAR.log.entries[3].request.url).to.contain('resources-example.svg')
-    expect(parsedHAR.log.entries[3].response.content.text).to.contain('<circle')
+
+    const testDir = createTempOutputDir()
+    try {
+      await doCrawl(resourcesUrl, testDir, {
+        '--har': null,
+        '--har-body': null
+      })
+      const files = readCrawlResults(testDir)
+      assert.equal(files.length, 2)
+
+      const harFile = files.find(file => file.endsWith('.har'))
+      assert.ok(harFile !== undefined)
+
+      const har = readFileSync(join(testDir, harFile), 'UTF-8')
+      const parsedHAR = validateHAR(har)
+      assert.equal(parsedHAR.log.entries.length, 5)
+
+      const firstLogEntry = parsedHAR.log.entries[1]
+      const secondLogEntry = parsedHAR.log.entries[2]
+      const thirdLogEntry = parsedHAR.log.entries[3]
+
+      assert.ok(firstLogEntry.request.url.endsWith('resources/script.js'))
+      assert.equal(firstLogEntry.response.status, 200)
+
+      assert.ok(secondLogEntry.request.url.includes('g7823rbhifgu12.org'))
+      assert.equal(secondLogEntry.response.status, 404)
+
+      assert.ok(thirdLogEntry.request.url.endsWith('resources/document.svg'))
+      assert.ok(thirdLogEntry.response.content.text.includes('<circle'))
+    } finally {
+      cleanupTempOutputDir(testDir)
+    }
   })
 })
