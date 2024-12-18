@@ -32,7 +32,6 @@
     "argparse": "2.0.0",
     "chrome-har": "1.0.1",
     "puppeteer-core": "23.10.4",
-    "tree-kill": "^1.2.2",
     "which": "5.0.0",
     "xvfb": "0.4.0"
   },
@@ -47,7 +46,8 @@
     "eslint": "9.17.0",
     "http-server": "14.1.1",
     "mocha": "11.0.1",
-    "neostandard": "^0.12.0",
+    "neostandard": "0.12.0",
+    "tree-kill": "1.2.2",
     "typescript": "5.7.2",
     "typescript-eslint": "8.18.0"
   }
