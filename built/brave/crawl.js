@@ -218,17 +218,28 @@ export const doCrawl = async (args, previouslySeenUrls) => {
             await writeGraphML(args, urlToCrawl, response, logger);
             // Store HAR
             if (args.storeHar) {
-                // ensure that all bodies are loaded
+                logger.verbose('Beginning HAR export');
                 await Promise.all(responseBodies);
-                // merge responses and bodies
-                networkEvents.forEach((event) => {
-                    if (args.storeHarBody && event.method == 'Network.responseReceived') {
-                        const requestId = event.params.requestId;
-                        const responseBody = responseBodies.get(requestId.toString());
-                        const responseParams = event.params;
-                        responseParams.response.body = Buffer.from(responseBody.body, responseBody.base64Encoded ? 'base64' : undefined).toString();
+                for (const event of networkEvents) {
+                    if (!args.storeHarBody) {
+                        break;
                     }
-                });
+                    if (event.method !== 'Network.responseReceived') {
+                        continue;
+                    }
+                    const requestId = event.params.requestId;
+                    const responseBody = responseBodies.get(requestId.toString());
+                    const responseParams = event.params;
+                    if (!responseBody) {
+                        responseParams.response.body = undefined;
+                        continue;
+                    }
+                    const responseBodyEncoding = responseBody.base64Encoded
+                        ? 'base64'
+                        : undefined;
+                    const responseBodyBuffer = Buffer.from(responseBody.body, responseBodyEncoding);
+                    responseParams.response.body = responseBodyBuffer.toString();
+                }
                 const allEvents = pageEvents
                     .concat(networkEvents);
                 const har = harFromMessages(allEvents, {

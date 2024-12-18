@@ -1,3 +1,10 @@
+1.2.0
+---
+
+Removed some additional, unused dependencies, including the no longer needed
+type packages for previously removed dependencies.
+
+
 1.1.3
 ---
 

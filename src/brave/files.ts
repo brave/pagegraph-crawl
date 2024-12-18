@@ -1,4 +1,5 @@
-import { rm, writeFile } from 'node:fs/promises'
+import { rm, writeFile, mkdtemp } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { join, parse } from 'node:path'
 
 import { isDir } from './checks.js'
@@ -32,8 +33,8 @@ export const writeGraphML = async (args: CrawlArgs, url: URL,
                                    logger: Logger): Promise<undefined> => {
   try {
     const outputFilename = createGraphMLPath(args, url)
-    await writeFile(outputFilename, response.data)
     logger.info('Writing PageGraph file to: ', outputFilename)
+    await writeFile(outputFilename, response.data)
   }
   catch (err) {
     logger.error('saving Page.generatePageGraph output: ', String(err))
@@ -44,8 +45,8 @@ export const writeHAR = async (args: CrawlArgs, url: URL, har: any,
                                logger: Logger): Promise<undefined> => {
   try {
     const outputFilename = createHARPath(args, url)
-    await writeFile(outputFilename, JSON.stringify(har, null, 4))
     logger.info('Writing HAR file to: ', outputFilename)
+    await writeFile(outputFilename, JSON.stringify(har, null, 4))
   }
   catch (err) {
     logger.error('saving HAR file: ', String(err))
@@ -57,4 +58,8 @@ export const deleteAtPath = async (path: FilePath): Promise<undefined> => {
     recursive: true,
     force: true,
   })
+}
+
+export const createTempDir = async (dirPrefix = 'pagegraph-crawl-'): Promise<FilePath> => {
+  return await mkdtemp(join(tmpdir(), dirPrefix))
 }

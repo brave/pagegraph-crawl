@@ -1,9 +1,8 @@
 import { cp } from 'node:fs/promises';
-import * as pathLib from 'path';
-import tmpLib from 'tmp';
+import { join } from 'path';
 import puppeteerLib from 'puppeteer-core';
 import { isDir } from './checks.js';
-import { deleteAtPath } from './files.js';
+import { deleteAtPath, createTempDir } from './files.js';
 import { getLogger } from './logging.js';
 const disabledBraveFeatures = [
     'Speedreader',
@@ -39,15 +38,15 @@ const profilePathForArgs = async (args) => {
     }
     // Next, figure out which existing profile we're going to use as the
     // template / starter profile for the new crawl.
-    const resourcesDirPath = pathLib.join(process.cwd(), 'resources');
+    const resourcesDirPath = join(process.cwd(), 'resources');
     const templateProfile = args.withShieldsUp
-        ? pathLib.join(resourcesDirPath, 'shields-up-profile')
-        : pathLib.join(resourcesDirPath, 'shields-down-profile');
+        ? join(resourcesDirPath, 'shields-up-profile')
+        : join(resourcesDirPath, 'shields-down-profile');
     // Finally, either copy the above profile to the destination path
     // that was specified, or figure out a temporary location for it.
     const destProfilePath = args.persistProfilePath !== undefined
         ? args.persistProfilePath
-        : tmpLib.dirSync({ prefix: 'pagegraph-profile-' }).name;
+        : await createTempDir('pagegraph-profile-');
     const shouldClean = args.persistProfilePath === undefined;
     if (isDir(destProfilePath)) {
         logger.info(`Profile exists at ${String(destProfilePath)}, so deleting.`);
