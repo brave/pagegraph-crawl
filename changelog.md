@@ -1,3 +1,16 @@
+1.2.0
+---
+
+Removed some additional, unused dependencies, including the no longer needed
+type packages for previously removed dependencies.
+
+Move from `standard` to `neostandard` for linting testing code.
+
+Small bugfixes in handling unexpected request responses in the HAR parsing.
+
+Remove `express` and use `http-server` instead (to further reduce dependencies).
+
+
 1.1.3
 ---
 

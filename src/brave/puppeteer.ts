@@ -1,14 +1,11 @@
 import { cp } from 'node:fs/promises'
-import * as pathLib from 'path'
+import { join } from 'path'
 
-import tmpLib from 'tmp'
 import puppeteerLib from 'puppeteer-core'
-// import { PuppeteerExtra, VanillaPuppeteer } from 'puppeteer-extra'
-// import stealthPluginLib from 'puppeteer-extra-plugin-stealth'
 import type { LaunchOptions, Process } from 'puppeteer-core'
 
 import { isDir } from './checks.js'
-import { deleteAtPath } from './files.js'
+import { deleteAtPath, createTempDir } from './files.js'
 import { getLogger } from './logging.js'
 
 type LaunchOptionsType = typeof LaunchOptions
@@ -58,16 +55,16 @@ const profilePathForArgs = async (args: CrawlArgs): Promise<ProfilePath> => {
 
   // Next, figure out which existing profile we're going to use as the
   // template / starter profile for the new crawl.
-  const resourcesDirPath = pathLib.join(process.cwd(), 'resources')
+  const resourcesDirPath = join(process.cwd(), 'resources')
   const templateProfile = args.withShieldsUp
-    ? pathLib.join(resourcesDirPath, 'shields-up-profile')
-    : pathLib.join(resourcesDirPath, 'shields-down-profile')
+    ? join(resourcesDirPath, 'shields-up-profile')
+    : join(resourcesDirPath, 'shields-down-profile')
 
   // Finally, either copy the above profile to the destination path
   // that was specified, or figure out a temporary location for it.
   const destProfilePath = args.persistProfilePath !== undefined
     ? args.persistProfilePath
-    : tmpLib.dirSync({ prefix: 'pagegraph-profile-' }).name
+    : await createTempDir('pagegraph-profile-')
 
   const shouldClean = args.persistProfilePath === undefined
 

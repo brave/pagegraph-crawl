@@ -1,6 +1,5 @@
 declare module 'argparse'
 declare module 'puppeteer-core'
-declare module 'tmp'
 declare module 'xvfb'
 declare module 'chrome-har'
 
