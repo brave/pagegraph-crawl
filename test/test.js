@@ -1,8 +1,10 @@
-/* eslint-env mocha */
+/* global describe, before, after, it */
 
 import assert from 'node:assert'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
+
+import kill from 'tree-kill'
 
 import {
   startServer, createTempOutputDir, cleanupTempOutputDir,
@@ -35,8 +37,8 @@ describe('PageGraph Crawl CLI', () => {
   before(async () => {
     serverProcessHandle = await startServer(testServerPort, DEBUG)
   })
-  after(async (done) => {
-    serverProcessHandle.kill()
+  after((done) => {
+    kill(serverProcessHandle.pid)
     if (DEBUG) {
       console.log('Test server has closed')
     }

@@ -76,16 +76,27 @@ export const readCrawlResults = async (outputPath, debug = false) => {
 export const startServer = (port = 8080, debug = false) => {
   const testPagesPath = join(new URL('.', import.meta.url).pathname, 'pages')
   const httpServerCmd = ['http-server', testPagesPath, '-p', port]
-  const serverProcess = spawn('npx', httpServerCmd, {
+
+  const spawnOptions = {
     stdio: ['ignore', 'pipe', 'inherit']
-  })
+  }
+  if (debug === false) {
+    // This is kinda a lot, but unless we're in debug mode, we suppress
+    // all warnings from the http-server, in order to suppress
+    // the not-helpful-at-all deprecation error.
+    const currentEnv = JSON.parse(JSON.stringify(process.env))
+    currentEnv.NODE_NO_WARNINGS = '1'
+    spawnOptions.env = currentEnv
+  }
+
+  const serverProcess = spawn('npx', httpServerCmd, spawnOptions)
 
   return new Promise((resolve) => {
     let hasResolved = false
     const bootMsg = 'Hit CTRL-C to stop the server'
 
     serverProcess.stdout.on('data', data => {
-      const msg = data.toString("utf-8")
+      const msg = data.toString()
       const isFirstBootMsg = msg.includes(bootMsg)
       if (debug) {
         process.stdout.write(msg)
@@ -93,7 +104,6 @@ export const startServer = (port = 8080, debug = false) => {
       if (isFirstBootMsg && hasResolved === false) {
         hasResolved = true
         resolve(serverProcess)
-        return
       }
     })
   })
