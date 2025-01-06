@@ -29,9 +29,9 @@
   "types": "./src/declarations.d.ts",
   "license": "MPL-2.0",
   "dependencies": {
-    "argparse": "2.0.0",
+    "argparse": "2.0.1",
     "chrome-har": "1.0.1",
-    "puppeteer-core": "23.10.4",
+    "puppeteer-core": "23.11.1",
     "which": "5.0.0",
     "xvfb": "0.4.0"
   },
