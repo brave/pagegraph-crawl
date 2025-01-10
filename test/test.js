@@ -3,9 +3,7 @@
 import assert from 'node:assert'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import nodeGzip from 'node-gzip';
-const { ungzip } = nodeGzip;
-
+import nodeGzip from 'node-gzip'
 import kill from 'tree-kill'
 
 import {
@@ -22,6 +20,8 @@ const graphMlExtension = '.graphml'
 const testBaseUrl = `${baseUrl}:${testServerPort}`
 const simpleUrl = `${testBaseUrl}/simple.html`
 const expectedFilenameSimple = getExpectedFilename(simpleUrl)
+
+const { ungzip } = nodeGzip
 
 const _crawlUrl = async (url, outputDir, args) => {
   return await crawlUrl(url, outputDir, args, binaryPath, DEBUG)
@@ -74,10 +74,10 @@ describe('PageGraph Crawl CLI', () => {
 
         const file = files[0]
         assert.ok(file.startsWith(expectedFilenameSimple))
-        assert.ok(file.endsWith(graphMlExtension + ".gz"))
-        
-        const graphml_compressed = await readFile(join(testDir, file))
-        const graphml = await ungzip(graphml_compressed)
+        assert.ok(file.endsWith(graphMlExtension + '.gz'))
+
+        const graphmlCompressed = await readFile(join(testDir, file))
+        const graphml = await ungzip(graphmlCompressed)
         assert.ok(graphml.includes('hJc9ZK1sGr'))
       } finally {
         await _cleanupTempOutputDir(testDir)
