@@ -27,6 +27,7 @@ interface CrawlArgs {
   stealth: boolean
   storeHar: boolean
   storeHarBody: boolean
+  compress: boolean
 }
 
 type ValidationResult = [boolean, CrawlArgs | ErrorMsg]

@@ -94,6 +94,7 @@ export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable
   const screenshot: boolean = rawArgs.screenshot
   const storeHar: boolean = rawArgs.store_har
   const storeHarBody: boolean = rawArgs.store_har_body
+  const compress: boolean = rawArgs.compress
   const validatedArgs: CrawlArgs = {
     executablePath: String(executablePath),
     outputPath,
@@ -112,6 +113,7 @@ export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable
     screenshot,
     storeHar,
     storeHarBody,
+    compress,
   }
 
   if (rawArgs.proxy_server !== undefined) {
