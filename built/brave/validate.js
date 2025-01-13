@@ -84,6 +84,7 @@ export const validate = (rawArgs) => {
     const screenshot = rawArgs.screenshot;
     const storeHar = rawArgs.store_har;
     const storeHarBody = rawArgs.store_har_body;
+    const compress = rawArgs.compress;
     const validatedArgs = {
         executablePath: String(executablePath),
         outputPath,
@@ -102,6 +103,7 @@ export const validate = (rawArgs) => {
         screenshot,
         storeHar,
         storeHarBody,
+        compress,
     };
     if (rawArgs.proxy_server !== undefined) {
         try {
