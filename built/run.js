@@ -105,6 +105,12 @@ parser.add_argument('--har-body', {
     dest: 'store_har_body',
     default: false,
 });
+parser.add_argument('-z', '--compress', {
+    help: 'Compresses the graphml file as gzip.',
+    action: 'store_true',
+    dest: 'compress',
+    default: false,
+});
 // parser.add_argument('--no-stealth', {
 //   help: 'Do not enable the "puppeteer-extra-plugin-stealth" extension.',
 //   default: false,

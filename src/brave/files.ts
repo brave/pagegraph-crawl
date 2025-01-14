@@ -1,31 +1,42 @@
 import { rm, writeFile, mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, parse } from 'node:path'
+import { gzip } from 'node-gzip'
 
 import { isDir } from './checks.js'
 
+const dateTimeStamp = Math.floor(Date.now() / 1000)
+
 const createFilename = (url: URL): FilePath => {
   const fileSafeUrl = String(url).replace(/[^\w]/g, '_')
-  const dateTimeStamp = Math.floor(Date.now() / 1000)
-  return ['page_graph_', fileSafeUrl, '_', dateTimeStamp, '.graphml'].join('')
+  return ['page_graph_', fileSafeUrl, '_', dateTimeStamp].join('')
+}
+const createOutputPath = (args: CrawlArgs, url: URL): FilePath => {
+  if (isDir(args.outputPath) === true) {
+    return join(args.outputPath, createFilename(url))
+  }
+  else {
+    const pathParts = parse(args.outputPath)
+    return pathParts.dir + '/' + pathParts.name
+  }
 }
 
 const createGraphMLPath = (args: CrawlArgs, url: URL): FilePath => {
-  return (isDir(args.outputPath) === true)
-    ? join(args.outputPath, createFilename(url))
-    : args.outputPath
+  let outputPath: string = join(createOutputPath(args, url) + '.graphml')
+  if (args.compress === true) {
+    outputPath = outputPath + '.gz'
+  }
+  return outputPath
 }
 
 const createHARPath = (args: CrawlArgs, url: URL): FilePath => {
-  const outputPath = createGraphMLPath(args, url)
-  const pathParts = parse(outputPath)
-  return pathParts.dir + '/' + pathParts.name + '.har'
+  const outputPath = join(createOutputPath(args, url) + '.har')
+  return outputPath
 }
 
 export const createScreenshotPath = (args: CrawlArgs, url: URL): FilePath => {
-  const outputPath = createGraphMLPath(args, url)
-  const pathParts = parse(outputPath)
-  return pathParts.dir + '/' + pathParts.name + '.png'
+  const outputPath = join(createOutputPath(args, url) + '.png')
+  return outputPath
 }
 
 export const writeGraphML = async (args: CrawlArgs, url: URL,
@@ -34,7 +45,10 @@ export const writeGraphML = async (args: CrawlArgs, url: URL,
   try {
     const outputFilename = createGraphMLPath(args, url)
     logger.info('Writing PageGraph file to: ', outputFilename)
-    await writeFile(outputFilename, response.data)
+    const data = args.compress
+      ? await gzip(response.data)
+      : response.data
+    await writeFile(outputFilename, data)
   }
   catch (err) {
     logger.error('saving Page.generatePageGraph output: ', String(err))
