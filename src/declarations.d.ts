@@ -15,8 +15,8 @@ interface CrawlArgs {
   withShieldsUp: boolean
   loggingLevel: LoggingLevel
   seconds: number
-  existingProfilePath?: FilePath
-  persistProfilePath?: FilePath
+  existingUserDataDirPath?: FilePath
+  persistUserDataDirPath?: FilePath
   extensionsPath?: FilePath
   interactive: boolean
   userAgent?: string

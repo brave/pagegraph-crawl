@@ -11,7 +11,7 @@ const parser = new ArgumentParser({
 });
 parser.add_argument('-v', '--version', {
     action: 'version',
-    version: '0.3',
+    version: '1.2.1',
 });
 parser.add_argument('-b', '--binary', {
     help: 'Path to the PageGraph enabled build of Brave. If not provided, '
@@ -32,13 +32,13 @@ parser.add_argument('-u', '--url', {
     help: 'The URLs to record.',
     required: true,
 });
-parser.add_argument('-e', '--existing-profile', {
-    help: 'The chromium profile to use when crawling. Cannot '
-        + 'be used with "--persist-profile"',
+parser.add_argument('-e', '--existing-user-data-dir', {
+    help: 'The chromium user data directory to use when crawling. Cannot '
+        + 'be used with "--persist-user-data-dir"',
 });
-parser.add_argument('-p', '--persist-profile', {
-    help: 'If provided, the user profile will be saved at this path. Cannot '
-        + 'be used with "--existing-profile"',
+parser.add_argument('-p', '--persist-user-data-dir', {
+    help: 'If provided, the user data directory will be saved at this path. '
+        + 'Cannot be used with "--existing-user-data-dir"',
     default: false,
     action: 'store_true',
 });
@@ -48,7 +48,7 @@ parser.add_argument('--extensions-path', {
 });
 parser.add_argument('-s', '--shields', {
     help: 'Whether to measure with shields up or down. Ignored when using '
-        + `"--existing-profile".  Default: ${defaultShieldsSetting}`,
+        + `"--existing-user-data-dir".  Default: ${defaultShieldsSetting}`,
     choices: ['up', 'down'],
     default: defaultShieldsSetting,
 });
