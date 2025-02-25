@@ -48,9 +48,9 @@ const profilePathForArgs = async (args: CrawlArgs): Promise<ProfilePath> => {
 
   // The easiest case is if we've been told to use an existing profile.
   // In this case, just return the given path.
-  if (args.existingProfilePath !== undefined) {
-    logger.verbose(`Crawling with profile at ${args.existingProfilePath}.`)
-    return { profilePath: args.existingProfilePath, shouldClean: false }
+  if (args.existingUserDataDirPath !== undefined) {
+    logger.verbose(`Crawling with profile at ${args.existingUserDataDirPath}.`)
+    return { profilePath: args.existingUserDataDirPath, shouldClean: false }
   }
 
   // Next, figure out which existing profile we're going to use as the
@@ -62,11 +62,11 @@ const profilePathForArgs = async (args: CrawlArgs): Promise<ProfilePath> => {
 
   // Finally, either copy the above profile to the destination path
   // that was specified, or figure out a temporary location for it.
-  const destProfilePath = args.persistProfilePath !== undefined
-    ? args.persistProfilePath
+  const destProfilePath = args.persistUserDataDirPath !== undefined
+    ? args.persistUserDataDirPath
     : await createTempDir('pagegraph-profile-')
 
-  const shouldClean = args.persistProfilePath === undefined
+  const shouldClean = args.persistUserDataDirPath === undefined
 
   if (isDir(destProfilePath)) {
     logger.info(`Profile exists at ${String(destProfilePath)}, so deleting.`)

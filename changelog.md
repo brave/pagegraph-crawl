@@ -1,3 +1,11 @@
+1.2.1
+---
+
+Rename several arguments (e.g., `--persist-profile`, `--existing-profile`,
+etc.) to make it clearer that these arguments should point to the parent
+`--user-data-dir` directory, and not a particular profile within that directory.
+
+
 1.2.0
 ---
 

@@ -75,7 +75,10 @@ export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable
         fsLib.mkdirSync(rawArgs.output)
       }
       catch (e) {
-        return [false, 'Invalid path to write results to and unable to create the directory:\n' + String(e)]
+        return [
+          false,
+          'Invalid path to write results to; unable to create the directory:\n'
+          + String(e)]
       }
     }
   }
@@ -103,8 +106,8 @@ export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable
     seconds: secs,
     withShieldsUp: (rawArgs.shields === 'up'),
     loggingLevel: rawArgs.logging,
-    existingProfilePath: undefined,
-    persistProfilePath: undefined,
+    existingUserDataDirPath: undefined,
+    persistUserDataDirPath: undefined,
     extensionsPath: undefined,
     stealth: false,
     interactive,
@@ -134,30 +137,34 @@ export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable
     }
   }
 
-  const isPersistProfile = rawArgs.persist_profile === true
-  if (rawArgs.existing_profile === undefined && isPersistProfile) {
+  const isPersistUserDataDir = rawArgs.persist_user_data_dir === true
+  if (rawArgs.existing_user_data_dir === undefined && isPersistUserDataDir) {
     return [
       false,
-      'Cannot specify both that you want to use an existing profile, and that you want to persist a new profile.',
+      'Cannot specify both that you want to use an existing user data dir, '
+      + 'and that you want to persist a new user data dir.',
     ]
   }
 
-  if (rawArgs.existing_profile !== undefined) {
-    if (!isDir(rawArgs.existing_profile)) {
+  if (rawArgs.existing_user_data_dir !== undefined) {
+    if (!isDir(rawArgs.existing_user_data_dir)) {
       return [
         false,
-        'Provided existing profile path is not a directory: ' + String(rawArgs.existing_profile),
+        'Provided existing profile path is not a directory: '
+        + String(rawArgs.existing_user_data_dir),
       ]
     }
-    validatedArgs.existingProfilePath = rawArgs.existing_profile
+    validatedArgs.existingUserDataDirPath = rawArgs.existing_user_data_dir
   }
 
-  if (rawArgs.persist_profile === true) {
-    if (isDir(rawArgs.persist_profile) || isExecFile(rawArgs.persist_profile)) {
+  if (rawArgs.persist_user_data_dir === true) {
+    const userDataPathIsDir = isDir(rawArgs.persist_user_data_dir)
+    const userDataPathIsExec = isExecFile(rawArgs.persist_user_data_dir)
+    if (userDataPathIsDir || userDataPathIsExec) {
       return [false, 'File already exists at path for persisting a '
-        + `profile: ${String(rawArgs.persist_profile)}.`]
+        + `profile: ${String(rawArgs.persist_user_data_dir)}.`]
     }
-    validatedArgs.persistProfilePath = rawArgs.persist_profile
+    validatedArgs.persistUserDataDirPath = rawArgs.persist_user_data_dir
   }
 
   if (rawArgs.extensions_path !== undefined) {
