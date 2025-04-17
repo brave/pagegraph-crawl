@@ -1,6 +1,6 @@
 {
   "name": "pagegraph-crawl",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "CLI for crawling with PageGraph.",
   "engines": {
     "node": ">=20.0.0"
@@ -11,7 +11,7 @@
     "build": "npx tsc",
     "crawl": "node ./built/run.js",
     "clean": "rm -Rf built/*",
-    "test": "npm run build && mocha test/test.js --timeout 60000"
+    "test": "npm run build && npx mocha test/test.js --timeout 60000"
   },
   "type": "module",
   "author": {
