@@ -1,3 +1,10 @@
+1.2.2
+---
+
+For tests, use the callback for the `kill` call from `tree-kill` and increase
+the timeout to 10sec, to try and reduce occasional false-negative test results.
+
+
 1.2.1
 ---
 

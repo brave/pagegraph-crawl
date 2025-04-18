@@ -9,7 +9,7 @@ export const crawlUrl = (url, outputDir, args = null, binaryPath = null, debug =
   const crawlCommand = ['run', 'crawl', '--']
   const crawlFlags = {
     '-u': url,
-    '-t': 5,
+    '-t': 15,
     '-o': outputDir
   }
 
@@ -43,9 +43,7 @@ export const crawlUrl = (url, outputDir, args = null, binaryPath = null, debug =
   })
 
   return new Promise(resolve => {
-    crawlProcess.on('exit', code => {
-      resolve(code)
-    })
+    crawlProcess.on('exit', resolve)
   })
 }
 

@@ -3,6 +3,7 @@
 import assert from 'node:assert'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
+
 import nodeGzip from 'node-gzip'
 import kill from 'tree-kill'
 
@@ -40,11 +41,15 @@ describe('PageGraph Crawl CLI', () => {
     serverProcessHandle = await startServer(testServerPort, DEBUG)
   })
   after((done) => {
-    kill(serverProcessHandle.pid)
-    if (DEBUG) {
-      console.log('Test server has closed')
-    }
-    done()
+    kill(serverProcessHandle.pid, 'SIGTERM', (error) => {
+      if (error) {
+        console.error(error)
+      }
+      if (DEBUG) {
+        console.log('Test server has closed')
+      }
+      done()
+    })
   })
 
   describe('single page', () => {
