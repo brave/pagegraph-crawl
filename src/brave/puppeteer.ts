@@ -92,6 +92,7 @@ const makePuppeteerConf = async (args: CrawlArgs): Promise<PuppeteerConfig> => {
     '--disable-breakpad',
     '--disable-component-extensions-with-background-pages',
     '--disable-component-update',
+    '--allow-brave-component-update',
     '--disable-features=' + disabledFeatures.join(','),
     '--disable-first-run-ui',
     '--disable-infobars',
