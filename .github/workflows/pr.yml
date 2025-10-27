@@ -15,6 +15,7 @@ jobs:
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: '22.x'
+          cache: 'npm'
 
       - name: install dependencies
         run: |
@@ -27,9 +28,13 @@ jobs:
           sudo apt-get -qq update
           sudo apt-get -qq --no-install-recommends install brave-browser-nightly
 
+      - name: install npm dependencies
+        run: npm ci
+
+      - name: lint
+        run: npm run lint
+
       - name: test
         run: |
-          shopt -s inherit_errexit
           set -xeEo pipefail
-          npm install
           PAGEGRAPH_CRAWL_TEST_BINARY_PATH=/opt/brave.com/brave-nightly/brave-browser-nightly npm run test
