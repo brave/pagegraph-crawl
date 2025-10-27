@@ -37,4 +37,4 @@ jobs:
       - name: test
         run: |
           set -xeEo pipefail
-          PAGEGRAPH_CRAWL_TEST_BINARY_PATH=/opt/brave.com/brave-nightly/brave-browser-nightly npm run test
+          PAGEGRAPH_CRAWL_TEST_BINARY_PATH=/opt/brave.com/brave-nightly/brave-browser-nightly PAGEGRAPH_DISABLE_SETUID_SANDBOX=true npm run test

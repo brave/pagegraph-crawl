@@ -106,6 +106,11 @@ const makePuppeteerConf = async (args: CrawlArgs): Promise<PuppeteerConfig> => {
     '--user-data-dir=' + profilePath,
   ]
 
+  // Add --disable-setuid-sandbox if environment variable is set
+  if (process.env.PAGEGRAPH_DISABLE_SETUID_SANDBOX === 'true') {
+    chromeArgs.push('--disable-setuid-sandbox')
+  }
+
   const puppeteerArgs = {
     defaultViewport: null,
     args: chromeArgs,
