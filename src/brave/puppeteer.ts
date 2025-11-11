@@ -92,6 +92,7 @@ const makePuppeteerConf = async (args: CrawlArgs): Promise<PuppeteerConfig> => {
     '--disable-breakpad',
     '--disable-component-extensions-with-background-pages',
     '--disable-component-update',
+    '--allow-brave-component-update',
     '--disable-features=' + disabledFeatures.join(','),
     '--disable-first-run-ui',
     '--disable-infobars',
@@ -105,6 +106,11 @@ const makePuppeteerConf = async (args: CrawlArgs): Promise<PuppeteerConfig> => {
     '--no-first-run',
     '--user-data-dir=' + profilePath,
   ]
+
+  // Add --disable-setuid-sandbox if environment variable is set
+  if (process.env.PAGEGRAPH_DISABLE_SETUID_SANDBOX === 'true') {
+    chromeArgs.push('--disable-setuid-sandbox')
+  }
 
   const puppeteerArgs = {
     defaultViewport: null,
