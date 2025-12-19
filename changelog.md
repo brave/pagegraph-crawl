@@ -1,3 +1,11 @@
+1.2.4
+---
+
+Add support for request headers by logging them, and then stitching them
+into the resulting XML.  Uses `xml-stream` for this right now, which for now
+requires using version node@20 for the time being.
+
+
 1.2.2
 ---
 

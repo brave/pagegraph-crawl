@@ -20,6 +20,7 @@ const binaryPath = process.env.PAGEGRAPH_CRAWL_TEST_BINARY_PATH || null
 const graphMlExtension = '.graphml'
 const testBaseUrl = `${baseUrl}:${testServerPort}`
 const simpleUrl = `${testBaseUrl}/simple.html`
+const makeTestUrl = (htmlFile) => `${testBaseUrl}/${htmlFile}`
 const expectedFilenameSimple = getExpectedFilename(simpleUrl)
 
 const { ungzip } = nodeGzip
@@ -217,6 +218,28 @@ describe('PageGraph Crawl CLI', () => {
             assert.ok(graphml.includes('Jro8qF9KOg') === false)
           }
         }
+      } finally {
+        await _cleanupTempOutputDir(testDir)
+      }
+    })
+  })
+
+  describe('Cookies', () => {
+    it('Request cookies', async () => {
+      const testDir = await _createTempOutputDir()
+      try {
+        const cookiesTestUrl = makeTestUrl('cookies.html')
+        await _crawlUrl(cookiesTestUrl, testDir)
+        const files = await _readCrawlResults(testDir)
+        assert.equal(files.length, 1)
+
+        const file = files[0]
+        const graphml = await readFile(join(testDir, file), 'UTF-8')
+
+        // First check and make sure we only see one the below string
+        // once, which will appear in the cookie header.
+        const cookieHeader = graphml.match(/test-cookie=value-[0-9]+/g) || []
+        assert.equal(cookieHeader.length, 1)
       } finally {
         await _cleanupTempOutputDir(testDir)
       }
