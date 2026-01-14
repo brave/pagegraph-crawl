@@ -1,5 +1,15 @@
+Changelog
+===
+
+1.2.6
+---
+
+Improve and standardize the naming for JavaScript files used in the tests,
+and add these scripts to lint checks.
+
 1.2.5
 ---
+
 Fix handling of requests made from workers (these are not yet recorded
 in the graphs, but now they don't cause issues with the new request
 tracking system).
@@ -10,7 +20,6 @@ Remove (some) places where we were buffering the entire graphML file in
 memory. Sadly there are probably still some cases, but there is now one less.
 
 Other misc code cleanup.
-
 
 1.2.4
 ---

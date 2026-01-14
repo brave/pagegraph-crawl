@@ -1,13 +1,13 @@
 {
   "name": "pagegraph-crawl",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "CLI for crawling with PageGraph.",
   "engines": {
     "node": ">=20.0.0 <22.0.0"
   },
   "scripts": {
-    "lint": "npx eslint src/**/*.ts src/*.ts && npx eslint -c eslint-neostandard.config.js test/*.js",
-    "lint:fix": "npx eslint --fix src/**/*.ts src/*.ts && npx standard --fix -c eslint-neostandard.config.js test/*.js",
+    "lint": "npx eslint src/**/*.ts src/*.ts && npx eslint -c eslint-neostandard.config.js test/*.js test/pages/resources/*.js",
+    "lint:fix": "npx eslint --fix src/**/*.ts src/*.ts && npx eslint --fix -c eslint-neostandard.config.js test/*.js",
     "build": "npx tsc",
     "crawl": "node ./built/run.js",
     "clean": "rm -Rf built/*",

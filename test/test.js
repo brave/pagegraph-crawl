@@ -255,6 +255,16 @@ describe('PageGraph Crawl CLI', () => {
 
         const file = files[0]
         const graphML = await readFile(join(testDir, file), 'UTF-8')
+
+        // The test page sets a text element 'response: "success"' or
+        // 'response: "fail"' once the worker makes it request.
+        // So checking for this is a way to guard against the test passing
+        // because the worker script never actually made a request.
+        assert.ok(graphML.includes('>response: "success"<'))
+
+        // And this checks to make sure the un-parsed request-id for the
+        // worker request didn't end up in the graph (since the crawler
+        // catches and rewrites these).
         assert.ok(!graphML.includes('interception-job-'))
       } finally {
         await _cleanupTempOutputDir(testDir)
