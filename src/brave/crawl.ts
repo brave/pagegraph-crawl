@@ -8,7 +8,7 @@ import Xvbf from 'xvfb'
 
 import { isTopLevelPageNavigation, isTimeoutError } from './checks.js'
 import { asHTTPUrl } from './checks.js'
-import { compressAtPath, createScreenshotPath, deleteAtPath } from './files.js'
+import { createScreenshotPath, deleteAtPath } from './files.js'
 import { writeGraphML } from './files.js'
 import { writeHAR, writeHeadersLog } from './files.js'
 import { getLogger } from './logging.js'
@@ -333,11 +333,7 @@ export const doCrawl = async (args: CrawlArgs,
       if (args.saveRequestHeaders) {
         await writeHeadersLog(args, urlToCrawl, headersLogger.toJSON(), logger)
       }
-      const graphMlPath = await writeGraphML(args, urlToCrawl, response,
-                                             headersLogger, logger)
-      if (graphMlPath && args.compress) {
-        compressAtPath(graphMlPath)
-      }
+      await writeGraphML(args, urlToCrawl, response, headersLogger, logger)
 
       // Store HAR
       if (args.storeHar) {

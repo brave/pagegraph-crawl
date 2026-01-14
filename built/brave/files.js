@@ -1,7 +1,9 @@
-import { mkdtemp, readFile, rm, unlink, writeFile } from 'node:fs/promises';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { mkdtemp, rm, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, parse } from 'node:path';
-import { gzip } from 'node-gzip';
+import { pipeline } from 'node:stream';
+import { createGzip, gzipSync } from 'node:zlib';
 import { isDir } from './checks.js';
 const dateTimeStamp = Math.floor(Date.now() / 1000);
 const createFilename = (url) => {
@@ -30,7 +32,7 @@ export const writeHeadersLog = async (args, url, headersJSON, logger) => {
     try {
         const outputFilename = createHeadersLogPath(args, url);
         logger.info('Writing headers log to: ', outputFilename);
-        const data = args.compress ? await gzip(headersJSON) : headersJSON;
+        const data = args.compress ? gzipSync(headersJSON) : headersJSON;
         await writeFile(outputFilename, data);
     }
     catch (err) {
@@ -50,7 +52,6 @@ export const writeGraphML = async (args, url, response, headersLogger, logger) =
         await writeFile(intermediateFilename, data);
         logger.info('... and stitching request headers to: ', finalOutputFilename);
         await headersLogger.rewriteGraphML(intermediateFilename, finalOutputFilename);
-        logger.info('but here though...');
         await unlink(intermediateFilename);
         if (args.compress) {
             return await compressAtPath(finalOutputFilename);
@@ -87,11 +88,19 @@ export const createTempDir = async (dirPrefix = 'pagegraph-crawl-') => {
 };
 export const compressAtPath = async (fromPath) => {
     const toPath = fromPath + '.gz';
-    // This is absurd and should be rewritten to stream.
-    // But for the time being...
-    const buffer = await readFile(fromPath);
-    const compressedBuffer = await gzip(buffer);
-    await writeFile(toPath, compressedBuffer);
-    await unlink(fromPath);
-    return toPath;
+    // Taken from the node documentation
+    // https://nodejs.org/docs/latest-v20.x/api/zlib.html#for-zlib-based-streams
+    const gzipTransformer = createGzip();
+    const sourceStream = createReadStream(fromPath);
+    const destinationStream = createWriteStream(toPath);
+    return new Promise((resolve, reject) => {
+        pipeline(sourceStream, gzipTransformer, destinationStream, async (err) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            await unlink(fromPath);
+            resolve(toPath);
+        });
+    });
 };

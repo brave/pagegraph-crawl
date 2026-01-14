@@ -28,6 +28,7 @@ const edgeAttrNameEdgeType = 'edge type'
 const edgeAttrNameRequestId = 'request id'
 const edgeAttrNameHeaders = 'headers'
 
+const requestIdPatternWorker = /interception-job-([0-9]+)\.0/
 const requestIdPatternNavigation = /^[A-Z0-9]{32}$/
 const requestIdPatternSubRequest = /^[0-9]+\.([0-9]+)$/
 
@@ -46,7 +47,7 @@ export class HeadersLogger {
     if (!this.#logger) {
       return
     }
-    this.#logger.verbose(`HeadersLogger.${methodName})`, msg)
+    this.#logger.verbose(`HeadersLogger.${methodName}) `, msg)
   }
 
   #error (msg: string): never {
@@ -106,29 +107,42 @@ export class HeadersLogger {
     return AddHeadersResult.ADDED
   }
 
-  // Request ids in puppeteer are in one of two formats.  One, 32 alpha num
-  // characters (top level request), or two,
-  // "<int (process id)>.<int (request id)>", for sub requests.
+  // Request ids in puppeteer are in three formats.
+  // 1. requests made in workers: "interception-job-<int>.0"
+  // 2. sub-resource requests: "<int (process id)>.<int (request id)>"
+  // 3. top level navigation requests: 32 alpha num characters
+  //
   // Since PageGraph runs in single process mode, we can discard the process
   // id for this second category of requests.
   #simplifyRequestId (rawRequestId: PuppeteerRequestId): RequestId {
-    if (rawRequestId.length === 32) {
-      if (rawRequestId.match(requestIdPatternNavigation) === null) {
-        this.#error(
-          'Navigation RequestId does not match expected format of '
-          + `"${requestIdPatternNavigation}": "${rawRequestId}"`)
-      }
+    const interceptRequestMatchRs = rawRequestId.match(requestIdPatternWorker)
+    if (interceptRequestMatchRs !== null) {
+      const requestId = parseInt(interceptRequestMatchRs[1], 10)
+      this.#log(
+        'simplifyRequestId',
+        `RequestId: ${requestId} ("intercept", from ${rawRequestId})`)
+      return requestId
+    }
+
+    const subRequestMatchRs = rawRequestId.match(requestIdPatternSubRequest)
+    if (subRequestMatchRs !== null) {
+      const requestIdParts = rawRequestId.split('.')
+      const requestId = parseInt(requestIdParts[1], 10)
+      this.#log(
+        'simplifyRequestId',
+        `RequestId: ${requestId} ("subrequest", from ${rawRequestId})`)
+      return requestId
+    }
+
+    const navRequestMatchRs = rawRequestId.match(requestIdPatternNavigation)
+    if (navRequestMatchRs !== null) {
+      this.#log(
+        'simplifyRequestId',
+        `RequestId: ${rawRequestId} ("navigation")`)
       return rawRequestId
     }
 
-    if (rawRequestId.match(requestIdPatternSubRequest) === null) {
-      this.#error(
-        'Navigation RequestId does not match expected format of '
-        + `"${requestIdPatternSubRequest}": "${rawRequestId}"`)
-    }
-
-    const requestIdParts = rawRequestId.split('.')
-    return parseInt(requestIdParts[1], 10)
+    this.#error(`RequestId does not have a known format: "${rawRequestId}"`)
   }
 
   addHeadersFromRequest (request: HTTPRequestType): AddHeadersResult {

@@ -1,6 +1,6 @@
 {
   "name": "pagegraph-crawl",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "CLI for crawling with PageGraph.",
   "engines": {
     "node": ">=20.0.0 <22.0.0"
@@ -31,7 +31,6 @@
   "dependencies": {
     "argparse": "2.0.1",
     "chrome-har": "1.1.1",
-    "node-gzip": "1.1.2",
     "puppeteer-core": "23.11.1",
     "which": "5.0.0",
     "xml-stream": "^0.4.5",

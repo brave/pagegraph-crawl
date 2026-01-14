@@ -110,7 +110,7 @@ export const validate = (rawArgs: any): ValidationResult => {  // eslint-disable
     persistUserDataDirPath: undefined,
     extensionsPath: undefined,
     stealth: false,
-    saveRequestHeaders: true,
+    saveRequestHeaders: false,
     interactive,
     userAgent,
     crawlDuplicates,

@@ -23,6 +23,7 @@ var AddHeadersResult;
 const edgeAttrNameEdgeType = 'edge type';
 const edgeAttrNameRequestId = 'request id';
 const edgeAttrNameHeaders = 'headers';
+const requestIdPatternWorker = /interception-job-([0-9]+)\.0/;
 const requestIdPatternNavigation = /^[A-Z0-9]{32}$/;
 const requestIdPatternSubRequest = /^[0-9]+\.([0-9]+)$/;
 export class HeadersLogger {
@@ -140,7 +141,7 @@ _HeadersLogger_requestHeaders = new WeakMap(), _HeadersLogger_responseHeaders = 
     if (!__classPrivateFieldGet(this, _HeadersLogger_logger, "f")) {
         return;
     }
-    __classPrivateFieldGet(this, _HeadersLogger_logger, "f").verbose(`HeadersLogger.${methodName})`, msg);
+    __classPrivateFieldGet(this, _HeadersLogger_logger, "f").verbose(`HeadersLogger.${methodName}) `, msg);
 }, _HeadersLogger_error = function _HeadersLogger_error(msg) {
     throw new Error(msg);
 }, _HeadersLogger_addHeaders = function _HeadersLogger_addHeaders(requestId, reqOrRes, collection) {
@@ -186,17 +187,23 @@ _HeadersLogger_requestHeaders = new WeakMap(), _HeadersLogger_responseHeaders = 
     collection[requestId] = newHeaders;
     return AddHeadersResult.ADDED;
 }, _HeadersLogger_simplifyRequestId = function _HeadersLogger_simplifyRequestId(rawRequestId) {
-    if (rawRequestId.length === 32) {
-        if (rawRequestId.match(requestIdPatternNavigation) === null) {
-            __classPrivateFieldGet(this, _HeadersLogger_instances, "m", _HeadersLogger_error).call(this, 'Navigation RequestId does not match expected format of '
-                + `"${requestIdPatternNavigation}": "${rawRequestId}"`);
-        }
+    const interceptRequestMatchRs = rawRequestId.match(requestIdPatternWorker);
+    if (interceptRequestMatchRs !== null) {
+        const requestId = parseInt(interceptRequestMatchRs[1], 10);
+        __classPrivateFieldGet(this, _HeadersLogger_instances, "m", _HeadersLogger_log).call(this, 'simplifyRequestId', `RequestId: ${requestId} ("intercept", from ${rawRequestId})`);
+        return requestId;
+    }
+    const subRequestMatchRs = rawRequestId.match(requestIdPatternSubRequest);
+    if (subRequestMatchRs !== null) {
+        const requestIdParts = rawRequestId.split('.');
+        const requestId = parseInt(requestIdParts[1], 10);
+        __classPrivateFieldGet(this, _HeadersLogger_instances, "m", _HeadersLogger_log).call(this, 'simplifyRequestId', `RequestId: ${requestId} ("subrequest", from ${rawRequestId})`);
+        return requestId;
+    }
+    const navRequestMatchRs = rawRequestId.match(requestIdPatternNavigation);
+    if (navRequestMatchRs !== null) {
+        __classPrivateFieldGet(this, _HeadersLogger_instances, "m", _HeadersLogger_log).call(this, 'simplifyRequestId', `RequestId: ${rawRequestId} ("navigation")`);
         return rawRequestId;
     }
-    if (rawRequestId.match(requestIdPatternSubRequest) === null) {
-        __classPrivateFieldGet(this, _HeadersLogger_instances, "m", _HeadersLogger_error).call(this, 'Navigation RequestId does not match expected format of '
-            + `"${requestIdPatternSubRequest}": "${rawRequestId}"`);
-    }
-    const requestIdParts = rawRequestId.split('.');
-    return parseInt(requestIdParts[1], 10);
+    __classPrivateFieldGet(this, _HeadersLogger_instances, "m", _HeadersLogger_error).call(this, `RequestId does not have a known format: "${rawRequestId}"`);
 };
