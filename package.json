@@ -1,17 +1,17 @@
 {
   "name": "pagegraph-crawl",
-  "version": "1.2.2",
+  "version": "1.2.6",
   "description": "CLI for crawling with PageGraph.",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.0.0 <22.0.0"
   },
   "scripts": {
-    "lint": "npx eslint src/**/*.ts src/*.ts && npx eslint -c eslint-neostandard.config.js test/*.js",
-    "lint:fix": "npx eslint --fix src/**/*.ts src/*.ts && npx standard --fix -c eslint-neostandard.config.js test/*.js",
+    "lint": "npx eslint src/**/*.ts src/*.ts && npx eslint -c eslint-neostandard.config.js test/*.js test/pages/resources/*.js",
+    "lint:fix": "npx eslint --fix src/**/*.ts src/*.ts && npx eslint --fix -c eslint-neostandard.config.js test/*.js",
     "build": "npx tsc",
     "crawl": "node ./built/run.js",
     "clean": "rm -Rf built/*",
-    "test": "npm run build && npx mocha test/test.js --timeout 60000"
+    "test": "npm run build && node ./node_modules/mocha/bin/mocha.js test/test.js --timeout 60000"
   },
   "type": "module",
   "author": {
@@ -30,27 +30,27 @@
   "license": "MPL-2.0",
   "dependencies": {
     "argparse": "2.0.1",
-    "chrome-har": "1.0.1",
-    "node-gzip": "1.1.2",
+    "chrome-har": "1.1.1",
     "puppeteer-core": "23.11.1",
     "which": "5.0.0",
+    "xml-stream": "^0.4.5",
     "xvfb": "0.4.0"
   },
   "devDependencies": {
-    "@eslint/js": "9.30.1",
+    "@eslint/js": "9.38.0",
     "@stylistic/eslint-plugin": "2.13.0",
     "@tsconfig/node20": "20.1.6",
-    "@types/node-gzip": "1.1.3",
     "@types/argparse": "2.0.17",
     "@types/eslint__js": "8.42.3",
+    "@types/node-gzip": "1.1.3",
     "@types/which": "3.0.4",
-    "@typescript-eslint/parser": "8.36.0",
-    "eslint": "9.30.1",
+    "@typescript-eslint/parser": "8.46.2",
+    "eslint": "9.38.0",
     "http-server": "14.1.1",
-    "mocha": "11.7.1",
+    "mocha": "11.7.4",
     "neostandard": "0.12.2",
     "tree-kill": "1.2.2",
-    "typescript": "5.8.3",
-    "typescript-eslint": "8.36.0"
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.46.2"
   }
 }

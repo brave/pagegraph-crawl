@@ -1,13 +1,16 @@
 import * as osLib from 'os';
+import { harFromMessages } from 'chrome-har';
 import Xvbf from 'xvfb';
 import { isTopLevelPageNavigation, isTimeoutError } from './checks.js';
 import { asHTTPUrl } from './checks.js';
-import { createScreenshotPath, writeGraphML, writeHAR, deleteAtPath } from './files.js';
+import { createScreenshotPath, deleteAtPath } from './files.js';
+import { writeGraphML } from './files.js';
+import { writeHAR, writeHeadersLog } from './files.js';
 import { getLogger } from './logging.js';
 import { makeNavigationTracker } from './navigation_tracker.js';
 import { selectRandomChildUrl } from './page.js';
 import { puppeteerConfigForArgs, launchWithRetry } from './puppeteer.js';
-import { harFromMessages } from 'chrome-har';
+import { HeadersLogger } from './headers.js';
 const xvfbPlatforms = new Set(['linux', 'openbsd']);
 const setupEnv = (args) => {
     const logger = getLogger(args);
@@ -160,11 +163,13 @@ export const doCrawl = async (args, previouslySeenUrls) => {
             if (args.userAgent !== undefined) {
                 await page.setUserAgent(args.userAgent);
             }
+            const headersLogger = new HeadersLogger(logger);
             await page.setRequestInterception(true);
             // First load is not a navigation redirect, so we need to skip it.
             page.on('request', async (request) => {
                 // We know the given URL will be a valid URL, bc of the puppeteer API
                 const requestedUrl = asHTTPUrl(request.url());
+                headersLogger.addHeadersFromRequest(request);
                 // Only capture parent frame navigation requests.
                 if (isTopLevelPageNavigation(request) === false) {
                     logger.verbose('Allowing request to ', request.url(), ', not ', 'a top level navigation.');
@@ -201,6 +206,9 @@ export const doCrawl = async (args, previouslySeenUrls) => {
                 request.continue();
                 return;
             });
+            page.on('response', (response) => {
+                headersLogger.addHeadersFromResponse(response);
+            });
             logger.info('Navigating to ', urlToCrawl);
             try {
                 await page.goto(urlToCrawl, { waitUntil: 'domcontentloaded' });
@@ -215,7 +223,10 @@ export const doCrawl = async (args, previouslySeenUrls) => {
             }
             logger.info('Loaded ', String(urlToCrawl));
             const response = await generatePageGraph(args.seconds, page, client, shouldStopWaitingFunc, logger);
-            await writeGraphML(args, urlToCrawl, response, logger);
+            if (args.saveRequestHeaders) {
+                await writeHeadersLog(args, urlToCrawl, headersLogger.toJSON(), logger);
+            }
+            await writeGraphML(args, urlToCrawl, response, headersLogger, logger);
             // Store HAR
             if (args.storeHar) {
                 logger.verbose('Beginning HAR export');

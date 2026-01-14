@@ -1,1 +1,0 @@
-fetch("this-domain-does-not-exist-g7823rbhifgu12.org");

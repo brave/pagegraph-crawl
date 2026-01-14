@@ -1,9 +1,12 @@
-import { rm, writeFile, mkdtemp } from 'node:fs/promises'
+import { createReadStream, createWriteStream } from 'node:fs'
+import { mkdtemp, rm, unlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, parse } from 'node:path'
-import { gzip } from 'node-gzip'
+import { pipeline } from 'node:stream'
+import { createGzip, gzipSync } from 'node:zlib'
 
 import { isDir } from './checks.js'
+import { HeadersLogger } from './headers.js'
 
 const dateTimeStamp = Math.floor(Date.now() / 1000)
 
@@ -11,6 +14,7 @@ const createFilename = (url: URL): FilePath => {
   const fileSafeUrl = String(url).replace(/[^\w]/g, '_')
   return ['page_graph_', fileSafeUrl, '_', dateTimeStamp].join('')
 }
+
 const createOutputPath = (args: CrawlArgs, url: URL): FilePath => {
   if (isDir(args.outputPath) === true) {
     return join(args.outputPath, createFilename(url))
@@ -21,38 +25,66 @@ const createOutputPath = (args: CrawlArgs, url: URL): FilePath => {
   }
 }
 
-const createGraphMLPath = (args: CrawlArgs, url: URL): FilePath => {
-  let outputPath: string = join(createOutputPath(args, url) + '.graphml')
-  if (args.compress === true) {
-    outputPath = outputPath + '.gz'
-  }
-  return outputPath
-}
-
-const createHARPath = (args: CrawlArgs, url: URL): FilePath => {
-  const outputPath = join(createOutputPath(args, url) + '.har')
-  return outputPath
-}
-
 export const createScreenshotPath = (args: CrawlArgs, url: URL): FilePath => {
   const outputPath = join(createOutputPath(args, url) + '.png')
   return outputPath
 }
 
-export const writeGraphML = async (args: CrawlArgs, url: URL,
-                                   response: FinalPageGraphEvent,
-                                   logger: Logger): Promise<undefined> => {
+const createHeadersLogPath = (args: CrawlArgs, url: URL): FilePath => {
+  const extension = args.compress ? '.headers.json.gz' : '.headers.json'
+  const outputPath = join(createOutputPath(args, url) + extension)
+  return outputPath
+}
+
+export const writeHeadersLog = async (args: CrawlArgs, url: URL,
+                                      headersJSON: string,
+                                      logger: Logger): Promise<undefined> => {
   try {
-    const outputFilename = createGraphMLPath(args, url)
-    logger.info('Writing PageGraph file to: ', outputFilename)
-    const data = args.compress
-      ? await gzip(response.data)
-      : response.data
+    const outputFilename = createHeadersLogPath(args, url)
+    logger.info('Writing headers log to: ', outputFilename)
+    const data = args.compress ? gzipSync(headersJSON) : headersJSON
     await writeFile(outputFilename, data)
   }
   catch (err) {
-    logger.error('saving Page.generatePageGraph output: ', String(err))
+    logger.error('writing headers log output: ', String(err))
   }
+}
+
+const createGraphMLPath = (args: CrawlArgs, url: URL): FilePath => {
+  const outputPath: string = join(createOutputPath(args, url) + '.graphml')
+  return outputPath
+}
+
+export const writeGraphML = async (
+  args: CrawlArgs, url: URL, response: FinalPageGraphEvent,
+  headersLogger: HeadersLogger, logger: Logger): Promise<FilePath | null> => {
+  try {
+    const finalOutputFilename = createGraphMLPath(args, url)
+    const intermediateFilename = finalOutputFilename + '.tmp'
+    const data = response.data
+
+    logger.info('Writing PageGraph file to: ', intermediateFilename)
+    await writeFile(intermediateFilename, data)
+
+    logger.info('... and stitching request headers to: ', finalOutputFilename)
+    await headersLogger.rewriteGraphML(
+      intermediateFilename, finalOutputFilename)
+    await unlink(intermediateFilename)
+
+    if (args.compress) {
+      return await compressAtPath(finalOutputFilename)
+    }
+    return finalOutputFilename
+  }
+  catch (err) {
+    logger.error('saving Page.generatePageGraph output: ', String(err))
+    return null
+  }
+}
+
+const createHARPath = (args: CrawlArgs, url: URL): FilePath => {
+  const outputPath = join(createOutputPath(args, url) + '.har')
+  return outputPath
 }
 
 export const writeHAR = async (args: CrawlArgs, url: URL, har: any,
@@ -76,4 +108,24 @@ export const deleteAtPath = async (path: FilePath): Promise<undefined> => {
 
 export const createTempDir = async (dirPrefix = 'pagegraph-crawl-'): Promise<FilePath> => {
   return await mkdtemp(join(tmpdir(), dirPrefix))
+}
+
+export const compressAtPath = async (fromPath: FilePath): Promise<FilePath> => {
+  const toPath = fromPath + '.gz'
+  // Taken from the node documentation
+  // https://nodejs.org/docs/latest-v20.x/api/zlib.html#for-zlib-based-streams
+  const gzipTransformer = createGzip()
+  const sourceStream = createReadStream(fromPath)
+  const destinationStream = createWriteStream(toPath)
+
+  return new Promise((resolve, reject) => {
+    pipeline(sourceStream, gzipTransformer, destinationStream, async (err) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      await unlink(fromPath)
+      resolve(toPath)
+    })
+  })
 }

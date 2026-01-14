@@ -3,8 +3,8 @@
 import assert from 'node:assert'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { gunzipSync } from 'node:zlib'
 
-import nodeGzip from 'node-gzip'
 import kill from 'tree-kill'
 
 import {
@@ -20,9 +20,8 @@ const binaryPath = process.env.PAGEGRAPH_CRAWL_TEST_BINARY_PATH || null
 const graphMlExtension = '.graphml'
 const testBaseUrl = `${baseUrl}:${testServerPort}`
 const simpleUrl = `${testBaseUrl}/simple.html`
+const makeTestUrl = (htmlFile) => `${testBaseUrl}/${htmlFile}`
 const expectedFilenameSimple = getExpectedFilename(simpleUrl)
-
-const { ungzip } = nodeGzip
 
 const _crawlUrl = async (url, outputDir, args) => {
   return await crawlUrl(url, outputDir, args, binaryPath, DEBUG)
@@ -64,8 +63,8 @@ describe('PageGraph Crawl CLI', () => {
         assert.ok(file.startsWith(expectedFilenameSimple))
         assert.ok(file.endsWith(graphMlExtension))
 
-        const graphml = await readFile(join(testDir, file), 'UTF-8')
-        assert.ok(graphml.includes('hJc9ZK1sGr'))
+        const graphML = await readFile(join(testDir, file), 'UTF-8')
+        assert.ok(graphML.includes('hJc9ZK1sGr'))
       } finally {
         await _cleanupTempOutputDir(testDir)
       }
@@ -81,9 +80,9 @@ describe('PageGraph Crawl CLI', () => {
         assert.ok(file.startsWith(expectedFilenameSimple))
         assert.ok(file.endsWith(graphMlExtension + '.gz'))
 
-        const graphmlCompressed = await readFile(join(testDir, file))
-        const graphml = await ungzip(graphmlCompressed)
-        assert.ok(graphml.includes('hJc9ZK1sGr'))
+        const graphMLCompressed = await readFile(join(testDir, file))
+        const graphML = await gunzipSync(graphMLCompressed)
+        assert.ok(graphML.includes('hJc9ZK1sGr'))
       } finally {
         await _cleanupTempOutputDir(testDir)
       }
@@ -106,13 +105,13 @@ describe('PageGraph Crawl CLI', () => {
           assert.ok(file.startsWith(expectedFilenameSimple) ||
             file.startsWith(expectedFilenameInitial))
 
-          const graphml = await readFile(join(testDir, file), 'UTF-8')
+          const graphML = await readFile(join(testDir, file), 'UTF-8')
           if (file.startsWith(expectedFilenameSimple)) {
-            assert.ok(graphml.includes('hJc9ZK1sGr'))
-            assert.ok(graphml.includes('W0XNNnar') === false)
+            assert.ok(graphML.includes('hJc9ZK1sGr'))
+            assert.ok(graphML.includes('W0XNNnar') === false)
           } else {
-            assert.ok(graphml.includes('W0XNNnar'))
-            assert.ok(graphml.includes('hJc9ZK1sGr') === false)
+            assert.ok(graphML.includes('W0XNNnar'))
+            assert.ok(graphML.includes('hJc9ZK1sGr') === false)
           }
         }
       } finally {
@@ -138,19 +137,19 @@ describe('PageGraph Crawl CLI', () => {
             file.startsWith(expectedFilenameInitial) ||
             file.startsWith(expectedFilenameSecond))
 
-          const graphml = await readFile(join(testDir, file), 'UTF-8')
+          const graphML = await readFile(join(testDir, file), 'UTF-8')
           if (file.startsWith(expectedFilenameSimple)) {
-            assert.ok(graphml.includes('hJc9ZK1sGr'))
-            assert.ok(graphml.includes('W0XNNnar') === false)
-            assert.ok(graphml.includes('NsybZB0LO4') === false)
+            assert.ok(graphML.includes('hJc9ZK1sGr'))
+            assert.ok(graphML.includes('W0XNNnar') === false)
+            assert.ok(graphML.includes('NsybZB0LO4') === false)
           } else if (file.startsWith(expectedFilenameInitial)) {
-            assert.ok(graphml.includes('NsybZB0LO4'))
-            assert.ok(graphml.includes('W0XNNnar') === false)
-            assert.ok(graphml.includes('hJc9ZK1sGr') === false)
+            assert.ok(graphML.includes('NsybZB0LO4'))
+            assert.ok(graphML.includes('W0XNNnar') === false)
+            assert.ok(graphML.includes('hJc9ZK1sGr') === false)
           } else if (file.startsWith(expectedFilenameSecond)) {
-            assert.ok(graphml.includes('W0XNNnar'))
-            assert.ok(graphml.includes('NsybZB0LO4') === false)
-            assert.ok(graphml.includes('hJc9ZK1sGr') === false)
+            assert.ok(graphML.includes('W0XNNnar'))
+            assert.ok(graphML.includes('NsybZB0LO4') === false)
+            assert.ok(graphML.includes('hJc9ZK1sGr') === false)
           }
         }
       } finally {
@@ -176,13 +175,13 @@ describe('PageGraph Crawl CLI', () => {
           assert.ok(file.endsWith(graphMlExtension))
           assert.ok(file.startsWith(expectedFilenameFinal) ||
             file.startsWith(expectedFilenameInitial))
-          const graphml = await readFile(join(testDir, file), 'UTF-8')
+          const graphML = await readFile(join(testDir, file), 'UTF-8')
           if (file.startsWith(expectedFilenameInitial)) {
-            assert.ok(graphml.includes('Zym8MZp'))
-            assert.ok(graphml.includes('hJc9ZK1sGr') === false)
+            assert.ok(graphML.includes('Zym8MZp'))
+            assert.ok(graphML.includes('hJc9ZK1sGr') === false)
           } else {
-            assert.ok(graphml.includes('hJc9ZK1sGr'))
-            assert.ok(graphml.includes('Zym8MZp') === false)
+            assert.ok(graphML.includes('hJc9ZK1sGr'))
+            assert.ok(graphML.includes('Zym8MZp') === false)
           }
         }
       } finally {
@@ -208,15 +207,65 @@ describe('PageGraph Crawl CLI', () => {
           assert.ok(file.endsWith(graphMlExtension))
           assert.ok(file.startsWith(expectedFilenameFinal) ||
             file.startsWith(expectedFilenameInitial))
-          const graphml = await readFile(join(testDir, file), 'UTF-8')
+          const graphML = await readFile(join(testDir, file), 'UTF-8')
           if (file.startsWith(expectedFilenameInitial)) {
-            assert.ok(graphml.includes('Jro8qF9KOg'))
-            assert.ok(graphml.includes('Ec9Z5dlgA5') === false)
+            assert.ok(graphML.includes('Jro8qF9KOg'))
+            assert.ok(graphML.includes('Ec9Z5dlgA5') === false)
           } else {
-            assert.ok(graphml.includes('Ec9Z5dlgA5'))
-            assert.ok(graphml.includes('Jro8qF9KOg') === false)
+            assert.ok(graphML.includes('Ec9Z5dlgA5'))
+            assert.ok(graphML.includes('Jro8qF9KOg') === false)
           }
         }
+      } finally {
+        await _cleanupTempOutputDir(testDir)
+      }
+    })
+  })
+
+  describe('cookies', () => {
+    it('request cookies', async () => {
+      const testDir = await _createTempOutputDir()
+      try {
+        const cookiesTestUrl = makeTestUrl('cookies.html')
+        await _crawlUrl(cookiesTestUrl, testDir)
+        const files = await _readCrawlResults(testDir)
+        assert.equal(files.length, 1)
+
+        const file = files[0]
+        const graphML = await readFile(join(testDir, file), 'UTF-8')
+
+        // First check and make sure we only see one the below string
+        // once, which will appear in the cookie header.
+        const cookieHeader = graphML.match(/test-cookie=value-[0-9]+/g) || []
+        assert.equal(cookieHeader.length, 1)
+      } finally {
+        await _cleanupTempOutputDir(testDir)
+      }
+    })
+  })
+
+  describe('requests and header rewriting', () => {
+    const workerTestUrl = `${testBaseUrl}/worker.html`
+    it('requests made in worker script', async () => {
+      const testDir = await _createTempOutputDir()
+      try {
+        await _crawlUrl(workerTestUrl, testDir)
+        const files = await _readCrawlResults(testDir)
+        assert.equal(files.length, 1)
+
+        const file = files[0]
+        const graphML = await readFile(join(testDir, file), 'UTF-8')
+
+        // The test page sets a text element 'response: "success"' or
+        // 'response: "fail"' once the worker makes it request.
+        // So checking for this is a way to guard against the test passing
+        // because the worker script never actually made a request.
+        assert.ok(graphML.includes('>response: "success"<'))
+
+        // And this checks to make sure the un-parsed request-id for the
+        // worker request didn't end up in the graph (since the crawler
+        // catches and rewrites these).
+        assert.ok(!graphML.includes('interception-job-'))
       } finally {
         await _cleanupTempOutputDir(testDir)
       }

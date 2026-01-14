@@ -101,6 +101,7 @@ export const validate = (rawArgs) => {
         persistUserDataDirPath: undefined,
         extensionsPath: undefined,
         stealth: false,
+        saveRequestHeaders: false,
         interactive,
         userAgent,
         crawlDuplicates,
