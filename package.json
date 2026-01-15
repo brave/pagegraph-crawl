@@ -3,7 +3,7 @@
   "version": "1.2.6",
   "description": "CLI for crawling with PageGraph.",
   "engines": {
-    "node": ">=20.0.0 <22.0.0"
+    "node": ">=20.0.0 <25.0.0"
   },
   "scripts": {
     "lint": "npx eslint src/**/*.ts src/*.ts && npx eslint -c eslint-neostandard.config.js test/*.js test/pages/resources/*.js",
