@@ -1,5 +1,17 @@
-Changelog
+.Changelog
 ===
+
+1.2.7
+---
+
+Remove strict check where an exception was thrown if we see two requests
+with the same request ID during a crawl. Request ids are unique within a
+page (which is what the check was trying to enforce), but `pagegraph-crawl`
+can see repeat request ids if there is a redirect during the crawl,
+or if requests are made by a worker that lives beyond a single page (shared
+worker, service work). I'll add a check back in a future version to
+enforce / assert that we don't see unexpected reused request ids, but
+removing the check for the time being to unbreak these cases.
 
 1.2.6
 ---

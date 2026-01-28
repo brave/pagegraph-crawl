@@ -1,7 +1,7 @@
 import * as osLib from 'os'
 
 import { harFromMessages } from 'chrome-har'
-import type { Protocol } from 'devtools-protocol'
+import { Protocol } from 'devtools-protocol'
 import type { CDPSession, HTTPRequest, HTTPResponse } from 'puppeteer-core'
 import type { Page } from 'puppeteer-core'
 import Xvbf from 'xvfb'

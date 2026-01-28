@@ -36,18 +36,16 @@ export class HeadersLogger {
   #requestHeaders: RequestToHeadersMap = {}
   #responseHeaders: RequestToHeadersMap = {}
   #logger: Logger | undefined
-  #strict: boolean
 
-  constructor (logger?: Logger, strict = true) {
+  constructor (logger?: Logger) {
     this.#logger = logger
-    this.#strict = strict
   }
 
   #log (methodName: string, msg: any): void {
     if (!this.#logger) {
       return
     }
-    this.#logger.verbose(`HeadersLogger.${methodName}) `, msg)
+    this.#logger.info(`HeadersLogger.${methodName}) `, msg)
   }
 
   #error (msg: string): never {
@@ -73,11 +71,12 @@ export class HeadersLogger {
       return a.value < b.value ? -1 : 1
     })
 
-    // If we're strictly checking things, the if we've already seen a request
-    // with this RequestId, then make sure they have identical headers.
-    // Otherwise, in strict mode, we throw an exception. Otherwise, we use
-    // the most recent headers (which indicates something has gone wrong
-    // in the recording, so it is not default behavior).
+    // Seeing a repeated request id can happen when the page redirects
+    // during the crawl (e.g., the page makes requests 1, 2, and 3; the browser
+    // is redirected to a new page; that new page also makes requests 1,
+    // 2, and 3). When this happens, overwrite the older request's headers
+    // with the new ones, since the most recent request will always be
+    // the one depicted in the page-graph file.
     const prevHeaders = collection[requestId]
     const isFirstTimeSeeingRequestId = !prevHeaders
     if (!isFirstTimeSeeingRequestId) {
@@ -88,17 +87,13 @@ export class HeadersLogger {
       if (areSame) {
         // If the headers for this request are the same
         // as for the previously seen request, and so no changes needed.
+        this.#log('addHeaders',
+                  `Recording another request with id=${requestId} `
+                  + '(Headers are identical to previous request).')
         return AddHeadersResult.REDUNDANT
       }
 
-      if (this.#strict) {
-        this.#error(
-          `Received requests with id "${requestId}" but different headers:\n`
-          + `Previously headers: ${previousHeadersJSON}\n`
-          + `New headers: ${currentHeadersJSON}`,
-        )
-      }
-
+      this.#log('addHeaders', `Recording another request with id=${requestId}.`)
       collection[requestId] = newHeaders
       return AddHeadersResult.OVERWRITE
     }
@@ -244,9 +239,6 @@ export class HeadersLogger {
 
         const headersForRequest = headersCollection[requestId]
         if (headersForRequest === undefined) {
-          if (this.#strict) {
-            this.#error(`No headers in request log for Request Id ${requestId}`)
-          }
           return
         }
 

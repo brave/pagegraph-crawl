@@ -245,8 +245,8 @@ describe('PageGraph Crawl CLI', () => {
   })
 
   describe('requests and header rewriting', () => {
-    const workerTestUrl = `${testBaseUrl}/worker.html`
     it('requests made in worker script', async () => {
+      const workerTestUrl = `${testBaseUrl}/worker.html`
       const testDir = await _createTempOutputDir()
       try {
         await _crawlUrl(workerTestUrl, testDir)
@@ -260,7 +260,8 @@ describe('PageGraph Crawl CLI', () => {
         // 'response: "fail"' once the worker makes it request.
         // So checking for this is a way to guard against the test passing
         // because the worker script never actually made a request.
-        assert.ok(graphML.includes('>response: "success"<'))
+        assert.ok(graphML.includes('>response: "success"<') ||
+          graphML.includes('>response: &quot;success&quot;<'))
 
         // And this checks to make sure the un-parsed request-id for the
         // worker request didn't end up in the graph (since the crawler
@@ -318,7 +319,6 @@ describe('PageGraph Crawl CLI', () => {
 
     it('with subresources', async () => {
       const resourcesUrl = `${testBaseUrl}/resources.html`
-
       const testDir = await _createTempOutputDir()
       try {
         await _crawlUrl(resourcesUrl, testDir, {
@@ -339,7 +339,8 @@ describe('PageGraph Crawl CLI', () => {
         const secondLogEntry = parsedHAR.log.entries[2]
         const thirdLogEntry = parsedHAR.log.entries[3]
 
-        assert.ok(firstLogEntry.request.url.endsWith('resources/script.js'))
+        const firstRequestUrl = firstLogEntry.request.url
+        assert.ok(firstRequestUrl.endsWith('resources/page-resources.js'))
         assert.equal(firstLogEntry.response.status, 200)
 
         assert.ok(secondLogEntry.request.url.includes('g7823rbhifgu12.org'))

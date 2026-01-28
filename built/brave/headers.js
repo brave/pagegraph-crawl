@@ -9,7 +9,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _HeadersLogger_instances, _HeadersLogger_requestHeaders, _HeadersLogger_responseHeaders, _HeadersLogger_logger, _HeadersLogger_strict, _HeadersLogger_log, _HeadersLogger_error, _HeadersLogger_addHeaders, _HeadersLogger_simplifyRequestId;
+var _HeadersLogger_instances, _HeadersLogger_requestHeaders, _HeadersLogger_responseHeaders, _HeadersLogger_logger, _HeadersLogger_log, _HeadersLogger_error, _HeadersLogger_addHeaders, _HeadersLogger_simplifyRequestId;
 import fs from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import XmlStream from 'xml-stream';
@@ -27,14 +27,12 @@ const requestIdPatternWorker = /interception-job-([0-9]+)\.0/;
 const requestIdPatternNavigation = /^[A-Z0-9]{32}$/;
 const requestIdPatternSubRequest = /^[0-9]+\.([0-9]+)$/;
 export class HeadersLogger {
-    constructor(logger, strict = true) {
+    constructor(logger) {
         _HeadersLogger_instances.add(this);
         _HeadersLogger_requestHeaders.set(this, {});
         _HeadersLogger_responseHeaders.set(this, {});
         _HeadersLogger_logger.set(this, void 0);
-        _HeadersLogger_strict.set(this, void 0);
         __classPrivateFieldSet(this, _HeadersLogger_logger, logger, "f");
-        __classPrivateFieldSet(this, _HeadersLogger_strict, strict, "f");
     }
     addHeadersFromRequest(request) {
         const requestId = __classPrivateFieldGet(this, _HeadersLogger_instances, "m", _HeadersLogger_simplifyRequestId).call(this, request.id);
@@ -121,9 +119,6 @@ export class HeadersLogger {
                 }
                 const headersForRequest = headersCollection[requestId];
                 if (headersForRequest === undefined) {
-                    if (__classPrivateFieldGet(this, _HeadersLogger_strict, "f")) {
-                        __classPrivateFieldGet(this, _HeadersLogger_instances, "m", _HeadersLogger_error).call(this, `No headers in request log for Request Id ${requestId}`);
-                    }
                     return;
                 }
                 const numHeaders = headersForRequest.length;
@@ -137,11 +132,11 @@ export class HeadersLogger {
         });
     }
 }
-_HeadersLogger_requestHeaders = new WeakMap(), _HeadersLogger_responseHeaders = new WeakMap(), _HeadersLogger_logger = new WeakMap(), _HeadersLogger_strict = new WeakMap(), _HeadersLogger_instances = new WeakSet(), _HeadersLogger_log = function _HeadersLogger_log(methodName, msg) {
+_HeadersLogger_requestHeaders = new WeakMap(), _HeadersLogger_responseHeaders = new WeakMap(), _HeadersLogger_logger = new WeakMap(), _HeadersLogger_instances = new WeakSet(), _HeadersLogger_log = function _HeadersLogger_log(methodName, msg) {
     if (!__classPrivateFieldGet(this, _HeadersLogger_logger, "f")) {
         return;
     }
-    __classPrivateFieldGet(this, _HeadersLogger_logger, "f").verbose(`HeadersLogger.${methodName}) `, msg);
+    __classPrivateFieldGet(this, _HeadersLogger_logger, "f").info(`HeadersLogger.${methodName}) `, msg);
 }, _HeadersLogger_error = function _HeadersLogger_error(msg) {
     throw new Error(msg);
 }, _HeadersLogger_addHeaders = function _HeadersLogger_addHeaders(requestId, reqOrRes, collection) {
@@ -160,11 +155,12 @@ _HeadersLogger_requestHeaders = new WeakMap(), _HeadersLogger_responseHeaders = 
         }
         return a.value < b.value ? -1 : 1;
     });
-    // If we're strictly checking things, the if we've already seen a request
-    // with this RequestId, then make sure they have identical headers.
-    // Otherwise, in strict mode, we throw an exception. Otherwise, we use
-    // the most recent headers (which indicates something has gone wrong
-    // in the recording, so it is not default behavior).
+    // Seeing a repeated request id can happen when the page redirects
+    // during the crawl (e.g., the page makes requests 1, 2, and 3; the browser
+    // is redirected to a new page; that new page also makes requests 1,
+    // 2, and 3). When this happens, overwrite the older request's headers
+    // with the new ones, since the most recent request will always be
+    // the one depicted in the page-graph file.
     const prevHeaders = collection[requestId];
     const isFirstTimeSeeingRequestId = !prevHeaders;
     if (!isFirstTimeSeeingRequestId) {
@@ -174,13 +170,11 @@ _HeadersLogger_requestHeaders = new WeakMap(), _HeadersLogger_responseHeaders = 
         if (areSame) {
             // If the headers for this request are the same
             // as for the previously seen request, and so no changes needed.
+            __classPrivateFieldGet(this, _HeadersLogger_instances, "m", _HeadersLogger_log).call(this, 'addHeaders', `Recording another request with id=${requestId} `
+                + '(Headers are identical to previous request).');
             return AddHeadersResult.REDUNDANT;
         }
-        if (__classPrivateFieldGet(this, _HeadersLogger_strict, "f")) {
-            __classPrivateFieldGet(this, _HeadersLogger_instances, "m", _HeadersLogger_error).call(this, `Received requests with id "${requestId}" but different headers:\n`
-                + `Previously headers: ${previousHeadersJSON}\n`
-                + `New headers: ${currentHeadersJSON}`);
-        }
+        __classPrivateFieldGet(this, _HeadersLogger_instances, "m", _HeadersLogger_log).call(this, 'addHeaders', `Recording another request with id=${requestId}.`);
         collection[requestId] = newHeaders;
         return AddHeadersResult.OVERWRITE;
     }
