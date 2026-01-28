@@ -1,5 +1,14 @@
-.Changelog
+Changelog
 ===
+
+1.2.8
+---
+
+Quick version to fix a dumb version naming / numbering issue in the previously
+tagged version.
+
+Remove no longer needed dev dep `@types/node-gzip`, add missing needed
+dev dep `@types/node`, and bump `mocha` version.
 
 1.2.7
 ---
