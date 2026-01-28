@@ -1,3 +1,2 @@
-2024/06/16-18:14:46.124 2607 Reusing MANIFEST /Users/pes/Code/pagegraph-crawl/resources/shields-up-profile/Default/Local Storage/leveldb/MANIFEST-000001
-2024/06/16-18:14:46.126 2607 Recovering log #3
-2024/06/16-18:14:46.126 2607 Reusing old log /Users/pes/Code/pagegraph-crawl/resources/shields-up-profile/Default/Local Storage/leveldb/000003.log 
+2026/01/28-17:47:07.901 1b5e5d2 Creating DB /Users/pes/Code/pagegraph-crawl/resources/shields-up-profile/Default/Local Storage/leveldb__tmp_for_rebuild since it was missing.
+2026/01/28-17:47:07.907 1b5e5d2 Reusing MANIFEST /Users/pes/Code/pagegraph-crawl/resources/shields-up-profile/Default/Local Storage/leveldb__tmp_for_rebuild/MANIFEST-000001

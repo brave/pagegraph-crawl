@@ -1,0 +1,7 @@
+{
+  "description": "Brave Ad Block Updater extension",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArTbJVQgtS0Ulo1pd72XT51mhFYXQowGJrrbIfCttxHFyasryxpYVc6835tSXUNddFlCr8sjdPyOc6kRxC3WzGAk0BNFF3bo1Ln93oUnqjwRQ571jojhe4ROu6JpLSwGGxiadp0RmfpYhZiNBzR5e1DZUbEmhRL4lI/OHznZKhSkqVsD3sZ3eF2p+qwT5kqSZvwoylgCuivE6S9hatKcx86Zda2uwj0BQoq04OPX+T+XmT23F50Vrns3p6W7vUxKZuE+EW2Uw/iIQGEIfuh0oa0XqX1C8ounw3KSuubJRV7dAV0EhFs2Gh1xXLR8nfJHs3AFR0GNpieW1xPllDGU5xwIDAQAB",
+  "manifest_version": 2,
+  "name": "Brave Ad Block Updater (Brave Default Privacy Filters (plaintext))",
+  "version": "1.0.2947"
+}

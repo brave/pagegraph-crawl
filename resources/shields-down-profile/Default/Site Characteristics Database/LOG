@@ -1,3 +1,2 @@
-2024/06/26-11:26:43.764 8107 Reusing MANIFEST /Users/pes/Code/pagegraph-crawl/resources/shields-down-profile/Default/Site Characteristics Database/MANIFEST-000001
-2024/06/26-11:26:43.764 8107 Recovering log #3
-2024/06/26-11:26:43.765 8107 Reusing old log /Users/pes/Code/pagegraph-crawl/resources/shields-down-profile/Default/Site Characteristics Database/000003.log 
+2026/01/28-17:46:58.317 1b5e3ae Creating DB /Users/pes/Code/pagegraph-crawl/resources/shields-down-profile/Default/Site Characteristics Database since it was missing.
+2026/01/28-17:46:58.320 1b5e3ae Reusing MANIFEST /Users/pes/Code/pagegraph-crawl/resources/shields-down-profile/Default/Site Characteristics Database/MANIFEST-000001

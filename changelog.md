@@ -10,6 +10,9 @@ tagged version.
 Remove no longer needed dev dep `@types/node-gzip`, add missing needed
 dev dep `@types/node`, and bump `mocha` version.
 
+Update packaged `shields-up` and `shields-down` profiles to disable recently
+added Brave and Chromium features, and to further disable background activity.
+
 1.2.7
 ---
 
