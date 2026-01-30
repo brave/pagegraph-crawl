@@ -34,7 +34,7 @@ export class HeadersLogger {
         _HeadersLogger_logger.set(this, void 0);
         __classPrivateFieldSet(this, _HeadersLogger_logger, logger, "f");
     }
-    addHeadersFromRequest(request) {
+    addDataFromRequest(request) {
         const requestId = __classPrivateFieldGet(this, _HeadersLogger_instances, "m", _HeadersLogger_simplifyRequestId).call(this, request.id);
         return __classPrivateFieldGet(this, _HeadersLogger_instances, "m", _HeadersLogger_addHeaders).call(this, requestId, request, __classPrivateFieldGet(this, _HeadersLogger_requestHeaders, "f"));
     }

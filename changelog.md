@@ -1,6 +1,15 @@
 Changelog
 ===
 
+1.2.9
+---
+
+Also track request and response body size, and write it into resulting
+graphml files.
+
+Changed the names of some `ENV` variables used and checked during testing
+for consistency and accuracy (see `test/config.js`).
+
 1.2.8
 ---
 

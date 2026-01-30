@@ -5,36 +5,59 @@ import type { HTTPRequest, HTTPResponse } from 'puppeteer-core'
 import XmlStream from 'xml-stream'
 
 import { GraphMLModifier } from './graphml.js'
-
-type HTTPRequestType = typeof HTTPRequest
-type HTTPResponseType = typeof HTTPResponse
-
-type PuppeteerRequestId = string
-type RequestId = number | string
-type RequestToHeadersMap = Record<RequestId, HTTPHeader[]>
+import { request } from 'node:https'
 
 interface HTTPHeader {
   name: string
   value: string
 }
 
-enum AddHeadersResult {
-  ADDED,
-  REDUNDANT,
-  OVERWRITE,
+interface Metadata {
+  headers: HTTPHeader[]
+  size: number
+}
+
+type RequestType = typeof HTTPRequest
+type ResponseType = typeof HTTPResponse
+type PuppeteerRequestId = string
+type RequestId = number | string
+type RequestToMetadataMap = Record<RequestId, Metadata>
+
+enum UpdateType {
+  ADD = 'ADD',
+  REDUNDANT = 'REDUNDANT',
+  UPDATE = 'UPDATE',
 }
 
 const edgeAttrNameEdgeType = 'edge type'
 const edgeAttrNameRequestId = 'request id'
 const edgeAttrNameHeaders = 'headers'
+const edgeAttrNameSize = 'size'
 
 const requestIdPatternWorker = /interception-job-([0-9]+)\.0/
 const requestIdPatternNavigation = /^[A-Z0-9]{32}$/
 const requestIdPatternSubRequest = /^[0-9]+\.([0-9]+)$/
 
-export class HeadersLogger {
-  #requestHeaders: RequestToHeadersMap = {}
-  #responseHeaders: RequestToHeadersMap = {}
+const bodySizeForRequest = async (request: RequestType) => {
+  const requestBody = await request.fetchPostData()
+  return requestBody ? requestBody.length : 0
+}
+
+const bodySizeForResponse = async (response: ResponseType) => {
+  const body = await response.buffer()
+  return body.size
+}
+
+const headerSortFunc = (a: HTTPHeader, b: HTTPHeader) => {
+  if (a.name !== b.name) {
+    return a.name < b.name ? -1 : 1
+  }
+  return a.value < b.value ? -1 : 1
+}
+
+export class RequestMetadataTracker {
+  #requestMetadata: RequestToMetadataMap = {}
+  #responseMetadata: RequestToMetadataMap = {}
   #logger: Logger | undefined
 
   constructor (logger?: Logger) {
@@ -45,61 +68,74 @@ export class HeadersLogger {
     if (!this.#logger) {
       return
     }
-    this.#logger.info(`HeadersLogger.${methodName}) `, msg)
+    this.#logger.info(`RequestMetadataTracker.${methodName}) `, msg)
+  }
+
+  #logVerbose (methodName: string, msg: any): void {
+    if (!this.#logger) {
+      return
+    }
+    this.#logger.verbose(`RequestMetadataTracker.${methodName}) `, msg)
   }
 
   #error (msg: string): never {
     throw new Error(msg)
   }
 
-  #addHeaders (requestId: RequestId,
-               reqOrRes: HTTPRequestType | HTTPResponseType,
-               collection: RequestToHeadersMap): AddHeadersResult {
-    const newHeaders: HTTPHeader[] = []
+  #addMetadata (requestId: RequestId,
+                reqOrRes: RequestType | ResponseType,
+                bodySize: number,
+                collection: RequestToMetadataMap): UpdateType {
+    const headers: HTTPHeader[] = []
     for (const headerEntry of Object.entries(reqOrRes.headers())) {
-      const headerName: string = headerEntry[0] as string
-      const headerValue: string = headerEntry[1] as string
-      newHeaders.push({
-        name: headerName,
-        value: headerValue,
+      headers.push({
+        name: headerEntry[0] as string,
+        value: headerEntry[1] as string,
       })
     }
-    newHeaders.sort((a, b) => {
-      if (a.name !== b.name) {
-        return a.name < b.name ? -1 : 1
-      }
-      return a.value < b.value ? -1 : 1
-    })
+    headers.sort(headerSortFunc)
 
+    const metadata: Metadata = {
+      headers: headers,
+      size: bodySize,
+    }
+    const typeName = (collection === this.#requestMetadata)
+      ? 'request'
+      : 'response'
+    this.#logVerbose(
+      'addMetadata',
+      `RequestId=${requestId} (${typeName}): ${JSON.stringify(metadata)}`)
     // Seeing a repeated request id can happen when the page redirects
     // during the crawl (e.g., the page makes requests 1, 2, and 3; the browser
     // is redirected to a new page; that new page also makes requests 1,
     // 2, and 3). When this happens, overwrite the older request's headers
     // with the new ones, since the most recent request will always be
     // the one depicted in the page-graph file.
-    const prevHeaders = collection[requestId]
-    const isFirstTimeSeeingRequestId = !prevHeaders
+    const prevMetadata = collection[requestId]
+    const isFirstTimeSeeingRequestId = (prevMetadata === undefined)
     if (!isFirstTimeSeeingRequestId) {
-      const previousHeadersJSON = JSON.stringify(prevHeaders)
-      const currentHeadersJSON = JSON.stringify(newHeaders)
-      const areSame = previousHeadersJSON === currentHeadersJSON
+      const previousMetadataJSON = JSON.stringify(prevMetadata)
+      const currentMetadataJSON = JSON.stringify(metadata)
+      const areSame = previousMetadataJSON === currentMetadataJSON
 
       if (areSame) {
         // If the headers for this request are the same
         // as for the previously seen request, and so no changes needed.
-        this.#log('addHeaders',
-                  `Recording another request with id=${requestId} `
-                  + '(Headers are identical to previous request).')
-        return AddHeadersResult.REDUNDANT
+        this.#log(
+          'addMetadata',
+          `RequestId=${requestId} (${typeName}): same as previous.`)
+        return UpdateType.REDUNDANT
       }
 
-      this.#log('addHeaders', `Recording another request with id=${requestId}.`)
-      collection[requestId] = newHeaders
-      return AddHeadersResult.OVERWRITE
+      this.#log(
+        'addMetadata',
+        `RequestId=${requestId} (${typeName}): set new value.`)
+      collection[requestId] = metadata
+      return UpdateType.UPDATE
     }
 
-    collection[requestId] = newHeaders
-    return AddHeadersResult.ADDED
+    collection[requestId] = metadata
+    return UpdateType.ADD
   }
 
   // Request ids in puppeteer are in three formats.
@@ -140,21 +176,25 @@ export class HeadersLogger {
     this.#error(`RequestId does not have a known format: "${rawRequestId}"`)
   }
 
-  addHeadersFromRequest (request: HTTPRequestType): AddHeadersResult {
+  async addMetadataFromRequest (request: RequestType): Promise<UpdateType> {
     const requestId = this.#simplifyRequestId(request.id)
-    return this.#addHeaders(requestId, request, this.#requestHeaders)
+    const bodySize = await bodySizeForRequest(request)
+    const collection = this.#requestMetadata
+    return this.#addMetadata(requestId, request, bodySize, collection)
   }
 
-  addHeadersFromResponse (response: HTTPResponseType): AddHeadersResult {
+  async addMetadataFromResponse (response: ResponseType): Promise<UpdateType> {
     const rawRequestId = response.request().id
     const requestId = this.#simplifyRequestId(rawRequestId)
-    return this.#addHeaders(requestId, response, this.#responseHeaders)
+    const bodySize = await bodySizeForResponse(request)
+    const collection = this.#responseMetadata
+    return this.#addMetadata(requestId, request, bodySize, collection)
   }
 
   toJSON (): string {
     return JSON.stringify({
-      requests: this.#requestHeaders,
-      responses: this.#responseHeaders,
+      requests: this.#requestMetadata,
+      responses: this.#responseMetadata,
     })
   }
 
@@ -165,13 +205,13 @@ export class HeadersLogger {
       this.#error(
         `JSON from "${fromPath}" is missing "requests" property.\n${jsonText}`)
     }
-    this.#requestHeaders = data.requests as RequestToHeadersMap
+    this.#requestMetadata = data.requests as RequestToMetadataMap
 
     if (typeof data.responses !== 'object') {
       this.#error(
         `JSON from "${fromPath}" is missing "responses" property.\n${jsonText}`)
     }
-    this.#responseHeaders = data.responses as RequestToHeadersMap
+    this.#responseMetadata = data.responses as RequestToMetadataMap
   }
 
   rewriteGraphML (graphMLPath: FilePath, toPath: FilePath): Promise<void> {
@@ -208,6 +248,7 @@ export class HeadersLogger {
           edgeAttrNameEdgeType,
           edgeAttrNameHeaders,
           edgeAttrNameRequestId,
+          edgeAttrNameSize,
         ]
         const queryResult = rewriter.attrsForEdge(elm, ...attrsQuery)
         const edgeType = queryResult[edgeAttrNameEdgeType]
@@ -216,15 +257,15 @@ export class HeadersLogger {
             `Could not determine "edge type" for edge.\n${JSON.stringify(elm)}`)
         }
 
-        let headersCollection: RequestToHeadersMap | undefined
+        let metadataCollection: RequestToMetadataMap | undefined
         switch (edgeType) {
         case 'request start':
         case 'request redirect':
-          headersCollection = this.#requestHeaders
+          metadataCollection = this.#requestMetadata
           break
         case 'request error':
         case 'request complete':
-          headersCollection = this.#responseHeaders
+          metadataCollection = this.#responseMetadata
           break
         default:
           // This is some kind of request other than a request, so we
@@ -237,17 +278,19 @@ export class HeadersLogger {
           this.#error(`No request id for edge.\n${JSON.stringify(elm)}`)
         }
 
-        const headersForRequest = headersCollection[requestId]
-        if (headersForRequest === undefined) {
+        const metadata = metadataCollection[requestId]
+        if (metadata === undefined) {
           return
         }
 
-        const numHeaders = headersForRequest.length
-        const headersAsJSON = JSON.stringify(headersForRequest)
+        const numHeaders = metadata.headers.length
+        const headersAsJSON = JSON.stringify(metadata.headers)
         this.#log(
           'rewriteGraphML',
-          `RequestId #${requestId} "${edgeType}": ${numHeaders} headers`)
+          `RequestId #${requestId} "${edgeType}": num_headers=${numHeaders}, `
+          + `size=${bodySizeForRequest}`)
         rewriter.setAttrForEdge(elm, edgeAttrNameHeaders, headersAsJSON)
+        rewriter.setAttrForEdge(elm, edgeAttrNameSize, metadata.size)
       })
       xml.on('end', () => {
         resolve()

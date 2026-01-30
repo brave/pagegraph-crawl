@@ -3,7 +3,7 @@ type AttrName = string
 type AttrId = string
 type AttrMap = Record<AttrName, AttrId>
 
-type AttrValue = string
+type AttrValue = string | number
 type AttrQueryResult = Record<AttrName, AttrValue | null>
 
 enum GraphMLElmType {
@@ -110,7 +110,7 @@ export class GraphMLModifier {
     return result
   }
 
-  attrForEdge (edge: XmlStreamElm, attr: AttrName): string | null {
+  attrForEdge (edge: XmlStreamElm, attr: AttrName): AttrValue | null {
     const query = this.#attrsForElm(edge, GraphMLElmType.EDGE, attr)
     return query[attr]
   }
@@ -119,7 +119,7 @@ export class GraphMLModifier {
     return this.#attrsForElm(edge, GraphMLElmType.EDGE, ...attrs)
   }
 
-  attrForNode (node: XmlStreamElm, attr: AttrName): string | null {
+  attrForNode (node: XmlStreamElm, attr: AttrName): AttrValue | null {
     const query = this.#attrsForElm(node, GraphMLElmType.NODE, attr)
     return query[attr]
   }

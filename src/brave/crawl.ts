@@ -15,7 +15,7 @@ import { getLogger } from './logging.js'
 import { makeNavigationTracker } from './navigation_tracker.js'
 import { selectRandomChildUrl } from './page.js'
 import { puppeteerConfigForArgs, launchWithRetry } from './puppeteer.js'
-import { HeadersLogger } from './headers.js'
+import { RequestMetadataTracker } from './request_metadata_tracker.js'
 
 interface ExtendedResponse extends Protocol.Network.Response {
   body?: string
@@ -256,14 +256,14 @@ export const doCrawl = async (args: CrawlArgs,
         await page.setUserAgent(args.userAgent)
       }
 
-      const headersLogger = new HeadersLogger(logger)
+      const metadataTracker = new RequestMetadataTracker(logger)
 
       await page.setRequestInterception(true)
       // First load is not a navigation redirect, so we need to skip it.
       page.on('request', async (request: HTTPRequestType) => {
         // We know the given URL will be a valid URL, bc of the puppeteer API
         const requestedUrl = asHTTPUrl(request.url()) as URL
-        headersLogger.addHeadersFromRequest(request)
+        await metadataTracker.addMetadataFromRequest(request)
 
         // Only capture parent frame navigation requests.
         if (isTopLevelPageNavigation(request) === false) {
@@ -310,8 +310,8 @@ export const doCrawl = async (args: CrawlArgs,
         return
       })
 
-      page.on('response', (response: HTTPResponseType) => {
-        headersLogger.addHeadersFromResponse(response)
+      page.on('response', async (response: HTTPResponseType) => {
+        await metadataTracker.addMetadataFromResponse(response)
       })
 
       logger.info('Navigating to ', urlToCrawl)
@@ -331,9 +331,11 @@ export const doCrawl = async (args: CrawlArgs,
       const response = await generatePageGraph(args.seconds, page, client,
                                                shouldStopWaitingFunc, logger)
       if (args.saveRequestHeaders) {
-        await writeHeadersLog(args, urlToCrawl, headersLogger.toJSON(), logger)
+        await writeHeadersLog(args, urlToCrawl,
+                              metadataTracker.toJSON(), logger)
       }
-      await writeGraphML(args, urlToCrawl, response, headersLogger, logger)
+      await writeGraphML(args, urlToCrawl, response, metadataTracker,
+                         logger)
 
       // Store HAR
       if (args.storeHar) {

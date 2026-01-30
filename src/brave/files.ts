@@ -6,7 +6,7 @@ import { pipeline } from 'node:stream'
 import { createGzip, gzipSync } from 'node:zlib'
 
 import { isDir } from './checks.js'
-import { HeadersLogger } from './headers.js'
+import { RequestMetadataTracker } from './request_metadata_tracker.js'
 
 const dateTimeStamp = Math.floor(Date.now() / 1000)
 
@@ -56,8 +56,11 @@ const createGraphMLPath = (args: CrawlArgs, url: URL): FilePath => {
 }
 
 export const writeGraphML = async (
-  args: CrawlArgs, url: URL, response: FinalPageGraphEvent,
-  headersLogger: HeadersLogger, logger: Logger): Promise<FilePath | null> => {
+  args: CrawlArgs,
+  url: URL,
+  response: FinalPageGraphEvent,
+  headersLogger: RequestMetadataTracker,
+  logger: Logger): Promise<FilePath | null> => {
   try {
     const finalOutputFilename = createGraphMLPath(args, url)
     const intermediateFilename = finalOutputFilename + '.tmp'

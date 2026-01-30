@@ -1,6 +1,6 @@
 {
   "name": "pagegraph-crawl",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "description": "CLI for crawling with PageGraph.",
   "engines": {
     "node": ">=20.0.0 <22.0.0"
