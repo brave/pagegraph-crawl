@@ -139,10 +139,9 @@ export class GraphMLModifier {
         continue
       }
 
-      elmData.$text = value
+      elmData.$text = String(value)
       return true
     }
-
     return false
   }
 
@@ -163,7 +162,7 @@ export class GraphMLModifier {
       $: {
         key: attrId,
       },
-      $text: value,
+      $text: String(value),
       $name: 'data',
     })
   }

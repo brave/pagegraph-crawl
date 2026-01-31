@@ -9,12 +9,17 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _RequestMetadataTracker_instances, _RequestMetadataTracker_requestMetadata, _RequestMetadataTracker_responseMetadata, _RequestMetadataTracker_logger, _RequestMetadataTracker_log, _RequestMetadataTracker_logVerbose, _RequestMetadataTracker_error, _RequestMetadataTracker_addMetadata, _RequestMetadataTracker_simplifyRequestId;
+var _RequestMetadataTracker_instances, _RequestMetadataTracker_requestMetadata, _RequestMetadataTracker_responseMetadata, _RequestMetadataTracker_logger, _RequestMetadataTracker_log, _RequestMetadataTracker_logVerbose, _RequestMetadataTracker_error, _RequestMetadataTracker_requestBodySize, _RequestMetadataTracker_responseBodySize, _RequestMetadataTracker_addMetadata, _RequestMetadataTracker_simplifyRequestId;
 import fs from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import XmlStream from 'xml-stream';
 import { GraphMLModifier } from './graphml.js';
-import { request } from 'node:https';
+var RequestIdParseType;
+(function (RequestIdParseType) {
+    RequestIdParseType[RequestIdParseType["NAVIGATION"] = 0] = "NAVIGATION";
+    RequestIdParseType[RequestIdParseType["SUB_REQUEST"] = 1] = "SUB_REQUEST";
+    RequestIdParseType[RequestIdParseType["INTERCEPTION"] = 2] = "INTERCEPTION";
+})(RequestIdParseType || (RequestIdParseType = {}));
 var UpdateType;
 (function (UpdateType) {
     UpdateType["ADD"] = "ADD";
@@ -28,14 +33,6 @@ const edgeAttrNameSize = 'size';
 const requestIdPatternWorker = /interception-job-([0-9]+)\.0/;
 const requestIdPatternNavigation = /^[A-Z0-9]{32}$/;
 const requestIdPatternSubRequest = /^[0-9]+\.([0-9]+)$/;
-const bodySizeForRequest = async (request) => {
-    const requestBody = await request.fetchPostData();
-    return requestBody ? requestBody.length : 0;
-};
-const bodySizeForResponse = async (response) => {
-    const body = await response.buffer();
-    return body.size;
-};
 const headerSortFunc = (a, b) => {
     if (a.name !== b.name) {
         return a.name < b.name ? -1 : 1;
@@ -48,20 +45,42 @@ export class RequestMetadataTracker {
         _RequestMetadataTracker_requestMetadata.set(this, {});
         _RequestMetadataTracker_responseMetadata.set(this, {});
         _RequestMetadataTracker_logger.set(this, void 0);
+        _RequestMetadataTracker_requestBodySize.set(this, async (request) => {
+            try {
+                const requestBody = await request.fetchPostData();
+                return requestBody ? requestBody.length : 0;
+            }
+            catch {
+                __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_log).call(this, '#requestBodySize', 'No content for response: ' + request.url());
+                return 0;
+            }
+        });
+        _RequestMetadataTracker_responseBodySize.set(this, async (response) => {
+            try {
+                const body = await response.content();
+                return body.length;
+            }
+            catch {
+                __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_log).call(this, '#responseBodySize', 'No content for response: ' + response.url());
+                return 0;
+            }
+        });
         __classPrivateFieldSet(this, _RequestMetadataTracker_logger, logger, "f");
     }
     async addMetadataFromRequest(request) {
-        const requestId = __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_simplifyRequestId).call(this, request.id);
-        const bodySize = await bodySizeForRequest(request);
+        const parseResult = __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_simplifyRequestId).call(this, request.id);
+        const bodySize = (parseResult.type === RequestIdParseType.NAVIGATION)
+            ? -1
+            : await __classPrivateFieldGet(this, _RequestMetadataTracker_requestBodySize, "f").call(this, request);
         const collection = __classPrivateFieldGet(this, _RequestMetadataTracker_requestMetadata, "f");
-        return __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_addMetadata).call(this, requestId, request, bodySize, collection);
+        return __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_addMetadata).call(this, parseResult.id, request, bodySize, collection);
     }
     async addMetadataFromResponse(response) {
         const rawRequestId = response.request().id;
-        const requestId = __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_simplifyRequestId).call(this, rawRequestId);
-        const bodySize = await bodySizeForResponse(request);
+        const parseResult = __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_simplifyRequestId).call(this, rawRequestId);
+        const bodySize = await __classPrivateFieldGet(this, _RequestMetadataTracker_responseBodySize, "f").call(this, response);
         const collection = __classPrivateFieldGet(this, _RequestMetadataTracker_responseMetadata, "f");
-        return __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_addMetadata).call(this, requestId, request, bodySize, collection);
+        return __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_addMetadata).call(this, parseResult.id, response, bodySize, collection);
     }
     toJSON() {
         return JSON.stringify({
@@ -144,8 +163,8 @@ export class RequestMetadataTracker {
                 }
                 const numHeaders = metadata.headers.length;
                 const headersAsJSON = JSON.stringify(metadata.headers);
-                __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_log).call(this, 'rewriteGraphML', `RequestId #${requestId} "${edgeType}": num_headers=${numHeaders}, `
-                    + `size=${bodySizeForRequest}`);
+                __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_log).call(this, 'rewriteGraphML', `RequestId #${requestId} "${edgeType}": `
+                    + `num_headers=${numHeaders}, size=${metadata.size}`);
                 rewriter.setAttrForEdge(elm, edgeAttrNameHeaders, headersAsJSON);
                 rewriter.setAttrForEdge(elm, edgeAttrNameSize, metadata.size);
             });
@@ -155,7 +174,7 @@ export class RequestMetadataTracker {
         });
     }
 }
-_RequestMetadataTracker_requestMetadata = new WeakMap(), _RequestMetadataTracker_responseMetadata = new WeakMap(), _RequestMetadataTracker_logger = new WeakMap(), _RequestMetadataTracker_instances = new WeakSet(), _RequestMetadataTracker_log = function _RequestMetadataTracker_log(methodName, msg) {
+_RequestMetadataTracker_requestMetadata = new WeakMap(), _RequestMetadataTracker_responseMetadata = new WeakMap(), _RequestMetadataTracker_logger = new WeakMap(), _RequestMetadataTracker_requestBodySize = new WeakMap(), _RequestMetadataTracker_responseBodySize = new WeakMap(), _RequestMetadataTracker_instances = new WeakSet(), _RequestMetadataTracker_log = function _RequestMetadataTracker_log(methodName, msg) {
     if (!__classPrivateFieldGet(this, _RequestMetadataTracker_logger, "f")) {
         return;
     }
@@ -183,7 +202,8 @@ _RequestMetadataTracker_requestMetadata = new WeakMap(), _RequestMetadataTracker
     const typeName = (collection === __classPrivateFieldGet(this, _RequestMetadataTracker_requestMetadata, "f"))
         ? 'request'
         : 'response';
-    __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_logVerbose).call(this, 'addMetadata', `RequestId=${requestId} (${typeName}): ${JSON.stringify(metadata)}`);
+    __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_logVerbose).call(this, 'addMetadata', `RequestId=${requestId} (${typeName}): size=${bodySize}, `
+        + `headers=${JSON.stringify(metadata)}`);
     // Seeing a repeated request id can happen when the page redirects
     // during the crawl (e.g., the page makes requests 1, 2, and 3; the browser
     // is redirected to a new page; that new page also makes requests 1,
@@ -213,19 +233,19 @@ _RequestMetadataTracker_requestMetadata = new WeakMap(), _RequestMetadataTracker
     if (interceptRequestMatchRs !== null) {
         const requestId = parseInt(interceptRequestMatchRs[1], 10);
         __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_log).call(this, 'simplifyRequestId', `RequestId: ${requestId} ("intercept", from ${rawRequestId})`);
-        return requestId;
+        return { id: requestId, type: RequestIdParseType.INTERCEPTION };
     }
     const subRequestMatchRs = rawRequestId.match(requestIdPatternSubRequest);
     if (subRequestMatchRs !== null) {
         const requestIdParts = rawRequestId.split('.');
         const requestId = parseInt(requestIdParts[1], 10);
         __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_log).call(this, 'simplifyRequestId', `RequestId: ${requestId} ("subrequest", from ${rawRequestId})`);
-        return requestId;
+        return { id: requestId, type: RequestIdParseType.SUB_REQUEST };
     }
     const navRequestMatchRs = rawRequestId.match(requestIdPatternNavigation);
     if (navRequestMatchRs !== null) {
         __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_log).call(this, 'simplifyRequestId', `RequestId: ${rawRequestId} ("navigation")`);
-        return rawRequestId;
+        return { id: rawRequestId, type: RequestIdParseType.NAVIGATION };
     }
     __classPrivateFieldGet(this, _RequestMetadataTracker_instances, "m", _RequestMetadataTracker_error).call(this, `RequestId does not have a known format: "${rawRequestId}"`);
 };

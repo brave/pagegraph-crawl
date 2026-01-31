@@ -5,7 +5,6 @@ import type { HTTPRequest, HTTPResponse } from 'puppeteer-core'
 import XmlStream from 'xml-stream'
 
 import { GraphMLModifier } from './graphml.js'
-import { request } from 'node:https'
 
 interface HTTPHeader {
   name: string
@@ -15,6 +14,17 @@ interface HTTPHeader {
 interface Metadata {
   headers: HTTPHeader[]
   size: number
+}
+
+enum RequestIdParseType {
+  NAVIGATION,
+  SUB_REQUEST,
+  INTERCEPTION,
+}
+
+interface RequestIdParse {
+  id: RequestId
+  type: RequestIdParseType
 }
 
 type RequestType = typeof HTTPRequest
@@ -37,16 +47,6 @@ const edgeAttrNameSize = 'size'
 const requestIdPatternWorker = /interception-job-([0-9]+)\.0/
 const requestIdPatternNavigation = /^[A-Z0-9]{32}$/
 const requestIdPatternSubRequest = /^[0-9]+\.([0-9]+)$/
-
-const bodySizeForRequest = async (request: RequestType) => {
-  const requestBody = await request.fetchPostData()
-  return requestBody ? requestBody.length : 0
-}
-
-const bodySizeForResponse = async (response: ResponseType) => {
-  const body = await response.buffer()
-  return body.size
-}
 
 const headerSortFunc = (a: HTTPHeader, b: HTTPHeader) => {
   if (a.name !== b.name) {
@@ -82,6 +82,30 @@ export class RequestMetadataTracker {
     throw new Error(msg)
   }
 
+  #requestBodySize = async (request: RequestType): Promise<number> => {
+    try {
+      const requestBody = await request.fetchPostData()
+      return requestBody ? requestBody.length : 0
+    }
+    catch {
+      this.#log('#requestBodySize',
+                'No content for response: ' + request.url())
+      return 0
+    }
+  }
+
+  #responseBodySize = async (response: ResponseType): Promise<number> => {
+    try {
+      const body = await response.content()
+      return body.length
+    }
+    catch {
+      this.#log('#responseBodySize',
+                'No content for response: ' + response.url())
+      return 0
+    }
+  }
+
   #addMetadata (requestId: RequestId,
                 reqOrRes: RequestType | ResponseType,
                 bodySize: number,
@@ -104,7 +128,8 @@ export class RequestMetadataTracker {
       : 'response'
     this.#logVerbose(
       'addMetadata',
-      `RequestId=${requestId} (${typeName}): ${JSON.stringify(metadata)}`)
+      `RequestId=${requestId} (${typeName}): size=${bodySize}, `
+      + `headers=${JSON.stringify(metadata)}`)
     // Seeing a repeated request id can happen when the page redirects
     // during the crawl (e.g., the page makes requests 1, 2, and 3; the browser
     // is redirected to a new page; that new page also makes requests 1,
@@ -145,14 +170,14 @@ export class RequestMetadataTracker {
   //
   // Since PageGraph runs in single process mode, we can discard the process
   // id for this second category of requests.
-  #simplifyRequestId (rawRequestId: PuppeteerRequestId): RequestId {
+  #simplifyRequestId (rawRequestId: PuppeteerRequestId): RequestIdParse {
     const interceptRequestMatchRs = rawRequestId.match(requestIdPatternWorker)
     if (interceptRequestMatchRs !== null) {
       const requestId = parseInt(interceptRequestMatchRs[1], 10)
       this.#log(
         'simplifyRequestId',
         `RequestId: ${requestId} ("intercept", from ${rawRequestId})`)
-      return requestId
+      return { id: requestId, type: RequestIdParseType.INTERCEPTION }
     }
 
     const subRequestMatchRs = rawRequestId.match(requestIdPatternSubRequest)
@@ -162,7 +187,7 @@ export class RequestMetadataTracker {
       this.#log(
         'simplifyRequestId',
         `RequestId: ${requestId} ("subrequest", from ${rawRequestId})`)
-      return requestId
+      return { id: requestId, type: RequestIdParseType.SUB_REQUEST }
     }
 
     const navRequestMatchRs = rawRequestId.match(requestIdPatternNavigation)
@@ -170,25 +195,27 @@ export class RequestMetadataTracker {
       this.#log(
         'simplifyRequestId',
         `RequestId: ${rawRequestId} ("navigation")`)
-      return rawRequestId
+      return { id: rawRequestId, type: RequestIdParseType.NAVIGATION }
     }
 
     this.#error(`RequestId does not have a known format: "${rawRequestId}"`)
   }
 
   async addMetadataFromRequest (request: RequestType): Promise<UpdateType> {
-    const requestId = this.#simplifyRequestId(request.id)
-    const bodySize = await bodySizeForRequest(request)
+    const parseResult = this.#simplifyRequestId(request.id)
+    const bodySize = (parseResult.type === RequestIdParseType.NAVIGATION)
+      ? -1
+      : await this.#requestBodySize(request)
     const collection = this.#requestMetadata
-    return this.#addMetadata(requestId, request, bodySize, collection)
+    return this.#addMetadata(parseResult.id, request, bodySize, collection)
   }
 
   async addMetadataFromResponse (response: ResponseType): Promise<UpdateType> {
     const rawRequestId = response.request().id
-    const requestId = this.#simplifyRequestId(rawRequestId)
-    const bodySize = await bodySizeForResponse(request)
+    const parseResult = this.#simplifyRequestId(rawRequestId)
+    const bodySize = await this.#responseBodySize(response)
     const collection = this.#responseMetadata
-    return this.#addMetadata(requestId, request, bodySize, collection)
+    return this.#addMetadata(parseResult.id, response, bodySize, collection)
   }
 
   toJSON (): string {
@@ -287,8 +314,8 @@ export class RequestMetadataTracker {
         const headersAsJSON = JSON.stringify(metadata.headers)
         this.#log(
           'rewriteGraphML',
-          `RequestId #${requestId} "${edgeType}": num_headers=${numHeaders}, `
-          + `size=${bodySizeForRequest}`)
+          `RequestId #${requestId} "${edgeType}": `
+          + `num_headers=${numHeaders}, size=${metadata.size}`)
         rewriter.setAttrForEdge(elm, edgeAttrNameHeaders, headersAsJSON)
         rewriter.setAttrForEdge(elm, edgeAttrNameSize, metadata.size)
       })

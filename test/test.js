@@ -34,7 +34,7 @@ const _cleanupTempOutputDir = async (outputPath) => {
   return await cleanupTempOutputDir(outputPath, DEBUG)
 }
 
-describe('PageGraph Crawl CLI', () => {
+describe('pagegraph-crawl', () => {
   let serverProcessHandle
   before(async () => {
     serverProcessHandle = await startServer(testServerPort, DEBUG)
@@ -222,30 +222,39 @@ describe('PageGraph Crawl CLI', () => {
     })
   })
 
-  describe('cookies', () => {
-    it('request cookies', async () => {
-      const testDir = await _createTempOutputDir()
-      try {
-        const cookiesTestUrl = makeTestUrl('cookies.html')
-        await _crawlUrl(cookiesTestUrl, testDir)
-        const files = await _readCrawlResults(testDir)
-        assert.equal(files.length, 1)
+  describe('requests', () => {
+    describe('metadata', () => {
+      const makeRequestSizeTest = (resourceFileName) => {
+        return async () => {
+          const testDir = await _createTempOutputDir()
+          try {
+            const testUrl = `${testBaseUrl}/requests-metadata.html`
+            await _crawlUrl(testUrl, testDir)
+            const files = await _readCrawlResults(testDir)
+            assert.equal(files.length, 1)
+            const file = files[0]
+            const graphML = await readFile(join(testDir, file), 'UTF-8')
 
-        const file = files[0]
-        const graphML = await readFile(join(testDir, file), 'UTF-8')
-
-        // First check and make sure we only see one the below string
-        // once, which will appear in the cookie header.
-        const cookieHeader = graphML.match(/test-cookie=value-[0-9]+/g) || []
-        assert.equal(cookieHeader.length, 1)
-      } finally {
-        await _cleanupTempOutputDir(testDir)
+            const relativeResourcePath = 'resources/' + resourceFileName
+            const resourceFilePath = './test/pages/' + relativeResourcePath
+            const resourceBuffer = await readFile(resourceFilePath)
+            const bodySize = resourceBuffer.length
+            // Check that it looks like we see the URL of the requested
+            // resource in the graphml
+            assert.ok(graphML.includes(`${relativeResourcePath}<`))
+            // And that we see the expected body size recorded too
+            assert.ok(graphML.includes(`>${bodySize}<`))
+          } finally {
+            await _cleanupTempOutputDir(testDir)
+          }
+        }
       }
-    })
-  })
 
-  describe('requests and header rewriting', () => {
-    it('requests made in worker script', async () => {
+      it('static request (size)', makeRequestSizeTest('document.svg'))
+      it('dynamic request (size)', makeRequestSizeTest('page-cookies.js'))
+    })
+
+    it('requests made in worker', async () => {
       const workerTestUrl = `${testBaseUrl}/worker.html`
       const testDir = await _createTempOutputDir()
       try {
@@ -267,6 +276,26 @@ describe('PageGraph Crawl CLI', () => {
         // worker request didn't end up in the graph (since the crawler
         // catches and rewrites these).
         assert.ok(!graphML.includes('interception-job-'))
+      } finally {
+        await _cleanupTempOutputDir(testDir)
+      }
+    })
+
+    it('http cookies', async () => {
+      const testDir = await _createTempOutputDir()
+      try {
+        const cookiesTestUrl = makeTestUrl('cookies.html')
+        await _crawlUrl(cookiesTestUrl, testDir)
+        const files = await _readCrawlResults(testDir)
+        assert.equal(files.length, 1)
+
+        const file = files[0]
+        const graphML = await readFile(join(testDir, file), 'UTF-8')
+
+        // First check and make sure we only see one the below string
+        // once, which will appear in the cookie header.
+        const cookieHeader = graphML.match(/test-cookie=value-[0-9]+/g) || []
+        assert.equal(cookieHeader.length, 1)
       } finally {
         await _cleanupTempOutputDir(testDir)
       }
@@ -318,9 +347,9 @@ describe('PageGraph Crawl CLI', () => {
     })
 
     it('with subresources', async () => {
-      const resourcesUrl = `${testBaseUrl}/resources.html`
       const testDir = await _createTempOutputDir()
       try {
+        const resourcesUrl = makeTestUrl('har-subresources.html')
         await _crawlUrl(resourcesUrl, testDir, {
           '--har': null,
           '--har-body': null
@@ -343,7 +372,7 @@ describe('PageGraph Crawl CLI', () => {
         assert.ok(firstRequestUrl.endsWith('resources/page-resources.js'))
         assert.equal(firstLogEntry.response.status, 200)
 
-        assert.ok(secondLogEntry.request.url.includes('g7823rbhifgu12.org'))
+        assert.ok(secondLogEntry.request.url.includes('this-path-does-not-exist.txt'))
         assert.equal(secondLogEntry.response.status, 404)
 
         assert.ok(thirdLogEntry.request.url.endsWith('resources/document.svg'))

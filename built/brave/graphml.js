@@ -131,7 +131,7 @@ _GraphMLModifier_attrsEdge = new WeakMap(), _GraphMLModifier_attrsNode = new Wea
         if (elmDataAttrId !== attrId) {
             continue;
         }
-        elmData.$text = value;
+        elmData.$text = String(value);
         return true;
     }
     return false;
@@ -141,7 +141,7 @@ _GraphMLModifier_attrsEdge = new WeakMap(), _GraphMLModifier_attrsNode = new Wea
         $: {
             key: attrId,
         },
-        $text: value,
+        $text: String(value),
         $name: 'data',
     });
 }, _GraphMLModifier_setAttrForElm = function _GraphMLModifier_setAttrForElm(elm, type, attrName, value) {

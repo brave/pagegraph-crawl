@@ -72,8 +72,9 @@ export const writeGraphML = async (
     logger.info('... and stitching request headers to: ', finalOutputFilename)
     await headersLogger.rewriteGraphML(
       intermediateFilename, finalOutputFilename)
+    logger.verbose('... finished writing to: ', finalOutputFilename)
     await unlink(intermediateFilename)
-
+    logger.verbose('... and deleting: ', intermediateFilename)
     if (args.compress) {
       return await compressAtPath(finalOutputFilename)
     }

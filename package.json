@@ -31,7 +31,7 @@
   "dependencies": {
     "argparse": "2.0.1",
     "chrome-har": "1.1.1",
-    "puppeteer-core": "23.11.1",
+    "puppeteer-core": "^24.36.1",
     "which": "5.0.0",
     "xml-stream": "^0.4.5",
     "xvfb": "0.4.0"
