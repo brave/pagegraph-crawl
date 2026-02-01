@@ -1,10 +1,7 @@
 {
   "name": "pagegraph-crawl",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "description": "CLI for crawling with PageGraph.",
-  "engines": {
-    "node": ">=20.0.0 <22.0.0"
-  },
   "scripts": {
     "lint": "npx eslint src/**/*.ts src/*.ts && npx eslint -c eslint-neostandard.config.js test/*.js test/pages/resources/*.js",
     "lint:fix": "npx eslint --fix src/**/*.ts src/*.ts && npx eslint --fix -c eslint-neostandard.config.js test/*.js",
@@ -33,13 +30,13 @@
     "chrome-har": "1.1.1",
     "puppeteer-core": "^24.36.1",
     "which": "5.0.0",
-    "xml-stream": "^0.4.5",
+    "xml-stream-editor": "^0.2.0",
     "xvfb": "0.4.0"
   },
   "devDependencies": {
     "@eslint/js": "9.38.0",
     "@stylistic/eslint-plugin": "2.13.0",
-    "@tsconfig/node20": "20.1.6",
+    "@tsconfig/node24": "^24.0.4",
     "@types/argparse": "2.0.17",
     "@types/eslint__js": "8.42.3",
     "@types/node": "^25.1.0",

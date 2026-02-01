@@ -1,10 +1,11 @@
-import fs from 'node:fs'
+import assert from 'node:assert'
+import { createReadStream, createWriteStream } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 
 import type { HTTPRequest, HTTPResponse } from 'puppeteer-core'
-import XmlStream from 'xml-stream'
+import { Element } from 'xml-stream-editor'
 
-import { GraphMLModifier } from './graphml.js'
+import { PageGraphXMLRewriter } from './graphml-rewriter.js'
 
 interface HTTPHeader {
   name: string
@@ -39,10 +40,10 @@ enum UpdateType {
   UPDATE = 'UPDATE',
 }
 
-const edgeAttrNameEdgeType = 'edge type'
-const edgeAttrNameRequestId = 'request id'
-const edgeAttrNameHeaders = 'headers'
-const edgeAttrNameSize = 'size'
+const edgeAttrEdgeType = 'edge type'
+const edgeAttrRequestId = 'request id'
+const edgeAttrHeaders = 'headers'
+const edgeAttrSize = 'size'
 
 const requestIdPatternWorker = /interception-job-([0-9]+)\.0/
 const requestIdPatternNavigation = /^[A-Z0-9]{32}$/
@@ -58,10 +59,12 @@ const headerSortFunc = (a: HTTPHeader, b: HTTPHeader) => {
 export class RequestMetadataTracker {
   #requestMetadata: RequestToMetadataMap = {}
   #responseMetadata: RequestToMetadataMap = {}
-  #logger: Logger | undefined
+  readonly #logger: Logger | undefined
+  readonly #strict: boolean
 
-  constructor (logger?: Logger) {
+  constructor (logger?: Logger, strict = false) {
     this.#logger = logger
+    this.#strict = strict
   }
 
   #log (methodName: string, msg: any): void {
@@ -241,87 +244,51 @@ export class RequestMetadataTracker {
     this.#responseMetadata = data.responses as RequestToMetadataMap
   }
 
-  rewriteGraphML (graphMLPath: FilePath, toPath: FilePath): Promise<void> {
-    const rewriter = new GraphMLModifier()
-    const inputStream = fs.createReadStream(graphMLPath, { encoding: 'utf8' })
-    const outputStream = fs.createWriteStream(toPath)
+  async rewriteGraphML (graphMLPath: FilePath,
+                        toPath: FilePath): Promise<void> {
+    const inputStream = createReadStream(graphMLPath, { encoding: 'utf8' })
+    const outputStream = createWriteStream(toPath)
 
-    return new Promise((resolve) => {
-      const xml = new XmlStream(inputStream, 'utf8')
+    const editEdgeFunc = (elm: Element, editor: PageGraphXMLRewriter) => {
+      const attrs = editor.getAttrs(elm, edgeAttrEdgeType, edgeAttrRequestId)
+      const edgeType = attrs[edgeAttrEdgeType]
+      assert(edgeType)
 
-      // We mostly use this input stream indirectly, by passing it to the
-      // XmlStream API (to rewrite the XML as we stream it), but as best I can
-      // tell, there is no straightforward way to capture the XML declaration
-      // using xml-stream, so we just capture it directly with a separate,
-      // one shot event.
-      inputStream.prependOnceListener('data', (data: string) => {
-        const xmlDeclarationPattern = /^(<\?xml.+?\?>)/
-        const xmlDeclarationMatch = data.match(xmlDeclarationPattern)
-        if (xmlDeclarationMatch) {
-          const xmlDeclaration = xmlDeclarationMatch[0]
-          outputStream.write(xmlDeclaration + '\n')
-        }
-      })
+      let metadataCollection: RequestToMetadataMap | undefined
+      switch (edgeType) {
+      case 'request start':
+      case 'request redirect':
+        metadataCollection = this.#requestMetadata
+        break
+      case 'request error':
+      case 'request complete':
+        metadataCollection = this.#responseMetadata
+        break
+      default:
+        return elm
+      }
+      assert(metadataCollection)
 
-      xml.on('data', (data: any) => {
-        outputStream.write(data)
-      })
-      xml.on('startElement: key', (elm: any) => {
-        rewriter.processKeyElm(elm)
-      })
-      xml.collect('data')
-      xml.on('updateElement: edge', (elm: any) => {
-        const attrsQuery = [
-          edgeAttrNameEdgeType,
-          edgeAttrNameHeaders,
-          edgeAttrNameRequestId,
-          edgeAttrNameSize,
-        ]
-        const queryResult = rewriter.attrsForEdge(elm, ...attrsQuery)
-        const edgeType = queryResult[edgeAttrNameEdgeType]
-        if (edgeType === null) {
+      const requestId = attrs[edgeAttrRequestId]
+      assert(requestId)
+
+      const metadata = metadataCollection[requestId]
+      if (metadata === undefined) {
+        if (this.#strict === true) {
           this.#error(
-            `Could not determine "edge type" for edge.\n${JSON.stringify(elm)}`)
+            'Unable to find metadata for request record in graphml. '
+            + `RequestId=${requestId}`)
         }
+        return elm
+      }
 
-        let metadataCollection: RequestToMetadataMap | undefined
-        switch (edgeType) {
-        case 'request start':
-        case 'request redirect':
-          metadataCollection = this.#requestMetadata
-          break
-        case 'request error':
-        case 'request complete':
-          metadataCollection = this.#responseMetadata
-          break
-        default:
-          // This is some kind of request other than a request, so we
-          // wen't make any changes.
-          return
-        }
+      editor.setAttr(elm, edgeAttrHeaders, JSON.stringify(metadata.headers))
+      editor.setAttr(elm, edgeAttrSize, String(metadata.size))
+      return elm
+    }
 
-        const requestId = queryResult[edgeAttrNameRequestId]
-        if (requestId === null) {
-          this.#error(`No request id for edge.\n${JSON.stringify(elm)}`)
-        }
-
-        const metadata = metadataCollection[requestId]
-        if (metadata === undefined) {
-          return
-        }
-
-        const numHeaders = metadata.headers.length
-        const headersAsJSON = JSON.stringify(metadata.headers)
-        this.#log(
-          'rewriteGraphML',
-          `RequestId #${requestId} "${edgeType}": `
-          + `num_headers=${numHeaders}, size=${metadata.size}`)
-        rewriter.setAttrForEdge(elm, edgeAttrNameHeaders, headersAsJSON)
-        rewriter.setAttrForEdge(elm, edgeAttrNameSize, metadata.size)
-      })
-      xml.on('end', () => {
-        resolve()
-      })
-    })
+    const rewriter = new PageGraphXMLRewriter()
+    rewriter.setEdgeEditor(editEdgeFunc)
+    return await rewriter.rewriteTo(inputStream, outputStream)
   }
 }

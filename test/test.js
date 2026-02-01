@@ -52,7 +52,7 @@ describe('pagegraph-crawl', () => {
   })
 
   describe('single page', () => {
-    it('single static page', async () => {
+    it('static page', async () => {
       const testDir = await _createTempOutputDir()
       try {
         await _crawlUrl(simpleUrl, testDir)
@@ -69,7 +69,7 @@ describe('pagegraph-crawl', () => {
         await _cleanupTempOutputDir(testDir)
       }
     })
-    it('single static page with gzip', async () => {
+    it('static page with gzip', async () => {
       const testDir = await _createTempOutputDir()
       try {
         await _crawlUrl(simpleUrl, testDir, { '--compress': null })
@@ -254,7 +254,7 @@ describe('pagegraph-crawl', () => {
       it('dynamic request (size)', makeRequestSizeTest('page-cookies.js'))
     })
 
-    it('requests made in worker', async () => {
+    it('...in web worker', async () => {
       const workerTestUrl = `${testBaseUrl}/worker.html`
       const testDir = await _createTempOutputDir()
       try {
@@ -277,7 +277,7 @@ describe('pagegraph-crawl', () => {
         // catches and rewrites these).
         assert.ok(!graphML.includes('interception-job-'))
       } finally {
-        await _cleanupTempOutputDir(testDir)
+        // await _cleanupTempOutputDir(testDir)
       }
     })
 

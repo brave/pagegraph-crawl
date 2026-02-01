@@ -1,6 +1,14 @@
 Changelog
 ===
 
+1.2.10
+---
+
+Change XML rewriting from
+[xml-stream](https://www.npmjs.com/package/xml-stream) to
+[xml-stream-editor](https://www.npmjs.com/package/xml-stream-editor) so
+that we can run with node versions again (and, IMO, the API is nicer too).
+
 1.2.9
 ---
 
