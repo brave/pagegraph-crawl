@@ -1,6 +1,13 @@
 Changelog
 ===
 
+1.2.11
+---
+
+Add `MacAppCodeSignClone` to set of disable chromium features. This works
+around a Chromium bug that caused redundant entires from accumulating
+in the MacOS "Local Network" permission table.
+
 1.2.10
 ---
 

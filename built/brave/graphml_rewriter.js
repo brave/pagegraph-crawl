@@ -8,21 +8,6 @@ import { createXMLEditor, newElement } from 'xml-stream-editor';
 const attrElmsSelector = 'graphml key';
 const nodeElmsSelector = 'graphml graph node';
 const edgeElmsSelector = 'graphml graph edge';
-export const logElm = (elm) => {
-    let msg = `<${elm.name}`;
-    for (const [attrName, attrValue] of Object.entries(elm.attributes)) {
-        msg += ` ${attrName}="${attrValue}"`;
-    }
-    msg += '>';
-    if (elm.text) {
-        msg += elm.text;
-    }
-    if (elm.children.length > 0) {
-        msg += `\n    - num children: ${elm.children.length}\n`;
-    }
-    msg += `</${elm.name}>`;
-    console.log(msg);
-};
 export class PageGraphXMLRewriter {
     #nodeAttrIds = new Map();
     #edgeAttrIds = new Map();

@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises'
 import type { HTTPRequest, HTTPResponse } from 'puppeteer-core'
 import { Element } from 'xml-stream-editor'
 
-import { PageGraphXMLRewriter } from './graphml-rewriter.js'
+import { PageGraphXMLRewriter } from './graphml_rewriter.js'
 
 interface HTTPHeader {
   name: string

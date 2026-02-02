@@ -34,6 +34,9 @@ const disabledBraveFeatures = [
 
 const disabledChromeFeatures = [
   'IPH_SidePanelGenericMenuFeature',
+  // Disable because enabling this results in redundant entires in the
+  // MacOS "Local Network" permission table.
+  'MacAppCodeSignClone',
 ]
 
 const disabledFeatures = disabledBraveFeatures.concat(disabledChromeFeatures)

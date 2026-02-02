@@ -1,6 +1,6 @@
 {
   "name": "pagegraph-crawl",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "description": "CLI for crawling with PageGraph.",
   "scripts": {
     "lint": "npx eslint src/**/*.ts src/*.ts && npx eslint -c eslint-neostandard.config.js test/*.js test/pages/resources/*.js",

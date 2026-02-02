@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { PageGraphXMLRewriter } from './graphml-rewriter.js';
+import { PageGraphXMLRewriter } from './graphml_rewriter.js';
 var RequestIdParseType;
 (function (RequestIdParseType) {
     RequestIdParseType[RequestIdParseType["NAVIGATION"] = 0] = "NAVIGATION";
