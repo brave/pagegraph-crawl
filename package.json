@@ -34,20 +34,20 @@
     "xvfb": "0.4.0"
   },
   "devDependencies": {
-    "@eslint/js": "9.38.0",
+    "@eslint/js": "9.39.3",
     "@stylistic/eslint-plugin": "2.13.0",
-    "@tsconfig/node24": "^24.0.4",
+    "@tsconfig/node24": "24.0.4",
     "@types/argparse": "2.0.17",
     "@types/eslint__js": "8.42.3",
-    "@types/node": "^25.1.0",
+    "@types/node": "25.1.0",
     "@types/which": "3.0.4",
-    "@typescript-eslint/parser": "8.46.2",
-    "eslint": "9.38.0",
+    "@typescript-eslint/parser": "8.56.1",
+    "eslint": "9.39.3",
     "http-server": "14.1.1",
-    "mocha": "^11.3.0",
+    "mocha": "11.3.0",
     "neostandard": "0.12.2",
     "tree-kill": "1.2.2",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.46.2"
+    "typescript-eslint": "8.56.1"
   }
 }
