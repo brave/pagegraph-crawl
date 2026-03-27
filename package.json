@@ -29,7 +29,7 @@
     "argparse": "2.0.1",
     "chrome-har": "1.1.1",
     "puppeteer-core": "^24.36.1",
-    "which": "5.0.0",
+    "which": "6.0.1",
     "xml-stream-editor": "^0.2.0",
     "xvfb": "0.4.0"
   },
