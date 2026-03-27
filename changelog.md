@@ -1,6 +1,11 @@
 Changelog
 ===
 
+HEAD
+---
+
+Major version bumps for deps and dev-deps.
+
 1.2.12
 ---
 
