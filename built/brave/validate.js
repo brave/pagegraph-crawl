@@ -1,18 +1,18 @@
-import * as fsLib from 'fs';
-import * as osLib from 'os';
-import * as pathLib from 'path';
-import which from 'which';
-import { asHTTPUrl, isDir, isExecFile } from './checks.js';
-import { getLoggerForLevel } from './logging.js';
+import * as fsLib from "fs";
+import * as osLib from "os";
+import * as pathLib from "path";
+import which from "which";
+import { asHTTPUrl, isDir, isExecFile } from "./checks.js";
+import { getLoggerForLevel } from "./logging.js";
 const possibleBraveBinaryPaths = [
-    '/Applications/Brave Browser Nightly.app/Contents/MacOS/Brave Browser Nightly',
-    '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
+    "/Applications/Brave Browser Nightly.app/Contents/MacOS/Brave Browser Nightly",
+    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
 ];
 const guessBinary = () => {
     // If we're on MacOS, first see if there is a version of Brave
     // we can use in the typical locations.  Prefer Brave nightly, and then Brave
     // stable.
-    if (osLib.type() === 'Darwin') {
+    if (osLib.type() === "Darwin") {
         for (const aPossibleBinaryPath of possibleBraveBinaryPaths) {
             if (isExecFile(aPossibleBinaryPath)) {
                 return aPossibleBinaryPath;
@@ -21,10 +21,10 @@ const guessBinary = () => {
     }
     // Otherwise, see if we can find a Brave binary in the path
     const possibleBraveBinaryNames = [
-        'brave-browser-nightly',
-        'brave-browser-beta',
-        'brave-browser-stable',
-        'brave-browser',
+        "brave-browser-nightly",
+        "brave-browser-beta",
+        "brave-browser-stable",
+        "brave-browser",
     ];
     for (const aBinaryName of possibleBraveBinaryNames) {
         const binaryPath = which.sync(aBinaryName, { nothrow: true });
@@ -36,12 +36,12 @@ const guessBinary = () => {
 };
 export const validate = (rawArgs) => {
     const logger = getLoggerForLevel(rawArgs.logging);
-    logger.info('Received arguments: ', rawArgs);
+    logger.info("Received arguments: ", rawArgs);
     let executablePath;
     if (rawArgs.binary === null || rawArgs.binary === undefined) {
         const possibleBinary = guessBinary();
         if (possibleBinary === false) {
-            return [false, 'No binary specified, and could not guess one'];
+            return [false, "No binary specified, and could not guess one"];
         }
         executablePath = possibleBinary;
     }
@@ -58,9 +58,9 @@ export const validate = (rawArgs) => {
         if (!isDir(outputPathParts.dir)) {
             try {
                 const logMsg = [
-                    'Output path: ',
+                    "Output path: ",
                     rawArgs.output,
-                    ' does not exist. Creating directory.',
+                    " does not exist. Creating directory.",
                 ];
                 logger.info(logMsg);
                 fsLib.mkdirSync(rawArgs.output);
@@ -68,8 +68,8 @@ export const validate = (rawArgs) => {
             catch (e) {
                 return [
                     false,
-                    'Invalid path to write results to; unable to create the directory:\n'
-                        + String(e)
+                    "Invalid path to write results to; unable to create the directory:\n" +
+                        String(e),
                 ];
             }
         }
@@ -95,7 +95,7 @@ export const validate = (rawArgs) => {
         url,
         recursiveDepth,
         seconds: secs,
-        withShieldsUp: (rawArgs.shields === 'up'),
+        withShieldsUp: rawArgs.shields === "up",
         loggingLevel: rawArgs.logging,
         existingUserDataDirPath: undefined,
         persistUserDataDirPath: undefined,
@@ -130,16 +130,16 @@ export const validate = (rawArgs) => {
     if (rawArgs.existing_user_data_dir === undefined && isPersistUserDataDir) {
         return [
             false,
-            'Cannot specify both that you want to use an existing user data dir, '
-                + 'and that you want to persist a new user data dir.',
+            "Cannot specify both that you want to use an existing user data dir, " +
+                "and that you want to persist a new user data dir.",
         ];
     }
     if (rawArgs.existing_user_data_dir !== undefined) {
         if (!isDir(rawArgs.existing_user_data_dir)) {
             return [
                 false,
-                'Provided existing profile path is not a directory: '
-                    + String(rawArgs.existing_user_data_dir),
+                "Provided existing profile path is not a directory: " +
+                    String(rawArgs.existing_user_data_dir),
             ];
         }
         validatedArgs.existingUserDataDirPath = rawArgs.existing_user_data_dir;
@@ -148,18 +148,24 @@ export const validate = (rawArgs) => {
         const userDataPathIsDir = isDir(rawArgs.persist_user_data_dir);
         const userDataPathIsExec = isExecFile(rawArgs.persist_user_data_dir);
         if (userDataPathIsDir || userDataPathIsExec) {
-            return [false, 'File already exists at path for persisting a '
-                    + `profile: ${String(rawArgs.persist_user_data_dir)}.`];
+            return [
+                false,
+                "File already exists at path for persisting a " +
+                    `profile: ${String(rawArgs.persist_user_data_dir)}.`,
+            ];
         }
         validatedArgs.persistUserDataDirPath = rawArgs.persist_user_data_dir;
     }
     if (rawArgs.extensions_path !== undefined) {
         if (!isDir(rawArgs.extensions_path)) {
-            return [false, 'Provided extensions path is not a directory: '
-                    + `${String(rawArgs.extensions_path)}.`];
+            return [
+                false,
+                "Provided extensions path is not a directory: " +
+                    `${String(rawArgs.extensions_path)}.`,
+            ];
         }
         validatedArgs.extensionsPath = rawArgs.extensions_path;
     }
-    logger.info('Running with settings: ', JSON.stringify(validatedArgs));
+    logger.info("Running with settings: ", JSON.stringify(validatedArgs));
     return [true, Object.freeze(validatedArgs)];
 };

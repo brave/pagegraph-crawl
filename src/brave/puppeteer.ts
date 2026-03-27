@@ -1,148 +1,150 @@
-import { cp } from 'node:fs/promises'
-import { join } from 'path'
+import { cp } from "node:fs/promises";
+import { join } from "path";
 
-import puppeteerLib from 'puppeteer-core'
-import type { LaunchOptions, Process } from 'puppeteer-core'
+import puppeteerLib from "puppeteer-core";
+import type { LaunchOptions, Process } from "puppeteer-core";
 
-import { isDir } from './checks.js'
-import { deleteAtPath, createTempDir } from './files.js'
-import { getLogger } from './logging.js'
+import { isDir } from "./checks.js";
+import { deleteAtPath, createTempDir } from "./files.js";
+import { getLogger } from "./logging.js";
 
-type LaunchOptionsType = typeof LaunchOptions
-type ProcessType = typeof Process
+type LaunchOptionsType = typeof LaunchOptions;
+type ProcessType = typeof Process;
 
 const disabledBraveFeatures = [
-  'Speedreader',
-  'Playlist',
-  'BraveVPN',
-  'AIRewriter',
-  'AIChat',
-  'BravePlayer',
-  'BraveDebounce',
-  'BraveRewards',
-  'BraveSearchOmniboxBanner',
-  'BraveGoogleSignInPermission',
-  'BraveNTPBrandedWallpaper',
-  'AdEvent',
-  'NewTabPageAds',
-  'CustomNotificationAds',
-  'InlineContentAds',
-  'PromotedContentAds',
-  'TextClassification',
-  'SiteVisit',
-]
+  "Speedreader",
+  "Playlist",
+  "BraveVPN",
+  "AIRewriter",
+  "AIChat",
+  "BravePlayer",
+  "BraveDebounce",
+  "BraveRewards",
+  "BraveSearchOmniboxBanner",
+  "BraveGoogleSignInPermission",
+  "BraveNTPBrandedWallpaper",
+  "AdEvent",
+  "NewTabPageAds",
+  "CustomNotificationAds",
+  "InlineContentAds",
+  "PromotedContentAds",
+  "TextClassification",
+  "SiteVisit",
+];
 
 const disabledChromeFeatures = [
-  'IPH_SidePanelGenericMenuFeature',
+  "IPH_SidePanelGenericMenuFeature",
   // Disable because enabling this results in redundant entires in the
   // MacOS "Local Network" permission table.
-  'MacAppCodeSignClone',
-]
+  "MacAppCodeSignClone",
+  "AutomationControlled",
+];
 
-const disabledFeatures = disabledBraveFeatures.concat(disabledChromeFeatures)
+const disabledFeatures = disabledBraveFeatures.concat(disabledChromeFeatures);
 
 interface ProfilePath {
-  profilePath: FilePath
-  shouldClean: boolean
+  profilePath: FilePath;
+  shouldClean: boolean;
 }
 
 const profilePathForArgs = async (args: CrawlArgs): Promise<ProfilePath> => {
-  const logger = getLogger(args)
+  const logger = getLogger(args);
 
   // The easiest case is if we've been told to use an existing profile.
   // In this case, just return the given path.
   if (args.existingUserDataDirPath !== undefined) {
-    logger.verbose(`Crawling with profile at ${args.existingUserDataDirPath}.`)
-    return { profilePath: args.existingUserDataDirPath, shouldClean: false }
+    logger.verbose(`Crawling with profile at ${args.existingUserDataDirPath}.`);
+    return { profilePath: args.existingUserDataDirPath, shouldClean: false };
   }
 
   // Next, figure out which existing profile we're going to use as the
   // template / starter profile for the new crawl.
-  const resourcesDirPath = join(process.cwd(), 'resources')
+  const resourcesDirPath = join(process.cwd(), "resources");
   const templateProfile = args.withShieldsUp
-    ? join(resourcesDirPath, 'shields-up-profile')
-    : join(resourcesDirPath, 'shields-down-profile')
+    ? join(resourcesDirPath, "shields-up-profile")
+    : join(resourcesDirPath, "shields-down-profile");
 
   // Finally, either copy the above profile to the destination path
   // that was specified, or figure out a temporary location for it.
-  const destProfilePath = args.persistUserDataDirPath !== undefined
-    ? args.persistUserDataDirPath
-    : await createTempDir('pagegraph-profile-')
+  const destProfilePath =
+    args.persistUserDataDirPath ?? (await createTempDir("pagegraph-profile-"));
 
-  const shouldClean = args.persistUserDataDirPath === undefined
+  const shouldClean = args.persistUserDataDirPath === undefined;
 
   if (isDir(destProfilePath)) {
-    logger.info(`Profile exists at ${String(destProfilePath)}, so deleting.`)
-    await deleteAtPath(destProfilePath)
+    logger.info(`Profile exists at ${destProfilePath}, so deleting.`);
+    await deleteAtPath(destProfilePath);
   }
 
   await cp(templateProfile, destProfilePath, {
     recursive: true,
-  })
-  logger.verbose(`Crawling with profile at ${String(destProfilePath)}.`)
-  return { profilePath: destProfilePath, shouldClean }
-}
+  });
+  logger.verbose(`Crawling with profile at ${destProfilePath}.`);
+  return { profilePath: destProfilePath, shouldClean };
+};
 
 const makePuppeteerConf = async (args: CrawlArgs): Promise<PuppeteerConfig> => {
-  const { profilePath, shouldClean } = await profilePathForArgs(args)
+  const { profilePath, shouldClean } = await profilePathForArgs(args);
 
-  process.env.PAGEGRAPH_OUT_DIR = args.outputPath
+  process.env.PAGEGRAPH_OUT_DIR = args.outputPath;
 
   const chromeArgs = [
-    '--ash-no-nudges',
-    '--deny-permission-prompts',
-    '--disable-brave-update',
-    '--disable-breakpad',
-    '--disable-component-extensions-with-background-pages',
-    '--disable-component-update',
-    '--allow-brave-component-update',
-    '--disable-features=' + disabledFeatures.join(','),
-    '--disable-first-run-ui',
-    '--disable-infobars',
-    '--disable-ipc-flooding-protection',
-    '--disable-notifications',
-    '--disable-renderer-backgrounding',
-    '--disable-site-isolation-trials',
-    '--disable-sync',
-    '--enable-features=PageGraph',
-    '--mute-audio',
-    '--no-first-run',
-    '--user-data-dir=' + profilePath,
-  ]
+    "--ash-no-nudges",
+    "--deny-permission-prompts",
+    "--disable-brave-update",
+    "--disable-breakpad",
+    "--disable-component-extensions-with-background-pages",
+    "--disable-component-update",
+    "--allow-brave-component-update",
+    "--disable-features=" + disabledFeatures.join(","),
+    "--disable-first-run-ui",
+    "--disable-infobars",
+    "--disable-ipc-flooding-protection",
+    "--disable-notifications",
+    "--disable-renderer-backgrounding",
+    "--disable-site-isolation-trials",
+    "--disable-sync",
+    "--enable-features=PageGraph",
+    "--mute-audio",
+    "--no-first-run",
+    "--user-data-dir=" + profilePath,
+  ];
 
   // Add --disable-setuid-sandbox if environment variable is set
-  if (process.env.PAGEGRAPH_DISABLE_SETUID_SANDBOX === 'true') {
-    chromeArgs.push('--disable-setuid-sandbox')
+  if (process.env.PAGEGRAPH_DISABLE_SETUID_SANDBOX === "true") {
+    chromeArgs.push("--disable-setuid-sandbox");
   }
 
   const puppeteerArgs = {
     defaultViewport: null,
     args: chromeArgs,
     executablePath: args.executablePath,
-    dumpio: args.loggingLevel === 'verbose',
+    dumpio: args.loggingLevel === "verbose",
     headless: false,
-  }
+  };
 
-  if (args.loggingLevel === 'verbose') {
-    chromeArgs.push('--enable-logging=stderr')
-    chromeArgs.push('--vmodule=page_graph*=2')
+  if (args.loggingLevel === "verbose") {
+    chromeArgs.push("--enable-logging=stderr");
+    chromeArgs.push("--vmodule=page_graph*=2");
   }
 
   if (args.extensionsPath !== undefined) {
-    chromeArgs.push('--disable-extensions-except=' + args.extensionsPath)
-    chromeArgs.push('--load-extension=' + args.extensionsPath)
+    chromeArgs.push("--disable-extensions-except=" + args.extensionsPath);
+    chromeArgs.push("--load-extension=" + args.extensionsPath);
   }
 
   if (args.proxyServer != null) {
-    chromeArgs.push(`--proxy-server=${args.proxyServer.toString()}`)
-    if (args.proxyServer.protocol === 'socks5') {
-      const socksProxyRule = '--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE ' + args.proxyServer.hostname
-      chromeArgs.push(socksProxyRule)
+    chromeArgs.push(`--proxy-server=${args.proxyServer.toString()}`);
+    if (args.proxyServer.protocol === "socks5") {
+      const socksProxyRule =
+        "--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE " +
+        args.proxyServer.hostname;
+      chromeArgs.push(socksProxyRule);
     }
   }
 
   if (args.extraArgs != null) {
-    chromeArgs.push(...args.extraArgs)
+    chromeArgs.push(...args.extraArgs);
   }
 
   return {
@@ -150,50 +152,49 @@ const makePuppeteerConf = async (args: CrawlArgs): Promise<PuppeteerConfig> => {
     shouldStealthMode: args.stealth,
     profilePath,
     shouldClean,
-  }
-}
-export const puppeteerConfigForArgs = makePuppeteerConf
+  };
+};
+export const puppeteerConfigForArgs = makePuppeteerConf;
 
 const asyncSleep = async (millis: number): Promise<void> => {
-  return await new Promise(resolve => setTimeout(resolve, millis))
-}
+  await new Promise((resolve) => setTimeout(resolve, millis));
+};
 
 const defaultComputeTimeout = (tryIndex: number): number => {
-  return Math.pow(2, tryIndex - 1) * 1000
-}
+  return Math.pow(2, tryIndex - 1) * 1000;
+};
 
-export const launchWithRetry = async (launchOptions: LaunchOptionsType,
-                                      stealthMode: boolean,
-                                      logger: Logger,
-                                      // eslint-disable-next-line max-len
-                                      retryOptions?: LaunchRetryOptions): Promise<ProcessType> => {
+export const launchWithRetry = async (
+  launchOptions: LaunchOptionsType,
+  stealthMode: boolean,
+  logger: Logger,
+
+  retryOptions?: LaunchRetryOptions,
+): Promise<ProcessType> => {
   // default to 3 retries with a base-2 exponential-backoff delay
   // between each retry (1s, 2s, 4s, ...)
-  const retries: number = retryOptions === undefined
-    ? 3
-    : +retryOptions.retries
-  const computeTimeout = retryOptions !== undefined
-    ? retryOptions.computeTimeout
-    : defaultComputeTimeout
+  const retries: number = retryOptions === undefined ? 3 : retryOptions.retries;
+  const computeTimeout =
+    retryOptions !== undefined
+      ? retryOptions.computeTimeout
+      : defaultComputeTimeout;
 
   // const puppeteerLib = makeLaunchPuppeteerFunc(stealthMode, logger)
 
   try {
-    return puppeteerLib.launch(launchOptions)
-  }
-  catch (err) {
-    logger.info('Failed to launch: ', err, '. ', retries, ' left…')
+    return puppeteerLib.launch(launchOptions);
+  } catch (err) {
+    logger.info("Failed to launch: ", err, ". ", retries, " left…");
   }
 
   for (let i = 1; i <= retries; ++i) {
-    await asyncSleep(computeTimeout(i))
+    await asyncSleep(computeTimeout(i));
     try {
-      return puppeteerLib.launch(launchOptions)
-    }
-    catch (err) {
-      logger.info('Failed to launch: ', err, '. ', (retries - i), ' left…')
+      return puppeteerLib.launch(launchOptions);
+    } catch (err) {
+      logger.info("Failed to launch: ", err, ". ", retries - i, " left…");
     }
   }
 
-  throw new Error(`Unable to launch after ${retries} retries!`)
-}
+  throw new Error(`Unable to launch after ${String(retries)} retries!`);
+};

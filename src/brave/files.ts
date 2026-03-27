@@ -1,135 +1,145 @@
-import { createReadStream, createWriteStream } from 'node:fs'
-import { mkdtemp, rm, unlink, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
-import { join, parse } from 'node:path'
-import { pipeline } from 'node:stream'
-import { createGzip, gzipSync } from 'node:zlib'
+import { createReadStream, createWriteStream } from "node:fs";
+import { mkdtemp, rm, unlink, writeFile } from "node:fs/promises";
+import { unlink as unlinkCb } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, parse } from "node:path";
+import { pipeline } from "node:stream";
+import { createGzip, gzipSync } from "node:zlib";
 
-import { isDir } from './checks.js'
-import { RequestMetadataTracker } from './request_metadata_tracker.js'
+import { isDir } from "./checks.js";
+import { RequestMetadataTracker } from "./request_metadata_tracker.js";
 
-const dateTimeStamp = Math.floor(Date.now() / 1000)
+const dateTimeStamp = Math.floor(Date.now() / 1000);
 
 const createFilename = (url: URL): FilePath => {
-  const fileSafeUrl = String(url).replace(/[^\w]/g, '_')
-  return ['page_graph_', fileSafeUrl, '_', dateTimeStamp].join('')
-}
+  const fileSafeUrl = String(url).replace(/[^\w]/g, "_");
+  return ["page_graph_", fileSafeUrl, "_", dateTimeStamp].join("");
+};
 
 const createOutputPath = (args: CrawlArgs, url: URL): FilePath => {
-  if (isDir(args.outputPath) === true) {
-    return join(args.outputPath, createFilename(url))
+  if (isDir(args.outputPath)) {
+    return join(args.outputPath, createFilename(url));
+  } else {
+    const pathParts = parse(args.outputPath);
+    return pathParts.dir + "/" + pathParts.name;
   }
-  else {
-    const pathParts = parse(args.outputPath)
-    return pathParts.dir + '/' + pathParts.name
-  }
-}
+};
 
 export const createScreenshotPath = (args: CrawlArgs, url: URL): FilePath => {
-  const outputPath = join(createOutputPath(args, url) + '.png')
-  return outputPath
-}
+  const outputPath = join(createOutputPath(args, url) + ".png");
+  return outputPath;
+};
 
 const createHeadersLogPath = (args: CrawlArgs, url: URL): FilePath => {
-  const extension = args.compress ? '.headers.json.gz' : '.headers.json'
-  const outputPath = join(createOutputPath(args, url) + extension)
-  return outputPath
-}
+  const extension = args.compress ? ".headers.json.gz" : ".headers.json";
+  const outputPath = join(createOutputPath(args, url) + extension);
+  return outputPath;
+};
 
-export const writeHeadersLog = async (args: CrawlArgs, url: URL,
-                                      headersJSON: string,
-                                      logger: Logger): Promise<undefined> => {
+export const writeHeadersLog = async (
+  args: CrawlArgs,
+  url: URL,
+  headersJSON: string,
+  logger: Logger,
+): Promise<undefined> => {
   try {
-    const outputFilename = createHeadersLogPath(args, url)
-    logger.info('Writing headers log to: ', outputFilename)
-    const data = args.compress ? gzipSync(headersJSON) : headersJSON
-    await writeFile(outputFilename, data)
+    const outputFilename = createHeadersLogPath(args, url);
+    logger.info("Writing headers log to: ", outputFilename);
+    const data = args.compress ? gzipSync(headersJSON) : headersJSON;
+    await writeFile(outputFilename, data);
+  } catch (err) {
+    logger.error("writing headers log output: ", String(err));
   }
-  catch (err) {
-    logger.error('writing headers log output: ', String(err))
-  }
-}
+};
 
 const createGraphMLPath = (args: CrawlArgs, url: URL): FilePath => {
-  const outputPath: string = join(createOutputPath(args, url) + '.graphml')
-  return outputPath
-}
+  const outputPath: string = join(createOutputPath(args, url) + ".graphml");
+  return outputPath;
+};
 
 export const writeGraphML = async (
   args: CrawlArgs,
   url: URL,
   response: FinalPageGraphEvent,
   headersLogger: RequestMetadataTracker,
-  logger: Logger): Promise<FilePath | null> => {
+  logger: Logger,
+): Promise<FilePath | null> => {
   try {
-    const finalOutputFilename = createGraphMLPath(args, url)
-    const intermediateFilename = finalOutputFilename + '.tmp'
-    const data = response.data
+    const finalOutputFilename = createGraphMLPath(args, url);
+    const intermediateFilename = finalOutputFilename + ".tmp";
+    const data = response.data;
 
-    logger.info('Writing PageGraph file to: ', intermediateFilename)
-    await writeFile(intermediateFilename, data)
+    logger.info("Writing PageGraph file to: ", intermediateFilename);
+    await writeFile(intermediateFilename, data);
 
-    logger.info('... and stitching request headers to: ', finalOutputFilename)
+    logger.info("... and stitching request headers to: ", finalOutputFilename);
     await headersLogger.rewriteGraphML(
-      intermediateFilename, finalOutputFilename)
-    logger.verbose('... finished writing to: ', finalOutputFilename)
-    await unlink(intermediateFilename)
-    logger.verbose('... and deleting: ', intermediateFilename)
+      intermediateFilename,
+      finalOutputFilename,
+    );
+    logger.verbose("... finished writing to: ", finalOutputFilename);
+    await unlink(intermediateFilename);
+    logger.verbose("... and deleting: ", intermediateFilename);
     if (args.compress) {
-      return await compressAtPath(finalOutputFilename)
+      return await compressAtPath(finalOutputFilename);
     }
-    return finalOutputFilename
+    return finalOutputFilename;
+  } catch (err) {
+    logger.error("saving Page.generatePageGraph output: ", String(err));
+    return null;
   }
-  catch (err) {
-    logger.error('saving Page.generatePageGraph output: ', String(err))
-    return null
-  }
-}
+};
 
 const createHARPath = (args: CrawlArgs, url: URL): FilePath => {
-  const outputPath = join(createOutputPath(args, url) + '.har')
-  return outputPath
-}
+  const outputPath = join(createOutputPath(args, url) + ".har");
+  return outputPath;
+};
 
-export const writeHAR = async (args: CrawlArgs, url: URL, har: any,
-                               logger: Logger): Promise<undefined> => {
+export const writeHAR = async (
+  args: CrawlArgs,
+  url: URL,
+  har: any,
+  logger: Logger,
+): Promise<undefined> => {
   try {
-    const outputFilename = createHARPath(args, url)
-    logger.info('Writing HAR file to: ', outputFilename)
-    await writeFile(outputFilename, JSON.stringify(har, null, 4))
+    const outputFilename = createHARPath(args, url);
+    logger.info("Writing HAR file to: ", outputFilename);
+    await writeFile(outputFilename, JSON.stringify(har, null, 4));
+  } catch (err) {
+    logger.error("saving HAR file: ", String(err));
   }
-  catch (err) {
-    logger.error('saving HAR file: ', String(err))
-  }
-}
+};
 
 export const deleteAtPath = async (path: FilePath): Promise<undefined> => {
   await rm(path, {
     recursive: true,
     force: true,
-  })
-}
+  });
+};
 
-export const createTempDir = async (dirPrefix = 'pagegraph-crawl-'): Promise<FilePath> => {
-  return await mkdtemp(join(tmpdir(), dirPrefix))
-}
+export const createTempDir = async (
+  dirPrefix = "pagegraph-crawl-",
+): Promise<FilePath> => {
+  return await mkdtemp(join(tmpdir(), dirPrefix));
+};
 
 export const compressAtPath = async (fromPath: FilePath): Promise<FilePath> => {
-  const toPath = fromPath + '.gz'
+  const toPath = fromPath + ".gz";
   // Taken from the node documentation
   // https://nodejs.org/docs/latest-v20.x/api/zlib.html#for-zlib-based-streams
-  const gzipTransformer = createGzip()
-  const sourceStream = createReadStream(fromPath)
-  const destinationStream = createWriteStream(toPath)
+  const gzipTransformer = createGzip();
+  const sourceStream = createReadStream(fromPath);
+  const destinationStream = createWriteStream(toPath);
 
   return new Promise((resolve, reject) => {
-    pipeline(sourceStream, gzipTransformer, destinationStream, async (err) => {
+    pipeline(sourceStream, gzipTransformer, destinationStream, (err) => {
       if (err) {
-        reject(err)
-        return
+        reject(err);
+        return;
       }
-      await unlink(fromPath)
-      resolve(toPath)
-    })
-  })
-}
+      unlinkCb(fromPath, () => {
+        resolve(toPath);
+      });
+    });
+  });
+};

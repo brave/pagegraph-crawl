@@ -1,82 +1,84 @@
 // This file is just going to be simple checks ot make the crawl.ts code
 // easier to read and maintain.
-import { existsSync, lstatSync, statSync, constants } from 'node:fs'
-import { join, sep } from 'node:path'
+import { existsSync, lstatSync, statSync, constants } from "node:fs";
+import { join, sep } from "node:path";
 
-import type { HTTPRequest } from 'puppeteer-core'
+import type { HTTPRequest } from "puppeteer-core";
 
-type HTTPRequestType = typeof HTTPRequest
+type HTTPRequestType = typeof HTTPRequest;
 
-export const asHTTPUrl = (possibleUrl: string | URL,
-                          baseUrl?: URL): URL | undefined => {
+export const asHTTPUrl = (
+  possibleUrl: string | URL,
+  baseUrl?: URL,
+): URL | undefined => {
   try {
-    const url = (typeof possibleUrl === 'string')
-      ? new URL(possibleUrl, baseUrl)
-      : possibleUrl
+    const url =
+      typeof possibleUrl === "string"
+        ? new URL(possibleUrl, baseUrl)
+        : possibleUrl;
 
-    if (!url.protocol.startsWith('http')) {
-      return undefined
+    if (!url.protocol.startsWith("http")) {
+      return undefined;
     }
 
-    if (url.pathname === '/' && String(url).endsWith('/') === false) {
-      url.pathname += '/'
+    if (url.pathname === "/" && !String(url).endsWith("/")) {
+      url.pathname += "/";
     }
 
-    return url
+    return url;
+  } catch {
+    return undefined;
   }
-  catch (ignore) {
-    return undefined
-  }
-}
+};
 
 export const isExecFile = (path: string): boolean => {
-  const fileStats = statSync(path, { throwIfNoEntry: false })
-  if (fileStats === null || fileStats == undefined) {
-    return false
+  const fileStats = statSync(path, { throwIfNoEntry: false });
+  if (fileStats == undefined) {
+    return false;
   }
 
   return !!(fileStats!.mode & constants.S_IXUSR) // eslint-disable-line
-}
+};
 
 export const isDir = (path: string): boolean => {
   if (!existsSync(path)) {
-    return false
+    return false;
   }
 
-  const pathStats = lstatSync(path)
+  const pathStats = lstatSync(path);
   if (pathStats.isDirectory()) {
-    return true
+    return true;
   }
 
   if (pathStats.isSymbolicLink()) {
-    return isDir(join(path, sep))
+    return isDir(join(path, sep));
   }
 
-  return false
-}
+  return false;
+};
 
 export const isTopLevelPageNavigation = (request: HTTPRequestType): boolean => {
   if (request.isNavigationRequest() === false) {
-    return false
+    return false;
   }
 
   // Check to see if this is a navigation to an error page.
   if (request.frame() === null) {
-    return false
+    return false;
   }
 
   // Check to make sure this is the top level frame
   if (request.frame().parentFrame() !== null) {
-    return false
+    return false;
   }
 
-  return true
-}
+  return true;
+};
 
 export const isTimeoutError = (error: any): boolean => {
-  if (typeof error.name !== 'string') {
-    return false
+  if (typeof error.name !== "string") {
+    return false;
   }
 
-  return error.name === 'TimeoutError'
-}
+  return error.name === "TimeoutError";
+};

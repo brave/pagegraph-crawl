@@ -1,17 +1,17 @@
-import { asHTTPUrl } from './checks.js';
+import { asHTTPUrl } from "./checks.js";
 const selectRandomChildUrl = async (page, logger) => {
     const mainFrameUrl = asHTTPUrl(page.url());
     let rawLinks;
     try {
-        rawLinks = await page.$$('a[href]');
+        rawLinks = await page.$$("a[href]");
     }
     catch (e) {
-        logger.info('Unable to look for child links, page closed: ', String(e));
+        logger.info("Unable to look for child links, page closed: ", String(e));
         return undefined;
     }
     const links = [];
     for (const link of rawLinks) {
-        const hrefHandle = await link.getProperty('href');
+        const hrefHandle = await link.getProperty("href");
         const hrefValue = await hrefHandle.jsonValue();
         try {
             const hrefUrl = asHTTPUrl(hrefValue.trim(), mainFrameUrl);
@@ -20,7 +20,7 @@ const selectRandomChildUrl = async (page, logger) => {
             }
             links.push(hrefUrl);
         }
-        catch (ignore) {
+        catch {
             continue;
         }
     }

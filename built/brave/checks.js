@@ -1,27 +1,27 @@
 // This file is just going to be simple checks ot make the crawl.ts code
 // easier to read and maintain.
-import { existsSync, lstatSync, statSync, constants } from 'node:fs';
-import { join, sep } from 'node:path';
+import { existsSync, lstatSync, statSync, constants } from "node:fs";
+import { join, sep } from "node:path";
 export const asHTTPUrl = (possibleUrl, baseUrl) => {
     try {
-        const url = (typeof possibleUrl === 'string')
+        const url = typeof possibleUrl === "string"
             ? new URL(possibleUrl, baseUrl)
             : possibleUrl;
-        if (!url.protocol.startsWith('http')) {
+        if (!url.protocol.startsWith("http")) {
             return undefined;
         }
-        if (url.pathname === '/' && String(url).endsWith('/') === false) {
-            url.pathname += '/';
+        if (url.pathname === "/" && !String(url).endsWith("/")) {
+            url.pathname += "/";
         }
         return url;
     }
-    catch (ignore) {
+    catch {
         return undefined;
     }
 };
 export const isExecFile = (path) => {
     const fileStats = statSync(path, { throwIfNoEntry: false });
-    if (fileStats === null || fileStats == undefined) {
+    if (fileStats == undefined) {
         return false;
     }
     return !!(fileStats.mode & constants.S_IXUSR); // eslint-disable-line
@@ -54,8 +54,8 @@ export const isTopLevelPageNavigation = (request) => {
     return true;
 };
 export const isTimeoutError = (error) => {
-    if (typeof error.name !== 'string') {
+    if (typeof error.name !== "string") {
         return false;
     }
-    return error.name === 'TimeoutError';
+    return error.name === "TimeoutError";
 };

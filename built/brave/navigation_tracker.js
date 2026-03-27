@@ -1,7 +1,7 @@
 export const makeNavigationTracker = (navUrl, history) => {
     const currentUrl = navUrl;
     const historySet = new Set(history);
-    const historyStringSet = new Set(history.map(x => x.toString()));
+    const historyStringSet = new Set(history.map((x) => x.toString()));
     const isCurrentUrl = (aURL) => {
         return aURL.toString() === currentUrl.toString();
     };

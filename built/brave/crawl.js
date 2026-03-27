@@ -1,35 +1,36 @@
-import * as osLib from 'os';
-import { harFromMessages } from 'chrome-har';
-import Xvbf from 'xvfb';
-import { isTopLevelPageNavigation, isTimeoutError } from './checks.js';
-import { asHTTPUrl } from './checks.js';
-import { createScreenshotPath, deleteAtPath } from './files.js';
-import { writeGraphML } from './files.js';
-import { writeHAR, writeHeadersLog } from './files.js';
-import { getLogger } from './logging.js';
-import { makeNavigationTracker } from './navigation_tracker.js';
-import { selectRandomChildUrl } from './page.js';
-import { puppeteerConfigForArgs, launchWithRetry } from './puppeteer.js';
-import { RequestMetadataTracker } from './request_metadata_tracker.js';
-const xvfbPlatforms = new Set(['linux', 'openbsd']);
+import assert from "node:assert/strict";
+import * as osLib from "os";
+import { harFromMessages } from "chrome-har";
+import Xvbf from "xvfb";
+import { isTopLevelPageNavigation, isTimeoutError } from "./checks.js";
+import { asHTTPUrl } from "./checks.js";
+import { createScreenshotPath, deleteAtPath } from "./files.js";
+import { writeGraphML } from "./files.js";
+import { writeHAR, writeHeadersLog } from "./files.js";
+import { getLogger } from "./logging.js";
+import { makeNavigationTracker } from "./navigation_tracker.js";
+import { selectRandomChildUrl } from "./page.js";
+import { puppeteerConfigForArgs, launchWithRetry } from "./puppeteer.js";
+import { RequestMetadataTracker } from "./request_metadata_tracker.js";
+const xvfbPlatforms = new Set(["linux", "openbsd"]);
 const setupEnv = (args) => {
     const logger = getLogger(args);
     const platformName = osLib.platform();
     let xvfbHandle;
     const closeFunc = () => {
         if (xvfbHandle !== undefined) {
-            logger.info('Tearing down Xvfb');
+            logger.info("Tearing down Xvfb");
             xvfbHandle.stopSync();
         }
     };
     if (args.interactive) {
-        logger.info('Interactive mode, skipping Xvfb');
+        logger.info("Interactive mode, skipping Xvfb");
     }
     else if (xvfbPlatforms.has(platformName)) {
         logger.info(`Running on ${platformName}, starting Xvfb`);
         xvfbHandle = new Xvbf({
             // ensure 24-bit color depth or rendering might choke
-            xvfb_args: ['-screen', '0', '1024x768x24'],
+            xvfb_args: ["-screen", "0", "1024x768x24"],
         });
         xvfbHandle.startSync();
     }
@@ -48,45 +49,44 @@ const waitUntilUnless = (secs, unlessFunc, intervalMs = 500) => {
         const timerId = setInterval(() => {
             const hasTimePassed = Date.now() > endTime;
             const unlessFuncRs = unlessFunc();
-            const shouldEnd = hasTimePassed === true || unlessFuncRs === true;
-            if (shouldEnd === true) {
+            const shouldEnd = hasTimePassed || unlessFuncRs;
+            if (shouldEnd) {
                 clearTimeout(timerId);
-                const returnedBcTimeout = hasTimePassed === true;
+                const returnedBcTimeout = hasTimePassed;
                 resolve(returnedBcTimeout);
             }
         }, intervalMs);
     });
 };
 const prepareHARGenerator = async (client, networkEvents, pageEvents, storeHarBody, responseBodies, logger) => {
-    await client.send('Page.enable');
-    await client.send('Network.enable');
+    await client.send("Page.enable");
+    await client.send("Network.enable");
     const networkMethods = [
-        'Network.requestWillBeSent',
-        'Network.requestServedFromCache',
-        'Network.dataReceived',
-        'Network.responseReceived',
-        'Network.resourceChangedPriority',
-        'Network.loadingFinished',
-        'Network.loadingFailed',
+        "Network.requestWillBeSent",
+        "Network.requestServedFromCache",
+        "Network.dataReceived",
+        "Network.responseReceived",
+        "Network.resourceChangedPriority",
+        "Network.loadingFinished",
+        "Network.loadingFailed",
     ];
     const pageMethods = [
-        'Page.loadEventFired',
-        'Page.domContentEventFired',
-        'Page.frameStartedLoading',
-        'Page.frameAttached',
-        'Page.frameScheduledNavigation',
+        "Page.loadEventFired",
+        "Page.domContentEventFired",
+        "Page.frameStartedLoading",
+        "Page.frameAttached",
+        "Page.frameScheduledNavigation",
     ];
     networkMethods.forEach((method) => {
         client.on(method, (params) => {
             networkEvents.push({ method, params });
-            if (storeHarBody && method == 'Network.loadingFinished') {
+            if (storeHarBody && method == "Network.loadingFinished") {
                 const responseParams = params;
                 const requestId = responseParams.requestId;
-                client.send('Network.getResponseBody', { requestId: requestId })
-                    .then((responseBody) => {
-                    responseBodies.set(requestId.toString(), responseBody);
+                client.send("Network.getResponseBody", { requestId: requestId }).then((responseBody) => {
+                    responseBodies.set(requestId, responseBody);
                 }, (reason) => {
-                    logger.error('LoadingFinishedError: ' + reason);
+                    logger.error("LoadingFinishedError: " + String(reason));
                 });
             }
         });
@@ -97,23 +97,25 @@ const prepareHARGenerator = async (client, networkEvents, pageEvents, storeHarBo
         });
     });
 };
-const generatePageGraph = async (seconds, page, client, waitFunc, 
-// eslint-disable-next-line max-len
-logger) => {
-    logger.info(`Waiting for ${seconds}s`);
+const generatePageGraph = async (seconds, page, client, waitFunc, logger) => {
+    logger.info(`Waiting for ${String(seconds)}s`);
     await waitUntilUnless(seconds, waitFunc);
-    logger.info('calling generatePageGraph');
-    const response = await client.send('Page.generatePageGraph');
+    logger.info("calling generatePageGraph");
+    const response = await client.send("Page.generatePageGraph");
     const responseLen = response.data.length;
-    logger.info('generatePageGraph { size: ', responseLen, ' }');
+    logger.info("generatePageGraph { size: ", responseLen, " }");
     return response;
 };
 export const doCrawl = async (args, previouslySeenUrls) => {
     const logger = getLogger(args);
     const urlToCrawl = asHTTPUrl(args.url);
+    assert(urlToCrawl);
     logger.info([
-        'Starting crawl with URL: ', urlToCrawl,
-        ' and with previously seen urls: [', previouslySeenUrls, ']',
+        "Starting crawl with URL: ",
+        urlToCrawl,
+        " and with previously seen urls: [",
+        previouslySeenUrls,
+        "]",
     ]);
     const navTracker = makeNavigationTracker(urlToCrawl, previouslySeenUrls);
     const depth = Math.max(args.recursiveDepth, 1);
@@ -128,15 +130,15 @@ export const doCrawl = async (args, previouslySeenUrls) => {
     };
     try {
         logger.verbose([
-            'Launching puppeteer with args: ',
+            "Launching puppeteer with args: ",
             JSON.stringify(launchOptions),
         ]);
         const browser = await launchWithRetry(launchOptions, puppeteerConfig.shouldStealthMode, logger);
         const pages = await browser.pages();
         if (pages.length > 0) {
-            logger.info('Closing ', pages.length, ' pages that are already open.');
+            logger.info("Closing ", pages.length, " pages that are already open.");
             for (const aPage of pages) {
-                logger.info('  - closing tab with url ', aPage.url());
+                logger.info("  - closing tab with url ", aPage.url());
                 await aPage.close();
             }
         }
@@ -151,7 +153,7 @@ export const doCrawl = async (args, previouslySeenUrls) => {
             if (args.storeHar) {
                 await prepareHARGenerator(client, networkEvents, pageEvents, args.storeHarBody, responseBodies, logger);
             }
-            client.on('Target.targetCrashed', (event) => {
+            client.on("Target.targetCrashed", (event) => {
                 const logMsg = {
                     targetId: event.targetId,
                     status: event.status,
@@ -166,62 +168,63 @@ export const doCrawl = async (args, previouslySeenUrls) => {
             const metadataTracker = new RequestMetadataTracker(logger);
             await page.setRequestInterception(true);
             // First load is not a navigation redirect, so we need to skip it.
-            page.on('request', async (request) => {
+            page.on("request", async (request) => {
                 // We know the given URL will be a valid URL, bc of the puppeteer API
                 const requestedUrl = asHTTPUrl(request.url());
+                assert(requestedUrl);
                 await metadataTracker.addMetadataFromRequest(request);
                 // Only capture parent frame navigation requests.
-                if (isTopLevelPageNavigation(request) === false) {
-                    logger.verbose('Allowing request to ', request.url(), ', not ', 'a top level navigation.');
+                if (!isTopLevelPageNavigation(request)) {
+                    logger.verbose("Allowing request to ", request.url(), ", not ", "a top level navigation.");
                     request.continue();
                     return;
                 }
                 const hasUrlBeenSeen = navTracker.isInHistory(requestedUrl);
                 const isCurrentNavUrl = navTracker.isCurrentUrl(requestedUrl);
-                if (isCurrentNavUrl === true) {
-                    logger.info('Loading ', requestedUrl, ' bc it is the first top frame page load');
+                if (isCurrentNavUrl) {
+                    logger.info("Loading ", requestedUrl, " bc it is the first top frame page load");
                     request.continue();
                     return;
                 }
-                if (hasUrlBeenSeen === false) {
-                    logger.info('Detected redirect to ', requestedUrl, ' so stopping page load and moving on');
+                if (!hasUrlBeenSeen) {
+                    logger.info("Detected redirect to ", requestedUrl, " so stopping page load and moving on");
                     shouldRedirectToUrl = requestedUrl;
                     shouldStopWaitingFlag = true;
                     const client = await page.createCDPSession();
-                    await client.send('Page.stopLoading');
+                    await client.send("Page.stopLoading");
                     request.continue();
                     return;
                 }
-                if (args.crawlDuplicates === true) {
-                    logger.info('Loading ', requestedUrl, ' bc was instructed to crawl duplicates');
+                if (args.crawlDuplicates) {
+                    logger.info("Loading ", requestedUrl, " bc was instructed to crawl duplicates");
                     request.continue();
                     return;
                 }
                 // Otherwise, we're in a redirect loop, so stop recording
                 // the pagegraph, but continue.
-                logger.info('Quitting bc we\'re in a redirect loop');
+                logger.info("Quitting bc we're in a redirect loop");
                 shouldStopWaitingFlag = true;
                 const client = await page.createCDPSession();
-                await client.send('Page.stopLoading');
+                await client.send("Page.stopLoading");
                 request.continue();
                 return;
             });
-            page.on('response', async (response) => {
+            page.on("response", async (response) => {
                 await metadataTracker.addMetadataFromResponse(response);
             });
-            logger.info('Navigating to ', urlToCrawl);
+            logger.info("Navigating to ", urlToCrawl);
             try {
-                await page.goto(urlToCrawl, { waitUntil: 'domcontentloaded' });
+                await page.goto(urlToCrawl, { waitUntil: "domcontentloaded" });
             }
             catch (e) {
-                if (isTimeoutError(e) === true) {
-                    logger.info('Navigation timeout exceeded.');
+                if (isTimeoutError(e)) {
+                    logger.info("Navigation timeout exceeded.");
                 }
                 else {
                     throw e;
                 }
             }
-            logger.info('Loaded ', String(urlToCrawl));
+            logger.info("Loaded ", String(urlToCrawl));
             const response = await generatePageGraph(args.seconds, page, client, shouldStopWaitingFunc, logger);
             if (args.saveRequestHeaders) {
                 await writeHeadersLog(args, urlToCrawl, metadataTracker.toJSON(), logger);
@@ -229,30 +232,29 @@ export const doCrawl = async (args, previouslySeenUrls) => {
             await writeGraphML(args, urlToCrawl, response, metadataTracker, logger);
             // Store HAR
             if (args.storeHar) {
-                logger.verbose('Beginning HAR export');
+                logger.verbose("Beginning HAR export");
                 await Promise.all(responseBodies);
                 for (const event of networkEvents) {
                     if (!args.storeHarBody) {
                         break;
                     }
-                    if (event.method !== 'Network.responseReceived') {
+                    if (event.method !== "Network.responseReceived") {
                         continue;
                     }
                     const requestId = event.params.requestId;
-                    const responseBody = responseBodies.get(requestId.toString());
+                    const responseBody = responseBodies.get(requestId);
                     const responseParams = event.params;
                     if (!responseBody) {
                         responseParams.response.body = undefined;
                         continue;
                     }
                     const responseBodyEncoding = responseBody.base64Encoded
-                        ? 'base64'
+                        ? "base64"
                         : undefined;
                     const responseBodyBuffer = Buffer.from(responseBody.body, responseBodyEncoding);
                     responseParams.response.body = responseBodyBuffer.toString();
                 }
-                const allEvents = pageEvents
-                    .concat(networkEvents);
+                const allEvents = pageEvents.concat(networkEvents);
                 const har = harFromMessages(allEvents, {
                     includeTextFromResponseBody: args.storeHarBody,
                 });
@@ -261,36 +263,36 @@ export const doCrawl = async (args, previouslySeenUrls) => {
             if (depth > 1) {
                 randomChildUrl = await selectRandomChildUrl(page, logger);
             }
-            logger.info('Closing page');
+            logger.info("Closing page");
             if (args.screenshot) {
                 const screenshotPath = createScreenshotPath(args, urlToCrawl);
                 logger.info(`About to write screenshot to ${screenshotPath}`);
-                await page.screenshot({ type: 'png', path: screenshotPath });
-                logger.info('Screenshot recorded');
+                await page.screenshot({ type: "png", path: screenshotPath });
+                logger.info("Screenshot recorded");
             }
             await page.close();
         }
         catch (err) {
-            logger.info('ERROR runtime fiasco from browser/page:', err);
+            logger.info("ERROR runtime fiasco from browser/page:", err);
         }
         finally {
-            logger.info('Closing the browser');
+            logger.info("Closing the browser");
             await browser.close();
         }
     }
     catch (err) {
-        logger.info('ERROR runtime fiasco from infrastructure:', err);
+        logger.info("ERROR runtime fiasco from infrastructure:", err);
     }
     finally {
         envHandle.close();
-        if (puppeteerConfig.shouldClean === true) {
+        if (puppeteerConfig.shouldClean) {
             await deleteAtPath(puppeteerConfig.profilePath);
         }
     }
     if (shouldRedirectToUrl !== undefined) {
         const newArgs = { ...args };
         newArgs.url = shouldRedirectToUrl;
-        logger.info('Doing new crawl with redirected URL: ', shouldRedirectToUrl);
+        logger.info("Doing new crawl with redirected URL: ", shouldRedirectToUrl);
         await doCrawl(newArgs, navTracker.toHistory());
         return;
     }

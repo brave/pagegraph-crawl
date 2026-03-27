@@ -1,6 +1,17 @@
 Changelog
 ===
 
+1.2.12
+---
+
+Add `AutomationControlled` to list of disabled Chromium features (removes
+properties and modifications that puppeteer usually adds to the browser,
+which pages use ot detect bots).
+
+Moved linting and checking to [`prettier`](https://prettier.io/) to sort out a
+bunch of terrible version conflicts, and to address many (many \[many\]) CVEs
+and audit warnings.
+
 1.2.11
 ---
 

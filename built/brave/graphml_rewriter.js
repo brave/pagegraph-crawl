@@ -2,12 +2,12 @@
 // using the xml-stream-editor library. This is all used by
 // RequestMetadataTracker instances to write those captured values
 // into a PageGraph file.
-import assert from 'node:assert';
-import { pipeline } from 'node:stream/promises';
-import { createXMLEditor, newElement } from 'xml-stream-editor';
-const attrElmsSelector = 'graphml key';
-const nodeElmsSelector = 'graphml graph node';
-const edgeElmsSelector = 'graphml graph edge';
+import assert from "node:assert";
+import { pipeline } from "node:stream/promises";
+import { createXMLEditor, newElement, } from "xml-stream-editor";
+const attrElmsSelector = "graphml key";
+const nodeElmsSelector = "graphml graph node";
+const edgeElmsSelector = "graphml graph edge";
 export class PageGraphXMLRewriter {
     #nodeAttrIds = new Map();
     #edgeAttrIds = new Map();
@@ -22,11 +22,11 @@ export class PageGraphXMLRewriter {
         this.#nodeEditFunc = func;
     }
     #attrMapForElm(elm) {
-        assert.ok(elm.name === 'node' || elm.name === 'edge');
+        assert.ok(elm.name === "node" || elm.name === "edge");
         switch (elm.name) {
-            case 'edge':
+            case "edge":
                 return this.#edgeAttrIds;
-            case 'node':
+            case "node":
                 return this.#nodeAttrIds;
         }
     }
@@ -41,7 +41,7 @@ export class PageGraphXMLRewriter {
         // attribute matches the "id" attribute on the <key> element with the
         // "attr.name" attribute matching `attrName`.
         for (const dataElm of elm.children) {
-            assert.equal(dataElm.name, 'data');
+            assert.equal(dataElm.name, "data");
             if (dataElm.attributes.key === attrId) {
                 dataElm.text = value.toString();
                 return true;
@@ -50,7 +50,7 @@ export class PageGraphXMLRewriter {
         // However, if we've gotten this far, it means we couldn't find a
         // <data> element that encodes the attribute we wanted, in which case
         // we need to create a new data element.
-        const newDataElm = newElement('data');
+        const newDataElm = newElement("data");
         newDataElm.attributes.key = attrId;
         newDataElm.text = value.toString();
         elm.children.push(newDataElm);
@@ -63,7 +63,7 @@ export class PageGraphXMLRewriter {
             return;
         }
         for (const dataElm of elm.children) {
-            assert.equal(dataElm.name, 'data');
+            assert.equal(dataElm.name, "data");
             if (dataElm.attributes.key === attrId) {
                 return dataElm.text;
             }
@@ -80,33 +80,33 @@ export class PageGraphXMLRewriter {
             }
         }
         for (const dataElm of elm.children) {
-            assert.equal(dataElm.name, 'data');
+            assert.equal(dataElm.name, "data");
             const dataAttrId = dataElm.attributes.key;
             const dataAttrName = attrIdToAttrValue[dataAttrId];
-            if (dataAttrName !== undefined) {
+            if (dataAttrName) {
                 assert(dataAttrName);
-                attrValues[dataAttrName] = dataElm.text ?? '';
+                attrValues[dataAttrName] = dataElm.text ?? "";
             }
         }
         return attrValues;
     }
     #makeCollectAttrIdsFunc() {
         return (elm) => {
-            assert.equal(elm.name, 'key');
+            assert.equal(elm.name, "key");
             const attrs = elm.attributes;
             const attrFor = attrs.for;
-            const attrName = attrs['attr.name'];
+            const attrName = attrs["attr.name"];
             const attrId = attrs.id;
             let attrCollection;
             switch (attrFor) {
-                case 'edge':
+                case "edge":
                     attrCollection = this.#edgeAttrIds;
                     break;
-                case 'node':
+                case "node":
                     attrCollection = this.#nodeAttrIds;
                     break;
                 default:
-                    throw new Error(`Unexpected "for" value on a <key> elm: "${attrFor}"`);
+                    throw new Error(`Unexpected "for" value on a <key> elm: "${String(attrFor)}"`);
             }
             assert.ok(attrCollection);
             attrCollection.set(attrName, attrId);

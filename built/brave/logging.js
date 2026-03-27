@@ -1,4 +1,6 @@
-const nullLogFunc = () => { };
+const nullLogFunc = () => {
+    // pass
+};
 const baseLogFunction = (prefix, isError, ...msg) => {
     const messageParts = [prefix];
     for (const aMsgPart of msg) {
@@ -7,24 +9,24 @@ const baseLogFunction = (prefix, isError, ...msg) => {
                 messageParts.push(String(aMsg));
             }
         }
-        else if (typeof aMsgPart === 'string') {
+        else if (typeof aMsgPart === "string") {
             messageParts.push(aMsgPart);
         }
         else {
             messageParts.push(String(aMsgPart));
         }
     }
-    const finalMessage = messageParts.join('');
-    if (isError === true) {
+    const finalMessage = messageParts.join("");
+    if (isError) {
         console.error(finalMessage);
     }
     else {
         console.log(finalMessage);
     }
 };
-const verboseFunc = baseLogFunction.bind(undefined, 'VERBOSE:', false);
-const infoFunc = baseLogFunction.bind(undefined, 'DEBUG:', false);
-const errorFunc = baseLogFunction.bind(undefined, 'ERROR:', true);
+const verboseFunc = baseLogFunction.bind(undefined, "VERBOSE:", false);
+const infoFunc = baseLogFunction.bind(undefined, "DEBUG:", false);
+const errorFunc = baseLogFunction.bind(undefined, "ERROR:", true);
 const nullLogger = Object.freeze({
     info: nullLogFunc,
     verbose: nullLogFunc,

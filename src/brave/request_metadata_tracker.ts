@@ -1,20 +1,20 @@
-import assert from 'node:assert'
-import { createReadStream, createWriteStream } from 'node:fs'
-import { readFile } from 'node:fs/promises'
+import assert from "node:assert";
+import { createReadStream, createWriteStream } from "node:fs";
+import { readFile } from "node:fs/promises";
 
-import type { HTTPRequest, HTTPResponse } from 'puppeteer-core'
-import { Element } from 'xml-stream-editor'
+import type { HTTPRequest, HTTPResponse } from "puppeteer-core";
+import { Element } from "xml-stream-editor";
 
-import { PageGraphXMLRewriter } from './graphml_rewriter.js'
+import { PageGraphXMLRewriter } from "./graphml_rewriter.js";
 
 interface HTTPHeader {
-  name: string
-  value: string
+  name: string;
+  value: string;
 }
 
 interface Metadata {
-  headers: HTTPHeader[]
-  size: number
+  headers: HTTPHeader[];
+  size: number;
 }
 
 enum RequestIdParseType {
@@ -24,146 +24,152 @@ enum RequestIdParseType {
 }
 
 interface RequestIdParse {
-  id: RequestId
-  type: RequestIdParseType
+  id: RequestId;
+  type: RequestIdParseType;
 }
 
-type RequestType = typeof HTTPRequest
-type ResponseType = typeof HTTPResponse
-type PuppeteerRequestId = string
-type RequestId = number | string
-type RequestToMetadataMap = Record<RequestId, Metadata>
+type RequestType = typeof HTTPRequest;
+type ResponseType = typeof HTTPResponse;
+type PuppeteerRequestId = string;
+type RequestId = number | string;
+type RequestToMetadataMap = Record<RequestId, Metadata | undefined>;
 
 enum UpdateType {
-  ADD = 'ADD',
-  REDUNDANT = 'REDUNDANT',
-  UPDATE = 'UPDATE',
+  ADD = "ADD",
+  REDUNDANT = "REDUNDANT",
+  UPDATE = "UPDATE",
 }
 
-const edgeAttrEdgeType = 'edge type'
-const edgeAttrRequestId = 'request id'
-const edgeAttrHeaders = 'headers'
-const edgeAttrSize = 'size'
+const edgeAttrEdgeType = "edge type";
+const edgeAttrRequestId = "request id";
+const edgeAttrHeaders = "headers";
+const edgeAttrSize = "size";
 
-const requestIdPatternWorker = /interception-job-([0-9]+)\.0/
-const requestIdPatternNavigation = /^[A-Z0-9]{32}$/
-const requestIdPatternSubRequest = /^[0-9]+\.([0-9]+)$/
+const requestIdPatternWorker = /interception-job-([0-9]+)\.0/;
+const requestIdPatternNavigation = /^[A-Z0-9]{32}$/;
+const requestIdPatternSubRequest = /^[0-9]+\.([0-9]+)$/;
 
 const headerSortFunc = (a: HTTPHeader, b: HTTPHeader) => {
   if (a.name !== b.name) {
-    return a.name < b.name ? -1 : 1
+    return a.name < b.name ? -1 : 1;
   }
-  return a.value < b.value ? -1 : 1
-}
+  return a.value < b.value ? -1 : 1;
+};
 
 export class RequestMetadataTracker {
-  #requestMetadata: RequestToMetadataMap = {}
-  #responseMetadata: RequestToMetadataMap = {}
-  readonly #logger: Logger | undefined
-  readonly #strict: boolean
+  #requestMetadata: RequestToMetadataMap = {};
+  #responseMetadata: RequestToMetadataMap = {};
+  readonly #logger: Logger | undefined;
+  readonly #strict: boolean;
 
-  constructor (logger?: Logger, strict = false) {
-    this.#logger = logger
-    this.#strict = strict
+  constructor(logger?: Logger, strict = false) {
+    this.#logger = logger;
+    this.#strict = strict;
   }
 
-  #log (methodName: string, msg: any): void {
+  #log(methodName: string, msg: any): void {
     if (!this.#logger) {
-      return
+      return;
     }
-    this.#logger.info(`RequestMetadataTracker.${methodName}) `, msg)
+    this.#logger.info(`RequestMetadataTracker.${methodName}) `, msg);
   }
 
-  #logVerbose (methodName: string, msg: any): void {
+  #logVerbose(methodName: string, msg: any): void {
     if (!this.#logger) {
-      return
+      return;
     }
-    this.#logger.verbose(`RequestMetadataTracker.${methodName}) `, msg)
+    this.#logger.verbose(`RequestMetadataTracker.${methodName}) `, msg);
   }
 
-  #error (msg: string): never {
-    throw new Error(msg)
+  #error(msg: string): never {
+    throw new Error(msg);
   }
 
   #requestBodySize = async (request: RequestType): Promise<number> => {
     try {
-      const requestBody = await request.fetchPostData()
-      return requestBody ? requestBody.length : 0
+      const requestBody = await request.fetchPostData();
+      return requestBody ? +requestBody.length : 0;
+    } catch {
+      this.#log(
+        "#requestBodySize",
+        "No content for response: " + String(request.url()),
+      );
+      return 0;
     }
-    catch {
-      this.#log('#requestBodySize',
-                'No content for response: ' + request.url())
-      return 0
-    }
-  }
+  };
 
   #responseBodySize = async (response: ResponseType): Promise<number> => {
     try {
-      const body = await response.content()
-      return body.length
+      const body = await response.content();
+      return +body.length;
+    } catch {
+      this.#log(
+        "#responseBodySize",
+        "No content for response: " + String(response.url()),
+      );
+      return 0;
     }
-    catch {
-      this.#log('#responseBodySize',
-                'No content for response: ' + response.url())
-      return 0
-    }
-  }
+  };
 
-  #addMetadata (requestId: RequestId,
-                reqOrRes: RequestType | ResponseType,
-                bodySize: number,
-                collection: RequestToMetadataMap): UpdateType {
-    const headers: HTTPHeader[] = []
+  #addMetadata(
+    requestId: RequestId,
+    reqOrRes: RequestType,
+    bodySize: number,
+    collection: RequestToMetadataMap,
+  ): UpdateType {
+    const headers: HTTPHeader[] = [];
     for (const headerEntry of Object.entries(reqOrRes.headers())) {
       headers.push({
-        name: headerEntry[0] as string,
+        name: headerEntry[0],
         value: headerEntry[1] as string,
-      })
+      });
     }
-    headers.sort(headerSortFunc)
+    headers.sort(headerSortFunc);
 
     const metadata: Metadata = {
       headers: headers,
       size: bodySize,
-    }
-    const typeName = (collection === this.#requestMetadata)
-      ? 'request'
-      : 'response'
+    };
+    const typeName =
+      collection === this.#requestMetadata ? "request" : "response";
     this.#logVerbose(
-      'addMetadata',
-      `RequestId=${requestId} (${typeName}): size=${bodySize}, `
-      + `headers=${JSON.stringify(metadata)}`)
+      "addMetadata",
+      `RequestId=${String(requestId)} (${typeName}): size=${String(bodySize)}, ` +
+        `headers=${JSON.stringify(metadata)}`,
+    );
     // Seeing a repeated request id can happen when the page redirects
     // during the crawl (e.g., the page makes requests 1, 2, and 3; the browser
     // is redirected to a new page; that new page also makes requests 1,
     // 2, and 3). When this happens, overwrite the older request's headers
     // with the new ones, since the most recent request will always be
     // the one depicted in the page-graph file.
-    const prevMetadata = collection[requestId]
-    const isFirstTimeSeeingRequestId = (prevMetadata === undefined)
+    const prevMetadata = collection[requestId];
+    const isFirstTimeSeeingRequestId = prevMetadata === undefined;
     if (!isFirstTimeSeeingRequestId) {
-      const previousMetadataJSON = JSON.stringify(prevMetadata)
-      const currentMetadataJSON = JSON.stringify(metadata)
-      const areSame = previousMetadataJSON === currentMetadataJSON
+      const previousMetadataJSON = JSON.stringify(prevMetadata);
+      const currentMetadataJSON = JSON.stringify(metadata);
+      const areSame = previousMetadataJSON === currentMetadataJSON;
 
       if (areSame) {
         // If the headers for this request are the same
         // as for the previously seen request, and so no changes needed.
         this.#log(
-          'addMetadata',
-          `RequestId=${requestId} (${typeName}): same as previous.`)
-        return UpdateType.REDUNDANT
+          "addMetadata",
+          `RequestId=${String(requestId)} (${typeName}): same as previous.`,
+        );
+        return UpdateType.REDUNDANT;
       }
 
       this.#log(
-        'addMetadata',
-        `RequestId=${requestId} (${typeName}): set new value.`)
-      collection[requestId] = metadata
-      return UpdateType.UPDATE
+        "addMetadata",
+        `RequestId=${String(requestId)} (${typeName}): set new value.`,
+      );
+      collection[requestId] = metadata;
+      return UpdateType.UPDATE;
     }
 
-    collection[requestId] = metadata
-    return UpdateType.ADD
+    collection[requestId] = metadata;
+    return UpdateType.ADD;
   }
 
   // Request ids in puppeteer are in three formats.
@@ -173,122 +179,128 @@ export class RequestMetadataTracker {
   //
   // Since PageGraph runs in single process mode, we can discard the process
   // id for this second category of requests.
-  #simplifyRequestId (rawRequestId: PuppeteerRequestId): RequestIdParse {
-    const interceptRequestMatchRs = rawRequestId.match(requestIdPatternWorker)
+  #simplifyRequestId(rawRequestId: PuppeteerRequestId): RequestIdParse {
+    const interceptRequestMatchRs = requestIdPatternWorker.exec(rawRequestId);
     if (interceptRequestMatchRs !== null) {
-      const requestId = parseInt(interceptRequestMatchRs[1], 10)
+      const requestId = parseInt(interceptRequestMatchRs[1], 10);
       this.#log(
-        'simplifyRequestId',
-        `RequestId: ${requestId} ("intercept", from ${rawRequestId})`)
-      return { id: requestId, type: RequestIdParseType.INTERCEPTION }
+        "simplifyRequestId",
+        `RequestId: ${String(requestId)} ("intercept", from ${rawRequestId})`,
+      );
+      return { id: requestId, type: RequestIdParseType.INTERCEPTION };
     }
 
-    const subRequestMatchRs = rawRequestId.match(requestIdPatternSubRequest)
+    const subRequestMatchRs = requestIdPatternSubRequest.exec(rawRequestId);
     if (subRequestMatchRs !== null) {
-      const requestIdParts = rawRequestId.split('.')
-      const requestId = parseInt(requestIdParts[1], 10)
+      const requestIdParts = rawRequestId.split(".");
+      const requestId = parseInt(requestIdParts[1], 10);
       this.#log(
-        'simplifyRequestId',
-        `RequestId: ${requestId} ("subrequest", from ${rawRequestId})`)
-      return { id: requestId, type: RequestIdParseType.SUB_REQUEST }
+        "simplifyRequestId",
+        `RequestId: ${String(requestId)} ("subrequest", from ${rawRequestId})`,
+      );
+      return { id: requestId, type: RequestIdParseType.SUB_REQUEST };
     }
 
-    const navRequestMatchRs = rawRequestId.match(requestIdPatternNavigation)
+    const navRequestMatchRs = requestIdPatternNavigation.exec(rawRequestId);
     if (navRequestMatchRs !== null) {
       this.#log(
-        'simplifyRequestId',
-        `RequestId: ${rawRequestId} ("navigation")`)
-      return { id: rawRequestId, type: RequestIdParseType.NAVIGATION }
+        "simplifyRequestId",
+        `RequestId: ${rawRequestId} ("navigation")`,
+      );
+      return { id: rawRequestId, type: RequestIdParseType.NAVIGATION };
     }
 
-    this.#error(`RequestId does not have a known format: "${rawRequestId}"`)
+    this.#error(`RequestId does not have a known format: "${rawRequestId}"`);
   }
 
-  async addMetadataFromRequest (request: RequestType): Promise<UpdateType> {
-    const parseResult = this.#simplifyRequestId(request.id)
-    const bodySize = (parseResult.type === RequestIdParseType.NAVIGATION)
-      ? -1
-      : await this.#requestBodySize(request)
-    const collection = this.#requestMetadata
-    return this.#addMetadata(parseResult.id, request, bodySize, collection)
+  async addMetadataFromRequest(request: RequestType): Promise<UpdateType> {
+    const parseResult = this.#simplifyRequestId(request.id);
+    const bodySize =
+      parseResult.type === RequestIdParseType.NAVIGATION
+        ? -1
+        : await this.#requestBodySize(request);
+    const collection = this.#requestMetadata;
+    return this.#addMetadata(parseResult.id, request, bodySize, collection);
   }
 
-  async addMetadataFromResponse (response: ResponseType): Promise<UpdateType> {
-    const rawRequestId = response.request().id
-    const parseResult = this.#simplifyRequestId(rawRequestId)
-    const bodySize = await this.#responseBodySize(response)
-    const collection = this.#responseMetadata
-    return this.#addMetadata(parseResult.id, response, bodySize, collection)
+  async addMetadataFromResponse(response: ResponseType): Promise<UpdateType> {
+    const rawRequestId = response.request().id;
+    const parseResult = this.#simplifyRequestId(rawRequestId);
+    const bodySize = await this.#responseBodySize(response);
+    const collection = this.#responseMetadata;
+    return this.#addMetadata(parseResult.id, response, bodySize, collection);
   }
 
-  toJSON (): string {
+  toJSON(): string {
     return JSON.stringify({
       requests: this.#requestMetadata,
       responses: this.#responseMetadata,
-    })
+    });
   }
 
-  async fromJSONFile (fromPath: FilePath): Promise<void> {
-    const jsonText = await readFile(fromPath, { encoding: 'utf8' })
-    const data = JSON.parse(jsonText)
-    if (typeof data.requests !== 'object') {
+  async fromJSONFile(fromPath: FilePath): Promise<void> {
+    const jsonText = await readFile(fromPath, { encoding: "utf8" });
+    const data = JSON.parse(jsonText);
+    if (typeof data.requests !== "object") {
       this.#error(
-        `JSON from "${fromPath}" is missing "requests" property.\n${jsonText}`)
+        `JSON from "${fromPath}" is missing "requests" property.\n${jsonText}`,
+      );
     }
-    this.#requestMetadata = data.requests as RequestToMetadataMap
+    this.#requestMetadata = data.requests as RequestToMetadataMap;
 
-    if (typeof data.responses !== 'object') {
+    if (typeof data.responses !== "object") {
       this.#error(
-        `JSON from "${fromPath}" is missing "responses" property.\n${jsonText}`)
+        `JSON from "${fromPath}" is missing "responses" property.\n${jsonText}`,
+      );
     }
-    this.#responseMetadata = data.responses as RequestToMetadataMap
+    this.#responseMetadata = data.responses as RequestToMetadataMap;
   }
 
-  async rewriteGraphML (graphMLPath: FilePath,
-                        toPath: FilePath): Promise<void> {
-    const inputStream = createReadStream(graphMLPath, { encoding: 'utf8' })
-    const outputStream = createWriteStream(toPath)
+  async rewriteGraphML(graphMLPath: FilePath, toPath: FilePath): Promise<void> {
+    const inputStream = createReadStream(graphMLPath, { encoding: "utf8" });
+    const outputStream = createWriteStream(toPath);
 
     const editEdgeFunc = (elm: Element, editor: PageGraphXMLRewriter) => {
-      const attrs = editor.getAttrs(elm, edgeAttrEdgeType, edgeAttrRequestId)
-      const edgeType = attrs[edgeAttrEdgeType]
-      assert(edgeType)
+      const attrs = editor.getAttrs(elm, edgeAttrEdgeType, edgeAttrRequestId);
+      const edgeType = attrs[edgeAttrEdgeType];
+      assert(edgeType);
 
-      let metadataCollection: RequestToMetadataMap | undefined
+      let metadataCollection: RequestToMetadataMap | undefined;
       switch (edgeType) {
-      case 'request start':
-      case 'request redirect':
-        metadataCollection = this.#requestMetadata
-        break
-      case 'request error':
-      case 'request complete':
-        metadataCollection = this.#responseMetadata
-        break
-      default:
-        return elm
+        case "request start":
+        case "request redirect":
+          metadataCollection = this.#requestMetadata;
+          break;
+        case "request error":
+        case "request complete":
+          metadataCollection = this.#responseMetadata;
+          break;
+        default:
+          return elm;
       }
-      assert(metadataCollection)
+      assert(metadataCollection);
 
-      const requestId = attrs[edgeAttrRequestId]
-      assert(requestId)
+      const requestId = attrs[edgeAttrRequestId];
+      assert(requestId);
 
-      const metadata = metadataCollection[requestId]
+      const metadata = metadataCollection[requestId];
       if (metadata === undefined) {
-        if (this.#strict === true) {
+        if (this.#strict) {
           this.#error(
-            'Unable to find metadata for request record in graphml. '
-            + `RequestId=${requestId}`)
+            "Unable to find metadata for request record in graphml. " +
+              `RequestId=${requestId}`,
+          );
         }
-        return elm
+        return elm;
       }
 
-      editor.setAttr(elm, edgeAttrHeaders, JSON.stringify(metadata.headers))
-      editor.setAttr(elm, edgeAttrSize, String(metadata.size))
-      return elm
-    }
+      editor.setAttr(elm, edgeAttrHeaders, JSON.stringify(metadata.headers));
+      editor.setAttr(elm, edgeAttrSize, String(metadata.size));
+      return elm;
+    };
 
-    const rewriter = new PageGraphXMLRewriter()
-    rewriter.setEdgeEditor(editEdgeFunc)
-    return await rewriter.rewriteTo(inputStream, outputStream)
+    const rewriter = new PageGraphXMLRewriter();
+    rewriter.setEdgeEditor(editEdgeFunc);
+    await rewriter.rewriteTo(inputStream, outputStream);
   }
 }
