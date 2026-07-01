@@ -28,8 +28,8 @@
   "dependencies": {
     "argparse": "2.0.1",
     "chrome-har": "1.1.1",
-    "puppeteer-core": "^24.40.0",
-    "which": "6.0.1",
+    "puppeteer-core": "^25.0.0",
+    "which": "7.0.0",
     "xml-stream-editor": "^0.2.1",
     "xvfb": "0.4.0"
   },
