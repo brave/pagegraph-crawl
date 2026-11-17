@@ -40,14 +40,14 @@
     "@types/argparse": "2.0.17",
     "@types/node": "25.1.0",
     "@types/which": "3.0.4",
-    "eslint": "^10.1.0",
+    "eslint": "^10.15.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
     "http-server": "14.1.1",
-    "mocha": "^11.3.0",
+    "mocha": "^11.8.0",
     "prettier": "3.8.1",
     "tree-kill": "1.2.2",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.57.2"
+    "typescript-eslint": "8.73.0"
   }
 }
